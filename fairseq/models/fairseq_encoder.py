@@ -80,6 +80,17 @@ class FairseqEncoder(nn.Module):
 
     def upgrade_state_dict_named(self, state_dict, name):
         """Upgrade old state dicts to work with newer code."""
+        # value = list(state_dict.values())[250]
+        # val_len = len(value)
+        # key = list(state_dict.keys())[250]
+        # keys = list(state_dict.keys())
+        # print('Value:', value, '\nLength:', val_len)
+        # print('Keys:', keys)	
+
+        # print('Length all Keys:', len(list(state_dict.keys())))
+
+        # print('All values:', state_dict)
+
         return state_dict
 
     def set_num_updates(self, num_updates):
