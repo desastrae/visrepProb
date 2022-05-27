@@ -311,10 +311,10 @@ class VisualTextTransformerEncoder(FairseqEncoder):
             self.layer_norm = None
 
     def forward(self, src_tokens, src_lengths):
-        print("=========test123=============")
-        print(src_tokens[0][0])
-        print(len(src_tokens[0][0][0]))
-        print(src_lengths)
+        # print("=========test123=============")
+        # print(src_tokens[0][0])
+        # print(len(src_tokens[0][0][0]))
+        # print(src_lengths)
         logger.debug("ENCODER: image embedding %s %s %s", src_tokens.shape, src_lengths.shape, src_lengths)
 
         x = self.cnn_embedder(src_tokens)

@@ -133,3 +133,9 @@ experimental/*
 
 # Weights and Biases logs
 wandb/
+
+# fairseq models
+/tr_models/*
+
+# hdf5 files
+*.hdf5

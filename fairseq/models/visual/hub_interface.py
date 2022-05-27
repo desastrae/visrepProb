@@ -24,6 +24,7 @@ class VisrepHubInterface(GeneratorHubInterface):
         self.task = task
         self.models = nn.ModuleList(models)
         self.tgt_dict = task.target_dictionary
+        self.ret_enc_out = None
 
         # optimize model for generation
         for model in self.models:
@@ -51,7 +52,8 @@ class VisrepHubInterface(GeneratorHubInterface):
     def translate(
         self, sentences: List[str], target_lang: str ='en', beam: int = 5, verbose: bool = False, **kwargs
     ) -> List[str]:
-        return self.sample(sentences, target_lang, beam, verbose, **kwargs)
+        sent_out = self.sample(sentences, target_lang, beam, verbose, **kwargs)
+        return sent_out, self.ret_enc_out
 
     def sample(
         self, sentences: List[str], target_lang: str ='en', beam: int = 1, verbose: bool = False, **kwargs
@@ -60,7 +62,6 @@ class VisrepHubInterface(GeneratorHubInterface):
             return self.sample([sentences], target_lang=target_lang, beam=beam, verbose=verbose, **kwargs)[0]
         batched_hypos = self.generate(sentences, target_lang, beam, verbose, **kwargs)
         return [self.decode(hypos[0]["tokens"]) for hypos in batched_hypos]
-
 
     # note that unlike fairseq text models, the input 'sentences' is still the initial List[str]:
     #  images are generated when batches are built
@@ -134,10 +135,16 @@ class VisrepHubInterface(GeneratorHubInterface):
     ):
         with torch.no_grad():
             bos_token = task.target_dictionary.eos()
-            return generator.generate(
+
+            gen_gen_out, ret_enc_out = generator.generate(
                 models,
                 sample,
                 prefix_tokens=prefix_tokens,
                 constraints=constraints,
                 bos_token=bos_token,
             )
+
+            # print('ret_ret_enc_out', ret_enc_out)
+            self.ret_enc_out = ret_enc_out[0]
+
+            return gen_gen_out

@@ -179,7 +179,11 @@ class SequenceGenerator(nn.Module):
             bos_token (int, optional): beginning of sentence token
                 (default: self.eos)
         """
-        return self._generate(sample, **kwargs)
+        ret_out, enc_outs = self._generate(sample, **kwargs)
+
+        # print('ret_enc_outs', enc_outs)
+
+        return ret_out, enc_outs
 
     def _generate(
         self,
@@ -550,7 +554,9 @@ class SequenceGenerator(nn.Module):
             finalized[sent] = torch.jit.annotate(
                 List[Dict[str, Tensor]], finalized[sent]
             )
-        return finalized
+        # print('enc_outs', encoder_outs[0]['encoder_out'])
+
+        return finalized, encoder_outs[0]['encoder_out']
 
     def _prefix_tokens(
         self, step: int, lprobs, scores, tokens, prefix_tokens, beam_size: int
@@ -805,6 +811,9 @@ class EnsembleModel(nn.Module):
                 decoder_out_tuple, log_probs=True, sample=None
             )
             probs = probs[:, -1, :]
+
+            # print('enc_outs', encoder_out['encoder_out'])
+
             if self.models_size == 1:
                 return probs, attn
 
