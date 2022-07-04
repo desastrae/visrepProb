@@ -29,6 +29,7 @@ from .hub_interface import VisrepHubInterface
 
 from torch import Tensor
 import argparse
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,6 @@ class ActionEval(argparse.Action):
     def __call__(self, parser, namespace, values,
                  option_string=None):
         setattr(namespace, self.dest, eval(values))
-
 
 
 @register_model("visual_text_transformer")
@@ -263,6 +263,7 @@ class VisualTextTransformerEncoder(FairseqEncoder):
 
         self.args = args
         self.image_generator = image_generator
+        self.layer_dict = defaultdict()
 
         # "visonly" is for backwards compatibility
         if args.image_embed_type == "vista" or args.image_embed_type == "visonly":
@@ -331,11 +332,21 @@ class VisualTextTransformerEncoder(FairseqEncoder):
         x += positions
         x = self.dropout_module(x)
 
+        # count layer
+        layer_num = 0
+
         for layer in self.transformer_layers:
+            layer_num += 1
             x = layer(x, encoder_padding_mask)
+            self.layer_dict['l'+ str(layer_num)] = x
 
         if self.layer_norm is not None:
             x = self.layer_norm(x)
+            self.layer_dict['l6_ln'] = x
+
+        # print('vis_trans: x.shape', x.shape)
+
+        # print('vis_trans, layer_dict key layer 1', self.layer_dict['layer 1'])
 
         return {
             "encoder_out": [x],  # T x B x C
@@ -343,7 +354,7 @@ class VisualTextTransformerEncoder(FairseqEncoder):
             "encoder_embedding": [],  # B x T x C
             "encoder_states": [],  # List[T x B x C]
             "src_tokens": [],
-            "src_lengths": [],
+            "src_lengths": [self.layer_dict],
         }
 
     def reorder_encoder_out(self, encoder_out, new_order):

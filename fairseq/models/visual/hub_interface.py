@@ -25,6 +25,7 @@ class VisrepHubInterface(GeneratorHubInterface):
         self.models = nn.ModuleList(models)
         self.tgt_dict = task.target_dictionary
         self.ret_enc_out = None
+        self.layer_dict = None
 
         # optimize model for generation
         for model in self.models:
@@ -53,7 +54,7 @@ class VisrepHubInterface(GeneratorHubInterface):
         self, sentences: List[str], target_lang: str ='en', beam: int = 5, verbose: bool = False, **kwargs
     ) -> List[str]:
         sent_out = self.sample(sentences, target_lang, beam, verbose, **kwargs)
-        return sent_out, self.ret_enc_out
+        return sent_out, self.ret_enc_out, self.layer_dict[0]
 
     def sample(
         self, sentences: List[str], target_lang: str ='en', beam: int = 1, verbose: bool = False, **kwargs
@@ -136,7 +137,7 @@ class VisrepHubInterface(GeneratorHubInterface):
         with torch.no_grad():
             bos_token = task.target_dictionary.eos()
 
-            gen_gen_out, ret_enc_out = generator.generate(
+            gen_gen_out, ret_enc_out, layer_dict = generator.generate(
                 models,
                 sample,
                 prefix_tokens=prefix_tokens,
@@ -145,6 +146,7 @@ class VisrepHubInterface(GeneratorHubInterface):
             )
 
             # print('ret_ret_enc_out', ret_enc_out)
-            self.ret_enc_out = ret_enc_out[0]
+            self.ret_enc_out = ret_enc_out
+            self.layer_dict = layer_dict
 
             return gen_gen_out

@@ -411,7 +411,7 @@ class TransformerEncoder(FairseqEncoder):
         self,
         src_tokens,
         src_lengths: Optional[torch.Tensor] = None,
-        return_all_hiddens: bool = False,
+        return_all_hiddens: bool = True,
         token_embeddings: Optional[torch.Tensor] = None,
     ):
         """
@@ -459,7 +459,7 @@ class TransformerEncoder(FairseqEncoder):
             # if return_all_hiddens:
             #     encoder_states[-1] = x
 
-        #print('transformer encoder out shape', x.shape)
+        # print('transformer encoder out shape', x[0].shape, '\n', x[0])
 
         # The Pytorch Mobile lite interpreter does not supports returning NamedTuple in
         # `foward` so we use a dictionary instead.
@@ -696,7 +696,7 @@ class TransformerDecoder(FairseqIncrementalDecoder):
         alignment_layer: Optional[int] = None,
         alignment_heads: Optional[int] = None,
         src_lengths: Optional[Any] = None,
-        return_all_hiddens: bool = False,
+        return_all_hiddens: bool = True,
     ):
         """
         Args:

@@ -110,6 +110,12 @@ class SequenceGenerator(nn.Module):
         if self.lm_model is not None:
             self.lm_model.eval()
 
+        # get dict with all layers
+        self.layer_out_dict = None
+
+        # get simple enc_outs tensor
+        self.simple_enc_outs = None
+
     def cuda(self):
         self.model.cuda()
         return self
@@ -181,9 +187,11 @@ class SequenceGenerator(nn.Module):
         """
         ret_out, enc_outs = self._generate(sample, **kwargs)
 
-        # print('ret_enc_outs', enc_outs)
+        # print('self.layer_out_dict', self.layer_out_dict)
+        # print('ret_out', ret_out, '\n enc_outs', enc_outs)
 
-        return ret_out, enc_outs
+        # return ret_out, enc_outs
+        return ret_out, enc_outs, self.layer_out_dict
 
     def _generate(
         self,
@@ -244,6 +252,9 @@ class SequenceGenerator(nn.Module):
         ), "min_len cannot be larger than max_len, please adjust these!"
         # compute the encoder output for each beam
         encoder_outs = self.model.forward_encoder(net_input)
+        # print("inside seq_gen enc_outs", encoder_outs[0]['src_lengths'])
+        self.layer_out_dict = encoder_outs[0]['src_lengths']
+        self.simple_enc_outs = encoder_outs[0]['src_tokens']
 
         # placeholder of indices for bsz * beam_size to hold tokens and accumulative scores
         new_order = torch.arange(bsz).view(-1, 1).repeat(1, beam_size).view(-1)
@@ -554,7 +565,7 @@ class SequenceGenerator(nn.Module):
             finalized[sent] = torch.jit.annotate(
                 List[Dict[str, Tensor]], finalized[sent]
             )
-        # print('enc_outs', encoder_outs[0]['encoder_out'])
+        # print('enc_outs', encoder_outs[0].keys())
 
         return finalized, encoder_outs[0]['encoder_out']
 
@@ -812,7 +823,7 @@ class EnsembleModel(nn.Module):
             )
             probs = probs[:, -1, :]
 
-            # print('enc_outs', encoder_out['encoder_out'])
+            # print('encoder_out dict', encoder_out['src_lengths'])
 
             if self.models_size == 1:
                 return probs, attn
