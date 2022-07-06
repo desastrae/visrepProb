@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 
 class VisRepEncodings:
-    def __init__(self, file, single_layer, path_save_encs, labels):
+    def __init__(self, file, single_layer, path_save_encs):
         self.model = None
         self.out_enc_out = None
         self.encoded_data = None
@@ -27,23 +27,16 @@ class VisRepEncodings:
         self.create_layer_path = True
         self.single_layer = single_layer
         self.all_layers = None
-        with open(labels, "r") as f:
-            self.labels = f.read().split('\n')
 
     def convert_to_np(self, enc_tensor):
         # counter = 0
         return enc_tensor.cpu().detach().np()
 
-        # TODO: CHANGE !!!
-        # with h5py.File("mytestfile.hdf5", "a") as hf:
-        #     counter += 1
-        #     hf.create_dataset("sentence_" + str(counter), data=enc_np, compression="gzip")
-
     def make_model(self):
         self.model = VisualTextTransformerModel.from_pretrained(
-            checkpoint_file='tr_models/WMT_de-en/checkpoint_best.pt',
-            target_dict='tr_models/WMT_de-en/dict.en.txt',
-            target_spm='tr_models/WMT_de-en/spm.model',
+            checkpoint_file='tr_models/visual/WMT_de-en/checkpoint_best.pt',
+            target_dict='tr_models/visual/WMT_de-en/dict.en.txt',
+            target_spm='tr_models/visual/WMT_de-en/spm.model',
             src='de',
             image_font_path='fairseq/data/visual/fonts/NotoSans-Regular.ttf'
         )
@@ -60,16 +53,39 @@ class VisRepEncodings:
         # batch_1 = df[:2000]
         # print(batch_1[1].value_counts(), len(batch_1[0]))
         print(df[1].value_counts(), len(df[0]))
+        
+        with open(self.path_save_encs + 'raw_sentences.npy', 'wb') as f:
+            try:
+                np.save(f, np.array(df[0]))
+            except FileExistsError as error:
+                print(error)
+                pass
+        
+        print(np.array(df[1]))
+
+        with open(self.path_save_encs + 'raw_labels.npy', 'wb') as f:
+            try:
+                np.save(f, np.array(df[1]), allow_pickle=True)
+            except FileExistsError as error:
+                print(error)
+                pass
+
+
         # return batch_1
         return df
 
     # TODO !
     def read_in_avg_enc_data(self, para_avg):
         # pass
+        
+        print('Collecting all sentence embeddings & creating one np array...')
+
         filenames = natsorted(next(walk(self.path_save_encs + self.single_layer + '/'), (None, None, []))[2])
         first_enc_file = np.load(self.path_save_encs + self.single_layer + '/' + filenames.pop(0))
         collected_np_arr = np.sum(first_enc_file, axis=0) / first_enc_file.shape[0]
         print(collected_np_arr.shape)
+        
+        
         for file in tqdm(filenames):
             # print(file)
             if para_avg:
@@ -79,7 +95,7 @@ class VisRepEncodings:
             # print(collected_np_arr.shape)
         with open(self.path_save_encs + 'all_sent_avg_v' + '.npy', 'wb') as f:
             try:
-                np.save(f, collected_np_arr)
+                np.save(f, collected_np_arr, allow_pickle=True)
             except FileExistsError as error:
                 print(error)
                 pass
@@ -95,7 +111,7 @@ class VisRepEncodings:
         self.all_layers = np_dict.keys()
 
         if self.create_layer_path:
-            for key in tqdm(np_dict.keys()):
+            for key in np_dict.keys():
                 try:
                     os.mkdir(path + key + "/")
                 except OSError as error:
@@ -104,10 +120,10 @@ class VisRepEncodings:
 
         self.create_layer_path = False
 
-        for key, val in tqdm(np_dict.items()):
+        for key, val in np_dict.items():
             with open(path + key + '/' + data_name + '_' + v_or_t + '_sent' + str(sent_num) + '.npy', 'wb') as f:
                 try:
-                    np.save(f, val.numpy())
+                    np.save(f, val.numpy(), allow_pickle=True)
                 except FileExistsError as error:
                     print(error)
                     pass
@@ -121,10 +137,11 @@ class VisRepEncodings:
         # >> > a
         # array([1, 2, 3, 4, 0, 0, 0, 0])
 
-    def logistic_regression_classifier(self, data_features):
+    def logistic_regression_classifier(self, data_features, data_labels):
         features = np.load(self.path_save_encs + data_features)
+        labels = np.load(self.path_save_encs + data_labels)
 
-        train_features, test_features, train_labels, test_labels = train_test_split(features, np.array(self.labels[:2000]))
+        train_features, test_features, train_labels, test_labels = train_test_split(features, labels)
         # print(len(train_labels), len(test_labels))
 
         lr_clf = LogisticRegression()
@@ -140,8 +157,12 @@ class VisRepEncodings:
 
     # Translate
     def translate(self, batch):
+        print('Translating sentences // Creating encodings...')
+        
         for idx, sent in tqdm(enumerate(batch[0])):
-            print("sentence ", idx)
+            # print(len(batch[0]))
+            # break
+            # print("sentence ", idx, sent)
             translation, self.out_enc_out, layer_dict = self.model.translate(sent)
             # print(translation, self.simple_enc_outs, self.out_enc_out)
             # print(translation, layer_dict.keys())
@@ -155,10 +176,10 @@ class VisRepEncodings:
 
 
 if __name__ == '__main__':
-    RunVisrep = VisRepEncodings('past_present/tense.txt', 'l6_ln',
-                                '/home/anastasia/PycharmProjects/visrepProb/task_encs/past_pres/',
-                                '/home/anastasia/PycharmProjects/visrepProb/past_present/tense_labels.txt')
-    RunVisrep.make_model()
+    RunVisrep = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
+                                'l6_ln',
+                                '/local/anasbori/visrepProb/task_encs/past_pres/')
+    # RunVisrep.make_model()
     RunVisrep.create_encodings()
-    RunVisrep.read_in_avg_enc_data(True)
-    RunVisrep.logistic_regression_classifier('all_sent_avg_v.npy')
+    # RunVisrep.read_in_avg_enc_data(True)
+    RunVisrep.logistic_regression_classifier('all_sent_avg_v.npy', 'raw_labels.npy')
