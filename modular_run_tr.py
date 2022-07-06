@@ -53,10 +53,10 @@ class VisRepEncodings:
         # batch_1 = df[:2000]
         # print(batch_1[1].value_counts(), len(batch_1[0]))
         print(df[1].value_counts(), len(df[0]))
-        
+        print('np.array(df[0][:20])', np.array(df[1][:20]))
         with open(self.path_save_encs + 'raw_sentences.npy', 'wb') as f:
             try:
-                np.save(f, np.array(df[0]))
+                np.save(f, np.array(df[0][:2000]), allow_pickle=True)
             except FileExistsError as error:
                 print(error)
                 pass
@@ -65,20 +65,20 @@ class VisRepEncodings:
 
         with open(self.path_save_encs + 'raw_labels.npy', 'wb') as f:
             try:
-                np.save(f, np.array(df[1]), allow_pickle=True)
+                np.save(f, np.array(df[1][:2000]), allow_pickle=True)
             except FileExistsError as error:
                 print(error)
                 pass
 
 
         # return batch_1
-        return df
+        return df[:2000]
 
     # TODO !
     def read_in_avg_enc_data(self, para_avg):
         # pass
         
-        print('Collecting all sentence embeddings & creating one np array...')
+        print('\n\nCollecting all sentence embeddings & creating one np array...\n\n')
 
         filenames = natsorted(next(walk(self.path_save_encs + self.single_layer + '/'), (None, None, []))[2])
         first_enc_file = np.load(self.path_save_encs + self.single_layer + '/' + filenames.pop(0))
@@ -138,8 +138,8 @@ class VisRepEncodings:
         # array([1, 2, 3, 4, 0, 0, 0, 0])
 
     def logistic_regression_classifier(self, data_features, data_labels):
-        features = np.load(self.path_save_encs + data_features)
-        labels = np.load(self.path_save_encs + data_labels)
+        features = np.load(self.path_save_encs + data_features, allow_pickle=True)
+        labels = np.load(self.path_save_encs + data_labels, allow_pickle=True)
 
         train_features, test_features, train_labels, test_labels = train_test_split(features, labels)
         # print(len(train_labels), len(test_labels))
@@ -152,12 +152,12 @@ class VisRepEncodings:
         clf = DummyClassifier()
 
         scores = cross_val_score(clf, train_features, train_labels)
-        print("Dummy classifier score: %0.3f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+        print("\n\nDummy classifier score: %0.3f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
         # with open('results_l6_ln.txt', )
 
     # Translate
     def translate(self, batch):
-        print('Translating sentences // Creating encodings...')
+        print('\n\nTranslating sentences // Creating encodings...\n\n')
         
         for idx, sent in tqdm(enumerate(batch[0])):
             # print(len(batch[0]))
@@ -180,6 +180,7 @@ if __name__ == '__main__':
                                 'l6_ln',
                                 '/local/anasbori/visrepProb/task_encs/past_pres/')
     # RunVisrep.make_model()
-    RunVisrep.create_encodings()
+    # RunVisrep.create_encodings()
     # RunVisrep.read_in_avg_enc_data(True)
+    RunVisrep.read_in_raw_data()
     RunVisrep.logistic_regression_classifier('all_sent_avg_v.npy', 'raw_labels.npy')
