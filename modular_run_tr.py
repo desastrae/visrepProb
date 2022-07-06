@@ -70,19 +70,19 @@ class VisRepEncodings:
     def read_in_avg_enc_data(self, para_avg):
         # pass
 
-        layers_list = listdir(self.path_save_encs)
+        layers_list = listdir(self.path_save_encs + 'layers/')
 
         for layer_dir in tqdm(layers_list):
 
             print('\n\nCollecting all sentence embeddings & creating one np array...\n\n')
 
-            filenames = natsorted(next(walk(self.path_save_encs + layer_dir + '/'), (None, None, []))[2])
-            first_enc_file = np.load(self.path_save_encs + layer_dir + '/' + filenames.pop(0))
+            filenames = natsorted(next(walk(self.path_save_encs + 'layers/' + layer_dir + '/'), (None, None, []))[2])
+            first_enc_file = np.load(self.path_save_encs + 'layers/' + layer_dir + '/' + filenames.pop(0))
             collected_np_arr = np.sum(first_enc_file, axis=0) / first_enc_file.shape[0]
 
             for file in tqdm(filenames):
                 if para_avg:
-                    enc_file = np.load(self.path_save_encs + self.single_layer + '/' + file)
+                    enc_file = np.load(self.path_save_encs + 'layers/' + self.single_layer + '/' + file)
                     avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
                     collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
 
@@ -97,11 +97,19 @@ class VisRepEncodings:
         path = self.path_save_encs
         data_name = self.data.split('/')[1].split('.')[0]
         self.all_layers = np_dict.keys()
+        
+
+        try:
+            os.mkdir(path + 'layers/')
+        except OSError as error:
+            print(error)
+            pass
+
 
         if self.create_layer_path:
             for key in np_dict.keys():
                 try:
-                    os.mkdir(path + key + "/")
+                    os.mkdir(path + 'layers/' + key + "/")
                 except OSError as error:
                     print(error)
                     continue
@@ -109,7 +117,7 @@ class VisRepEncodings:
         self.create_layer_path = False
 
         for key, val in np_dict.items():
-            with open(path + key + '/' + data_name + '_' + v_or_t + '_sent' + str(sent_num) + '.npy', 'wb') as f:
+            with open(path + 'layers/' + key + '/' + data_name + '_' + v_or_t + '_sent' + str(sent_num) + '.npy', 'wb') as f:
                 try:
                     np.save(f, val.numpy(), allow_pickle=True)
                 except FileExistsError as error:
@@ -164,9 +172,9 @@ if __name__ == '__main__':
     # server
     RunVisrep = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
                                 'l6_ln',
-                                '/local/anasbori/visrepProb/task_encs/past_pres/layers/')
+                                '/local/anasbori/visrepProb/task_encs/past_pres/')
     # RunVisrep.make_model()
     # RunVisrep.create_encodings()
-    # RunVisrep.read_in_avg_enc_data(True)
-    RunVisrep.read_in_raw_data()
-    RunVisrep.logistic_regression_classifier('all_sent_avg_v.npy', 'raw_labels.npy')
+    RunVisrep.read_in_avg_enc_data(True)
+    # RunVisrep.read_in_raw_data()
+    RunVisrep.logistic_regression_classifier('all_sent_avg_v_l6_ln.npy', 'raw_labels.npy')
