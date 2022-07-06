@@ -10,7 +10,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score
 from sklearn.dummy import DummyClassifier
 import os
-from os import walk
+from os import walk, listdir
 from collections import defaultdict
 from natsort import natsorted
 from tqdm import tqdm
@@ -42,21 +42,15 @@ class VisRepEncodings:
         )
         self.model.eval()  # disable dropout (or leave in train mode to finetune)
 
-    # Clear encodings file
-    # if True:
-        # with h5py.File("mytestfile.hdf5", "w") as hf:
-            # pass
-
-    # TODO !
     def read_in_raw_data(self):
         df = pd.read_csv(self.data, delimiter='\t', header=None)
         # batch_1 = df[:2000]
         # print(batch_1[1].value_counts(), len(batch_1[0]))
         print(df[1].value_counts(), len(df[0]))
-        print('np.array(df[0][:20])', np.array(df[1][:20]))
+
         with open(self.path_save_encs + 'raw_sentences.npy', 'wb') as f:
             try:
-                np.save(f, np.array(df[0][:2000]), allow_pickle=True)
+                np.save(f, np.array(df[0]), allow_pickle=True)
             except FileExistsError as error:
                 print(error)
                 pass
@@ -65,47 +59,41 @@ class VisRepEncodings:
 
         with open(self.path_save_encs + 'raw_labels.npy', 'wb') as f:
             try:
-                np.save(f, np.array(df[1][:2000]), allow_pickle=True)
+                np.save(f, np.array(df[1]), allow_pickle=True)
             except FileExistsError as error:
                 print(error)
                 pass
 
-
-        # return batch_1
-        return df[:2000]
+        return df
 
     # TODO !
     def read_in_avg_enc_data(self, para_avg):
         # pass
-        
-        print('\n\nCollecting all sentence embeddings & creating one np array...\n\n')
 
-        filenames = natsorted(next(walk(self.path_save_encs + self.single_layer + '/'), (None, None, []))[2])
-        first_enc_file = np.load(self.path_save_encs + self.single_layer + '/' + filenames.pop(0))
-        collected_np_arr = np.sum(first_enc_file, axis=0) / first_enc_file.shape[0]
-        print(collected_np_arr.shape)
-        
-        
-        for file in tqdm(filenames):
-            # print(file)
-            if para_avg:
-                enc_file = np.load(self.path_save_encs + self.single_layer + '/' + file)
-                avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
-                collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
-            # print(collected_np_arr.shape)
-        with open(self.path_save_encs + 'all_sent_avg_v' + '.npy', 'wb') as f:
-            try:
-                np.save(f, collected_np_arr, allow_pickle=True)
-            except FileExistsError as error:
-                print(error)
-                pass
+        layers_list = listdir(self.path_save_encs)
 
-                # return avg_np_array
+        for layer_dir in tqdm(layers_list):
+
+            print('\n\nCollecting all sentence embeddings & creating one np array...\n\n')
+
+            filenames = natsorted(next(walk(self.path_save_encs + layer_dir + '/'), (None, None, []))[2])
+            first_enc_file = np.load(self.path_save_encs + layer_dir + '/' + filenames.pop(0))
+            collected_np_arr = np.sum(first_enc_file, axis=0) / first_enc_file.shape[0]
+
+            for file in tqdm(filenames):
+                if para_avg:
+                    enc_file = np.load(self.path_save_encs + self.single_layer + '/' + file)
+                    avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
+                    collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
+
+            with open(self.path_save_encs + 'all_sent_avg_v_' + layer_dir + '.npy', 'wb') as f:
+                try:
+                    np.save(f, collected_np_arr, allow_pickle=True)
+                except FileExistsError as error:
+                    print(error)
+                    pass
 
     def make_dir_save_enc(self, np_dict, sent_num, v_or_t):
-        # server
-        # path = "/local/anasbori/visrepProb/task_encs/past_pres/sent" + str(sent_num) + "/"
-
         path = self.path_save_encs
         data_name = self.data.split('/')[1].split('.')[0]
         self.all_layers = np_dict.keys()
@@ -160,25 +148,23 @@ class VisRepEncodings:
         print('\n\nTranslating sentences // Creating encodings...\n\n')
         
         for idx, sent in tqdm(enumerate(batch[0])):
-            # print(len(batch[0]))
-            # break
-            # print("sentence ", idx, sent)
             translation, self.out_enc_out, layer_dict = self.model.translate(sent)
-            # print(translation, self.simple_enc_outs, self.out_enc_out)
-            # print(translation, layer_dict.keys())
             self.make_dir_save_enc(layer_dict, idx, 'v')
-            # break
-
-            # return translation
 
     def create_encodings(self):
         self.translate(self.read_in_raw_data())
 
 
 if __name__ == '__main__':
+    # local
+    # RunVisrep = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
+    #                            'l6_ln',
+    #                            '/home/anastasia/PycharmProjects/visrepProb/task_encs/past_pres/layers/')
+
+    # server
     RunVisrep = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
                                 'l6_ln',
-                                '/local/anasbori/visrepProb/task_encs/past_pres/')
+                                '/local/anasbori/visrepProb/task_encs/past_pres/layers/')
     # RunVisrep.make_model()
     # RunVisrep.create_encodings()
     # RunVisrep.read_in_avg_enc_data(True)
