@@ -156,15 +156,10 @@ class VisRepEncodings:
             # print(len(train_labels), len(test_labels))
 
             lr_clf = LogisticRegression()
-            print('\n\n' + file_name + 'lrf_fit', lr_clf.fit(train_features, train_labels))
+            lr_clf.fit(train_features, train_labels)
 
             print('\n\n' + file_name + 'lrf_score', lr_clf.score(test_features, test_labels))
             collect_scores[file_name] = lr_clf.score(test_features, test_labels)
-
-            clf = DummyClassifier()
-
-            scores = cross_val_score(clf, train_features, train_labels)
-            print("\n\nDummy classifier score: %0.3f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
         self.plot_results(collect_scores)
 
