@@ -149,7 +149,7 @@ class VisRepEncodings:
             print('\n\nlrf_fit', lr_clf.fit(train_features, train_labels))
 
             print('\n\nlrf_score', lr_clf.score(test_features, test_labels))
-            collect_scores[file] = lr_clf.score(test_features, test_labels)
+            collect_scores[file.split('.')[0].split('_')[-1]] = lr_clf.score(test_features, test_labels)
 
             clf = DummyClassifier()
 
