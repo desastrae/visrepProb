@@ -44,12 +44,15 @@ class VisRepEncodings:
         self.model.eval()  # disable dropout (or leave in train mode to finetune)
 
     def make_text_model(self):
-        self.model = VisualTextTransformerModel.from_pretrained(
-            checkpoint_file='tr_models/visual/WMT_de-en/checkpoint_best.pt',
-            target_dict='tr_models/visual/WMT_de-en/dict.en.txt',
-            target_spm='tr_models/visual/WMT_de-en/spm.model',
+        self.model = TransformerModel.from_pretrained(
+            'tr_models/text/WMT_de-en_text/',
+            checkpoint_file='checkpoint_best.pt',
             src='de',
-            image_font_path='fairseq/data/visual/fonts/NotoSans-Regular.ttf'
+            tgt='en',
+            bpe='sentencepiece',
+            # sentencepiece_model='tr_models/de-en/spm_de.model',
+            sentencepiece_model='tr_models/text/WMT_de-en_text/spm.model',
+            target_dict='dict.en.txt'
         )
         self.model.eval()  # disable dropout (or leave in train mode to finetune)
 
@@ -90,14 +93,25 @@ class VisRepEncodings:
             filenames = natsorted(next(walk(self.path_save_encs + 'layers/' + layer_dir + '/'), (None, None, []))[2])
             first_enc_file = np.load(self.path_save_encs + 'layers/' + layer_dir + '/' + filenames.pop(0))
             collected_np_arr = np.sum(first_enc_file, axis=0) / first_enc_file.shape[0]
+            first_token_arr = first_enc_file[0]
 
             for file in tqdm(filenames):
                 if para_avg:
                     enc_file = np.load(self.path_save_encs + 'layers/' + self.single_layer + '/' + file)
-                    avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
-                    collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
+                    # avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
+                    # collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
+                    first_token_arr = np.row_stack((first_token_arr, enc_file[0]))
 
-            with open(self.path_save_encs + 'all_sent_avg_v_' + layer_dir + '.npy', 'wb') as f:
+            # save averaged np-array for all sentences
+            # with open(self.path_save_encs + 'all_sent_avg_v_' + layer_dir + '.npy', 'wb') as f:
+            #    try:
+            #        np.save(f, collected_np_arr, allow_pickle=True)
+            #    except FileExistsError as error:
+            #        print(error)
+            #        pass
+
+            # save np-array with first token for all sentences
+            with open(self.path_save_encs + 'first_token' + layer_dir + '.npy', 'wb') as f:
                 try:
                     np.save(f, collected_np_arr, allow_pickle=True)
                 except FileExistsError as error:
@@ -158,7 +172,7 @@ class VisRepEncodings:
             lr_clf = LogisticRegression()
             lr_clf.fit(train_features, train_labels)
 
-            print('\n\n' + file_name + 'lrf_score', lr_clf.score(test_features, test_labels))
+            print('\n\n' + file_name + '_lrf_score', lr_clf.score(test_features, test_labels))
             collect_scores[file_name] = lr_clf.score(test_features, test_labels)
 
         self.plot_results(collect_scores)
@@ -180,7 +194,8 @@ class VisRepEncodings:
             self.make_dir_save_enc(layer_dict, idx, 'v')
 
     def create_encodings(self):
-        self.translate(self.read_in_raw_data())
+        # self.translate(self.read_in_raw_data())
+        self.model.translate('Mein Name ist Anastasia.')
 
 
 if __name__ == '__main__':
@@ -194,8 +209,9 @@ if __name__ == '__main__':
                                 'l6_ln',
                                 '/local/anasbori/visrepProb/task_encs/past_pres/')
     # RunVisrep.make_vis_model()
+    # RunVisrep.make_text_model()
     # RunVisrep.create_encodings()
-    # RunVisrep.read_in_avg_enc_data(True)
+    RunVisrep.read_in_avg_enc_data(True)
     # RunVisrep.read_in_raw_data()
-    RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy')
+    # RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy')
     # RunVisrep.plot_results()
