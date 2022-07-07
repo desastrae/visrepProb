@@ -33,7 +33,17 @@ class VisRepEncodings:
         # counter = 0
         return enc_tensor.cpu().detach().np()
 
-    def make_model(self):
+    def make_vis_model(self):
+        self.model = VisualTextTransformerModel.from_pretrained(
+            checkpoint_file='tr_models/visual/WMT_de-en/checkpoint_best.pt',
+            target_dict='tr_models/visual/WMT_de-en/dict.en.txt',
+            target_spm='tr_models/visual/WMT_de-en/spm.model',
+            src='de',
+            image_font_path='fairseq/data/visual/fonts/NotoSans-Regular.ttf'
+        )
+        self.model.eval()  # disable dropout (or leave in train mode to finetune)
+
+    def make_text_model(self):
         self.model = VisualTextTransformerModel.from_pretrained(
             checkpoint_file='tr_models/visual/WMT_de-en/checkpoint_best.pt',
             target_dict='tr_models/visual/WMT_de-en/dict.en.txt',
@@ -99,7 +109,6 @@ class VisRepEncodings:
         data_name = self.data.split('/')[1].split('.')[0]
         self.all_layers = np_dict.keys()
         
-
         try:
             os.mkdir(path + 'layers/')
         except OSError as error:
@@ -139,6 +148,7 @@ class VisRepEncodings:
         filenames = natsorted(next(walk(self.path_save_encs + data_features_dir), (None, None, []))[2])
 
         for file in filenames:
+            file_name = file.split('.')[0].split('_')[-1]
             features = np.load(self.path_save_encs + data_features_dir + file, allow_pickle=True)
             labels = np.load(self.path_save_encs + data_labels_file, allow_pickle=True)
 
@@ -146,10 +156,10 @@ class VisRepEncodings:
             # print(len(train_labels), len(test_labels))
 
             lr_clf = LogisticRegression()
-            print('\n\nlrf_fit', lr_clf.fit(train_features, train_labels))
+            print('\n\n' + file_name + 'lrf_fit', lr_clf.fit(train_features, train_labels))
 
-            print('\n\nlrf_score', lr_clf.score(test_features, test_labels))
-            collect_scores[file.split('.')[0].split('_')[-1]] = lr_clf.score(test_features, test_labels)
+            print('\n\n' + file_name + 'lrf_score', lr_clf.score(test_features, test_labels))
+            collect_scores[file_name] = lr_clf.score(test_features, test_labels)
 
             clf = DummyClassifier()
 
@@ -188,7 +198,7 @@ if __name__ == '__main__':
     RunVisrep = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
                                 'l6_ln',
                                 '/local/anasbori/visrepProb/task_encs/past_pres/')
-    # RunVisrep.make_model()
+    # RunVisrep.make_vis_model()
     # RunVisrep.create_encodings()
     # RunVisrep.read_in_avg_enc_data(True)
     # RunVisrep.read_in_raw_data()
