@@ -14,6 +14,7 @@ from os import walk, listdir
 from collections import defaultdict
 from natsort import natsorted
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 
 class VisRepEncodings:
@@ -105,7 +106,6 @@ class VisRepEncodings:
             print(error)
             pass
 
-
         if self.create_layer_path:
             for key in np_dict.keys():
                 try:
@@ -133,25 +133,38 @@ class VisRepEncodings:
         # >> > a
         # array([1, 2, 3, 4, 0, 0, 0, 0])
 
-    def logistic_regression_classifier(self, data_features, data_labels):
+    def logistic_regression_classifier(self, data_features_dir, data_labels_file):
         collect_scores = defaultdict()
-        
-        features = np.load(self.path_save_encs + data_features, allow_pickle=True)
-        labels = np.load(self.path_save_encs + data_labels, allow_pickle=True)
 
-        train_features, test_features, train_labels, test_labels = train_test_split(features, labels)
-        # print(len(train_labels), len(test_labels))
+        filenames = natsorted(next(walk(self.path_save_encs + data_features_dir), (None, None, []))[2])
 
-        lr_clf = LogisticRegression()
-        print('\n\nlrf_fit', lr_clf.fit(train_features, train_labels))
+        for file in filenames:
+            features = np.load(self.path_save_encs + data_features_dir + file, allow_pickle=True)
+            labels = np.load(self.path_save_encs + data_labels_file, allow_pickle=True)
 
-        print('\n\nlrf_score', lr_clf.score(test_features, test_labels))
+            train_features, test_features, train_labels, test_labels = train_test_split(features, labels)
+            # print(len(train_labels), len(test_labels))
 
-        clf = DummyClassifier()
+            lr_clf = LogisticRegression()
+            print('\n\nlrf_fit', lr_clf.fit(train_features, train_labels))
 
-        scores = cross_val_score(clf, train_features, train_labels)
-        print("\n\nDummy classifier score: %0.3f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-        # with open('results_l6_ln.txt', )
+            print('\n\nlrf_score', lr_clf.score(test_features, test_labels))
+            collect_scores[file] = lr_clf.score(test_features, test_labels)
+
+            clf = DummyClassifier()
+
+            scores = cross_val_score(clf, train_features, train_labels)
+            print("\n\nDummy classifier score: %0.3f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+        self.plot_results(collect_scores)
+
+    def plot_results(self, data_dict):
+        # data_dict = {'l1': 0.3, 'l2': 0.4, 'l3': 0.5, 'l4': 0.6, 'l5': 0.7, 'l6': 0.8, 'l6_ln': 0.9}
+        # print(data_dict.keys(), data_dict.values())
+
+        plt.scatter(data_dict.keys(), data_dict.values())
+        # plt.show()
+        plt.savefig('past_pres_results.png', bbox_inches='tight')
 
     # Translate
     def translate(self, batch):
@@ -179,4 +192,5 @@ if __name__ == '__main__':
     # RunVisrep.create_encodings()
     # RunVisrep.read_in_avg_enc_data(True)
     # RunVisrep.read_in_raw_data()
-    RunVisrep.logistic_regression_classifier('all_sent_avg_v_l6_ln.npy', 'raw_labels.npy')
+    RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy')
+    # RunVisrep.plot_results()
