@@ -134,6 +134,8 @@ class VisRepEncodings:
         # array([1, 2, 3, 4, 0, 0, 0, 0])
 
     def logistic_regression_classifier(self, data_features, data_labels):
+        collect_scores = defaultdict()
+        
         features = np.load(self.path_save_encs + data_features, allow_pickle=True)
         labels = np.load(self.path_save_encs + data_labels, allow_pickle=True)
 
@@ -141,9 +143,9 @@ class VisRepEncodings:
         # print(len(train_labels), len(test_labels))
 
         lr_clf = LogisticRegression()
-        lr_clf.fit(train_features, train_labels)
+        print('\n\nlrf_fit', lr_clf.fit(train_features, train_labels))
 
-        lr_clf.score(test_features, test_labels)
+        print('\n\nlrf_score', lr_clf.score(test_features, test_labels))
 
         clf = DummyClassifier()
 
@@ -175,6 +177,6 @@ if __name__ == '__main__':
                                 '/local/anasbori/visrepProb/task_encs/past_pres/')
     # RunVisrep.make_model()
     # RunVisrep.create_encodings()
-    RunVisrep.read_in_avg_enc_data(True)
+    # RunVisrep.read_in_avg_enc_data(True)
     # RunVisrep.read_in_raw_data()
     RunVisrep.logistic_regression_classifier('all_sent_avg_v_l6_ln.npy', 'raw_labels.npy')
