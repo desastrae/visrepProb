@@ -335,6 +335,10 @@ class VisualTextTransformerEncoder(FairseqEncoder):
         # count layer
         layer_num = 0
 
+        self.layer_dict.clear()
+
+        # print(self.layer_dict.keys())
+
         for layer in self.transformer_layers:
             layer_num += 1
             x = layer(x, encoder_padding_mask)

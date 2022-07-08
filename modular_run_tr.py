@@ -57,7 +57,7 @@ class VisRepEncodings:
         self.model.eval()  # disable dropout (or leave in train mode to finetune)
 
     def read_in_raw_data(self):
-        df = pd.read_csv(self.data, delimiter='\t', header=None)
+        df = pd.read_csv(self.data, delimiter='\t', header=None)[:20]
         # batch_1 = df[:2000]
         # print(batch_1[1].value_counts(), len(batch_1[0]))
         print(df[1].value_counts(), len(df[0]))
@@ -66,7 +66,7 @@ class VisRepEncodings:
             try:
                 np.save(f, np.array(df[0]), allow_pickle=True)
             except FileExistsError as error:
-                print(error)
+                # print(error)
                 pass
         
         print(np.array(df[1]))
@@ -75,7 +75,7 @@ class VisRepEncodings:
             try:
                 np.save(f, np.array(df[1]), allow_pickle=True)
             except FileExistsError as error:
-                print(error)
+                # print(error)
                 pass
 
         return df
@@ -98,17 +98,23 @@ class VisRepEncodings:
             for file in tqdm(filenames):
                 if para_avg:
                     enc_file = np.load(self.path_save_encs + 'layers/' + self.single_layer + '/' + file)
-                    # avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
-                    # collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
+                    avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
+                    collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
                     first_token_arr = np.row_stack((first_token_arr, enc_file[0]))
 
+            try:
+                os.mkdir(self.path_save_encs + 'results/')
+            except OSError as error:
+                print(error)
+                pass
+
             # save averaged np-array for all sentences
-            # with open(self.path_save_encs + 'all_sent_avg_v_' + layer_dir + '.npy', 'wb') as f:
-            #    try:
-            #        np.save(f, collected_np_arr, allow_pickle=True)
-            #    except FileExistsError as error:
-            #        print(error)
-            #        pass
+            with open(self.path_save_encs + 'all_sent_avg_v_' + layer_dir + '.npy', 'wb') as f:
+                try:
+                    np.save(f, collected_np_arr, allow_pickle=True)
+                except FileExistsError as error:
+                    # print(error)
+                    pass
 
             try:
                 os.mkdir(self.path_save_encs + 'results_f_t/')
@@ -117,22 +123,24 @@ class VisRepEncodings:
                 pass
 
             # save np-array with first token for all sentences
-            with open(self.path_save_encs + 'results_f_t/' + 'first_token' + layer_dir + '.npy', 'wb') as f:
+            with open(self.path_save_encs + 'results_f_t/' + 'first_token_' + layer_dir + '.npy', 'wb') as f:
                 try:
                     np.save(f, collected_np_arr, allow_pickle=True)
                 except FileExistsError as error:
-                    print(error)
+                    # print(error)
                     pass
 
     def make_dir_save_enc(self, np_dict, sent_num, v_or_t):
         path = self.path_save_encs
         data_name = self.data.split('/')[1].split('.')[0]
         self.all_layers = np_dict.keys()
+
+        # print(np_dict.items())
         
         try:
             os.mkdir(path + 'layers/')
         except OSError as error:
-            print(error)
+            # print(error)
             pass
 
         if self.create_layer_path:
@@ -140,17 +148,17 @@ class VisRepEncodings:
                 try:
                     os.mkdir(path + 'layers/' + key + "/")
                 except OSError as error:
-                    print(error)
+                    # print(error)
                     continue
 
         self.create_layer_path = False
 
         for key, val in np_dict.items():
-            with open(path + 'layers/' + key + '/' + data_name + '_' + v_or_t + '_sent' + str(sent_num) + '.npy', 'wb') as f:
+            with open(path + 'layers/' + key + '/' + data_name + '_' + v_or_t + '_sent_' + str(sent_num) + '.npy', 'wb') as f:
                 try:
                     np.save(f, val.numpy(), allow_pickle=True)
                 except FileExistsError as error:
-                    print(error)
+                    # print(error)
                     pass
 
     # TODO !
@@ -200,24 +208,27 @@ class VisRepEncodings:
             self.make_dir_save_enc(layer_dict, idx, 'v')
 
     def create_encodings(self):
-        # self.translate(self.read_in_raw_data())
-        self.model.translate('Mein Name ist Anastasia.')
+        self.translate(self.read_in_raw_data())
+        # self.model.translate('Mein Name ist Anastasia.')
 
 
 if __name__ == '__main__':
     # local
-    # RunVisrep = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
-    #                            'l6_ln',
-    #                            '/home/anastasia/PycharmProjects/visrepProb/task_encs/past_pres/layers/')
+    # RunVisrep = VisRepEncodings('/home/anastasia/PycharmProjects/xprobe/de/past_present/tense.txt',
+    #                             'l6_ln',
+    #                             '/home/anastasia/PycharmProjects/visrepProb/task_encs/past_pres/')
 
     # server
-    RunVisrep = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
+    RunVisrep = VisRepEncodings('/local/anasbori/xprobe/de/subj_number/subjnum.txt',
                                 'l6_ln',
-                                '/local/anasbori/visrepProb/task_encs/past_pres/')
-    # RunVisrep.make_vis_model()
-    # RunVisrep.make_text_model()
-    # RunVisrep.create_encodings()
+                                '/local/anasbori/visrepProb/task_encs/subj_number/')
+    RunVisrep.make_vis_model()
+    RunVisrep.make_text_model()
+    RunVisrep.create_encodings()
     RunVisrep.read_in_avg_enc_data(True)
-    # RunVisrep.read_in_raw_data()
+
+    RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy')
     RunVisrep.logistic_regression_classifier('results_f_t/', 'raw_labels.npy')
+
+    # RunVisrep.read_in_raw_data()
     # RunVisrep.plot_results()
