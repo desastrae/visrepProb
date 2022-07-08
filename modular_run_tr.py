@@ -110,8 +110,14 @@ class VisRepEncodings:
             #        print(error)
             #        pass
 
+            try:
+                os.mkdir(self.path_save_encs + 'results_f_t/')
+            except OSError as error:
+                print(error)
+                pass
+
             # save np-array with first token for all sentences
-            with open(self.path_save_encs + 'first_token' + layer_dir + '.npy', 'wb') as f:
+            with open(self.path_save_encs + 'results_f_t/' + 'first_token' + layer_dir + '.npy', 'wb') as f:
                 try:
                     np.save(f, collected_np_arr, allow_pickle=True)
                 except FileExistsError as error:
@@ -213,5 +219,5 @@ if __name__ == '__main__':
     # RunVisrep.create_encodings()
     RunVisrep.read_in_avg_enc_data(True)
     # RunVisrep.read_in_raw_data()
-    # RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy')
+    RunVisrep.logistic_regression_classifier('results_f_t/', 'raw_labels.npy')
     # RunVisrep.plot_results()
