@@ -95,6 +95,7 @@ class GeneratorHubInterface(nn.Module):
         self.models = nn.ModuleList(models)
         self.src_dict = task.source_dictionary
         self.tgt_dict = task.target_dictionary
+        self.layer_dict = None
 
         # optimize model for generation
         for model in self.models:
@@ -121,7 +122,7 @@ class GeneratorHubInterface(nn.Module):
     def translate(
         self, sentences: List[str], beam: int = 5, verbose: bool = False, **kwargs
     ) -> List[str]:
-        return self.sample(sentences, beam, verbose, **kwargs)
+        return self.sample(sentences, beam, verbose, **kwargs), self.layer_dict[0]
 
     def sample(
         self, sentences: List[str], beam: int = 1, verbose: bool = False, **kwargs
@@ -170,7 +171,7 @@ class GeneratorHubInterface(nn.Module):
         results = []
         for batch in self._build_batches(tokenized_sentences, skip_invalid_size_inputs):
             batch = utils.apply_to_sample(lambda t: t.to(self.device), batch)
-            translations = self.task.inference_step(
+            translations, self.layer_dict = self.task.inference_step(
                 generator, self.models, batch, **inference_step_args
             )
             for id, hypos in zip(batch["id"].tolist(), translations):

@@ -332,9 +332,9 @@ class VisualTextTransformerEncoder(FairseqEncoder):
         x += positions
         x = self.dropout_module(x)
 
+        # AB
         # count layer
         layer_num = 0
-
         self.layer_dict.clear()
 
         # print(self.layer_dict.keys())
@@ -346,7 +346,9 @@ class VisualTextTransformerEncoder(FairseqEncoder):
 
         if self.layer_norm is not None:
             x = self.layer_norm(x)
-            self.layer_dict['l6_ln'] = x
+            self.layer_dict['l7'] = x
+
+        # print(self.layer_dict.keys())
 
         # print('vis_trans: x.shape', x.shape)
 

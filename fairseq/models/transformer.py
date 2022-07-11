@@ -29,6 +29,7 @@ from fairseq.modules import (
 from fairseq.modules.checkpoint_activations import checkpoint_wrapper
 from fairseq.modules.quant_noise import quant_noise as apply_quant_noise_
 from torch import Tensor
+from collections import defaultdict
 
 
 DEFAULT_MAX_SOURCE_POSITIONS = 1024
@@ -384,6 +385,9 @@ class TransformerEncoder(FairseqEncoder):
         else:
             self.layer_norm = None
 
+        # AB
+        self.layer_dict = defaultdict()
+
     def build_encoder_layer(self, args):
         layer = TransformerEncoderLayer(args)
         if getattr(args, "checkpoint_activations", False):
@@ -447,17 +451,30 @@ class TransformerEncoder(FairseqEncoder):
 
         encoder_states = []
 
+        # AB
+        # count layer
+        layer_num = 0
+        self.layer_dict.clear()
+
         # encoder layers
         for layer in self.layers:
             x = layer(x, encoder_padding_mask)
+            layer_num += 1
+            self.layer_dict['l' + str(layer_num)] = x
             if return_all_hiddens:
                 assert encoder_states is not None
                 encoder_states.append(x)
 
+        # print(self.layer_dict.keys())
+
         if self.layer_norm is not None:
             x = self.layer_norm(x)
+            self.layer_dict['l7'] = x
+
             # if return_all_hiddens:
             #     encoder_states[-1] = x
+
+        print(self.layer_dict.keys())
 
         # print('transformer encoder out shape', x[0].shape, '\n', x[0])
 
@@ -471,7 +488,7 @@ class TransformerEncoder(FairseqEncoder):
             "encoder_embedding": [encoder_embedding],  # B x T x C
             "encoder_states": encoder_states,  # List[T x B x C]
             "src_tokens": [],
-            "src_lengths": [],
+            "src_lengths": [self.layer_dict],
         }
 
     @torch.jit.export

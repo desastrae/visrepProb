@@ -13,6 +13,7 @@ from fairseq.data import data_utils
 from fairseq.models import FairseqIncrementalDecoder
 from torch import Tensor
 from fairseq.ngram_repeat_block import NGramRepeatBlock
+from collections import defaultdict
 
 
 class SequenceGenerator(nn.Module):
@@ -110,11 +111,9 @@ class SequenceGenerator(nn.Module):
         if self.lm_model is not None:
             self.lm_model.eval()
 
+        # AB
         # get dict with all layers
         self.layer_out_dict = None
-
-        # get simple enc_outs tensor
-        self.simple_enc_outs = None
 
     def cuda(self):
         self.model.cuda()
@@ -191,7 +190,7 @@ class SequenceGenerator(nn.Module):
         # print('ret_out', ret_out, '\n enc_outs', enc_outs)
 
         # return ret_out, enc_outs
-        return ret_out, enc_outs, self.layer_out_dict
+        return ret_out, self.layer_out_dict
 
     def _generate(
         self,
@@ -253,8 +252,9 @@ class SequenceGenerator(nn.Module):
         # compute the encoder output for each beam
         encoder_outs = self.model.forward_encoder(net_input)
         # print("inside seq_gen enc_outs", encoder_outs[0]['src_lengths'])
+        # self.layer_out_dict.clear()
         self.layer_out_dict = encoder_outs[0]['src_lengths']
-        self.simple_enc_outs = encoder_outs[0]['src_tokens']
+        encoder_outs[0]['src_lengths'] = []
 
         # placeholder of indices for bsz * beam_size to hold tokens and accumulative scores
         new_order = torch.arange(bsz).view(-1, 1).repeat(1, beam_size).view(-1)
