@@ -249,24 +249,24 @@ if __name__ == '__main__':
                                     '/home/anastasia/PycharmProjects/visrepProb/task_encs/past_pres/')
 
     # server
-    # RunVisrep_TENSE = VisRepEncodings('/local/anasbori/xprobe/de/subj_number/subjnum.txt',
+    # RunVisrep_TENSE = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
     #                             'l6',
-    #                             '/local/anasbori/visrepProb/task_encs/subj_number/')
+    #                             '/local/anasbori/visrepProb/task_encs/past_present/')
 
-    # RunVisrep_OBJ = VisRepEncodings('/local/anasbori/xprobe/de/subj_number/subjnum.txt',
+    # RunVisrep_OBJ = VisRepEncodings('/local/anasbori/xprobe/de/obj_number/objnum.txt',
     #                             'l6',
-    #                             '/local/anasbori/visrepProb/task_encs/subj_number/')
+    #                             '/local/anasbori/visrepProb/task_encs/obj_number/')
 
     # RunVisrep_SUBJ = VisRepEncodings('/local/anasbori/xprobe/de/subj_number/subjnum.txt',
     #                             'l6',
     #                             '/local/anasbori/visrepProb/task_encs/subj_number/')
 
-    # RunVisrep_BIGRAM = VisRepEncodings('/local/anasbori/xprobe/de/subj_number/subjnum.txt',
+    # RunVisrep_BIGRAM = VisRepEncodings('/local/anasbori/xprobe/de/bigram_shift/bishift.txt',
     #                             'l6',
-    #                             '/local/anasbori/visrepProb/task_encs/subj_number/')
+    #                             '/local/anasbori/visrepProb/task_encs/bigram_shift/')
 
     # for RunVisrep in (RunVisrep_OBJ, RunVisrep_BIGRAM):
-    for RunVisrep in (RunVisrep_TENSE, RunVisrep_OBJ):
+    for RunVisrep in (RunVisrep_TENSE, RunVisrep_SUBJ):
 
         for m_type in ('v', 't'):
             RunVisrep.make_vis_model(m_type)
