@@ -74,7 +74,7 @@ class VisRepEncodings:
             pass
 
     def read_in_raw_data(self, data_size):
-        df = pd.read_csv(self.data, delimiter='\t', header=None)[:20]
+        df = pd.read_csv(self.data, delimiter='\t', header=None)[:data_size]
         # batch_1 = df[:2000]
         # print(batch_1[1].value_counts(), len(batch_1[0]))
         print(df[1].value_counts(), len(df[0]))
@@ -249,17 +249,17 @@ if __name__ == '__main__':
                                     '/home/anastasia/PycharmProjects/visrepProb/task_encs/past_pres/')
 
     # server
-    # RunVisrep_TENSE = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
-    #                             'l6',
-    #                             '/local/anasbori/visrepProb/task_encs/past_present/')
+    RunVisrep_TENSE = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
+                                'l6',
+                                '/local/anasbori/visrepProb/task_encs/past_present/')
 
     # RunVisrep_OBJ = VisRepEncodings('/local/anasbori/xprobe/de/obj_number/objnum.txt',
     #                             'l6',
     #                             '/local/anasbori/visrepProb/task_encs/obj_number/')
 
-    # RunVisrep_SUBJ = VisRepEncodings('/local/anasbori/xprobe/de/subj_number/subjnum.txt',
-    #                             'l6',
-    #                             '/local/anasbori/visrepProb/task_encs/subj_number/')
+    RunVisrep_SUBJ = VisRepEncodings('/local/anasbori/xprobe/de/subj_number/subjnum.txt',
+                                'l6',
+                                '/local/anasbori/visrepProb/task_encs/subj_number/')
 
     # RunVisrep_BIGRAM = VisRepEncodings('/local/anasbori/xprobe/de/bigram_shift/bishift.txt',
     #                             'l6',
@@ -271,10 +271,10 @@ if __name__ == '__main__':
         for m_type in ('v', 't'):
             RunVisrep.make_vis_model(m_type)
 
-            RunVisrep.translate(RunVisrep.read_in_raw_data(20))
+            RunVisrep.translate(RunVisrep.read_in_raw_data(10000))
             RunVisrep.read_in_avg_enc_data(True)
 
-            for data_size in (20, 10):
+            for data_size in (10000, 1000):
                 results = RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy', data_size)
                 results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/', 'raw_labels.npy', data_size)
                 RunVisrep.plot_results(results, results_f_t, data_size)
