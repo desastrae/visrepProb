@@ -15,10 +15,28 @@ from collections import defaultdict
 from natsort import natsorted
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import sys
+
+
+def plot_results(enc_task, path_save, m_para, data_dict_all, size):
+    a = plt.plot(data_dict_all['avg'].keys(), data_dict_all['avg'].values)
+    b = plt.plot(data_dict_all['f_t'].keys(), data_dict_all['f_t'].values)
+    plt.xlabel('Layers')
+    plt.ylabel('Results Linear Classifier')
+
+    plt.legend(['Averaged tokens', 'First token'])
+
+    if m_para == 'v':
+        plt.title('Visual model, task ' + enc_task + ', data-set size ' + str(size))
+    else:
+        plt.title('Text model, task ' + enc_task + ', data-set size ' + str(size))
+
+    plt.savefig(path_save + m_para + '/' + m_para + '_results_' + enc_task + '_' + str(size) + '.png')
+    plt.close()
 
 
 class VisRepEncodings:
-    def __init__(self, file, single_layer, path_save_encs):
+    def __init__(self, file, path_save_encs):
         self.model = None
         self.encoded_data = None
         self.data = file
@@ -27,7 +45,7 @@ class VisRepEncodings:
         self.path_save = path_save_encs
         self.path_save_encs = None
         self.create_layer_path = True
-        self.single_layer = single_layer
+        self.single_layer = 'l6'
         self.all_layers = None
 
     def make_vis_model(self, para):
@@ -42,7 +60,6 @@ class VisRepEncodings:
         self.m_para = para
 
         self.path_save_encs = self.path_save + self.m_para + '/'
-        print(self.path_save_encs)
 
         try:
             os.mkdir(self.path_save_encs)
@@ -102,24 +119,21 @@ class VisRepEncodings:
     # TODO !
     def read_in_avg_enc_data(self, para_avg):
         # pass
-
         layers_list = listdir(self.path_save_encs + 'layers/')
 
-        for layer_dir in tqdm(layers_list):
-
+        for layer in tqdm(layers_list):
             print('\n\nCollecting all sentence embeddings & creating one np array...\n\n')
 
-            filenames = natsorted(next(walk(self.path_save_encs + 'layers/' + layer_dir + '/'), (None, None, []))[2])
-            first_enc_file = np.load(self.path_save_encs + 'layers/' + layer_dir + '/' + filenames.pop(0))
+            filenames = natsorted(next(walk(self.path_save_encs + 'layers/' + layer + '/'), (None, None, []))[2])
+            first_enc_file = np.load(self.path_save_encs + 'layers/' + layer + '/' + filenames.pop(0))
             collected_np_arr = np.sum(first_enc_file, axis=0) / first_enc_file.shape[0]
             first_token_arr = first_enc_file[0]
 
             for file in tqdm(filenames):
-                if para_avg:
-                    enc_file = np.load(self.path_save_encs + 'layers/' + self.single_layer + '/' + file)
-                    avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
-                    collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
-                    first_token_arr = np.row_stack((first_token_arr, enc_file[0]))
+                enc_file = np.load(self.path_save_encs + 'layers/' + layer + '/' + file)
+                avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
+                collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
+                first_token_arr = np.row_stack((first_token_arr, enc_file[0]))
 
             for res_path in ('results/', 'results_f_t/'):
                 try:
@@ -129,7 +143,7 @@ class VisRepEncodings:
                     continue
 
             # save averaged np-array for all sentences
-            with open(self.path_save_encs + 'results/' + 'all_sent_avg_v_' + layer_dir + '.npy', 'wb') as f:
+            with open(self.path_save_encs + 'results/' + 'all_sent_avg_v_' + layer + '.npy', 'wb') as f:
                 try:
                     np.save(f, collected_np_arr, allow_pickle=True)
                 except FileExistsError as error:
@@ -137,7 +151,7 @@ class VisRepEncodings:
                     pass
 
             # save np-array with first token for all sentences
-            with open(self.path_save_encs + 'results_f_t/' + 'first_token_' + layer_dir + '.npy', 'wb') as f:
+            with open(self.path_save_encs + 'results_f_t/' + 'first_token_' + layer + '.npy', 'wb') as f:
                 try:
                     np.save(f, collected_np_arr, allow_pickle=True)
                 except FileExistsError as error:
@@ -200,7 +214,7 @@ class VisRepEncodings:
             train_features, test_features, train_labels, test_labels = train_test_split(features[:size], labels[:size])
             # print(len(train_labels), len(test_labels))
 
-            lr_clf = LogisticRegression()
+            lr_clf = LogisticRegression(random_state=42)
             lr_clf.fit(train_features, train_labels)
 
             print('\n\n' + file_name + '_lrf_score', lr_clf.score(test_features, test_labels))
@@ -209,24 +223,6 @@ class VisRepEncodings:
         return collect_scores
 
         # self.plot_results(collect_scores, data_features_dir.split('/')[0], size)
-
-    def plot_results(self, data_dict, data_one_t_dict, size):
-        # data_dict = {'l1': 0.3, 'l2': 0.4, 'l3': 0.5, 'l4': 0.6, 'l5': 0.7, 'l6': 0.8, 'l6_ln': 0.9}
-        # print(data_dict.keys(), data_dict.values())
-
-        a = plt.scatter(data_dict.keys(), data_dict.values())
-        b = plt.scatter(data_one_t_dict.keys(), data_one_t_dict.values())
-        plt.xlabel('Layers')
-        plt.ylabel('Results Linear Classifier')
-
-        plt.legend([a,b], ['Averaged tokens', 'First token'])
-
-        # plt.legend(data_feat_dir)
-
-        # plt.show()
-
-        plt.savefig(self.path_save_encs + 'results_' + self.path_save_encs.split('/')[5] + '_' + str(size) + '.png')#, bbox_inches='tight')
-        plt.close()
 
     # Translate
     def translate(self, batch):
@@ -239,42 +235,82 @@ class VisRepEncodings:
             # break
             self.make_dir_save_enc(layer_dict, idx, True)
 
+    # ToDo
+    def sanity_check(self, data_features_dir):
+        filenames = natsorted(next(walk(self.path_save_encs + data_features_dir), (None, None, []))[2])
+        features_l1 = np.load(self.path_save_encs + data_features_dir + filenames[0], allow_pickle=True)
+        features_l2 = np.load(self.path_save_encs + data_features_dir + filenames[1], allow_pickle=True)
+        features_l3 = np.load(self.path_save_encs + data_features_dir + filenames[2], allow_pickle=True)
+        features_l4 = np.load(self.path_save_encs + data_features_dir + filenames[3], allow_pickle=True)
+        features_l5 = np.load(self.path_save_encs + data_features_dir + filenames[4], allow_pickle=True)
+        features_l6 = np.load(self.path_save_encs + data_features_dir + filenames[5], allow_pickle=True)
+
+        print(features_l2[0][:10])
+        print(features_l4[0][:10])
+
+        test_l1_l2 = features_l1 == features_l2
+        test_l1_l3 = features_l1 == features_l3
+        test_l1_l4 = features_l1 == features_l4
+        test_l1_l5 = features_l1 == features_l5
+        test_l1_l6 = features_l1 == features_l6
+        test_l2_l3 = features_l2 == features_l3
+        test_l2_l4 = features_l2 == features_l4
+        test_l2_l5 = features_l2 == features_l5
+        test_l2_l6 = features_l2 == features_l6
+        test_l3_l4 = features_l3 == features_l4
+        test_l3_l5 = features_l3 == features_l5
+        test_l3_l6 = features_l3 == features_l6
+        test_l4_l5 = features_l4 == features_l5
+        test_l4_l6 = features_l4 == features_l6
+        test_l5_l6 = features_l5 == features_l6
+
+        print(test_l1_l2, test_l1_l3, test_l1_l4, test_l1_l5, test_l1_l6, test_l2_l3, test_l2_l4, test_l2_l5,
+              test_l2_l6, test_l3_l4, test_l3_l5, test_l3_l6, test_l4_l5, test_l4_l6, test_l5_l6)
+
 
 if __name__ == '__main__':
-    # local
-    RunVisrep_TENSE = VisRepEncodings('/home/anastasia/PycharmProjects/xprobe/de/past_present/tense.txt', 'l6',
-                                      '/home/anastasia/PycharmProjects/visrepProb/task_encs/past_pres/')
+    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
 
-    RunVisrep_OBJ = VisRepEncodings('/home/anastasia/PycharmProjects/xprobe/de/past_present/tense.txt', 'l6',
-                                    '/home/anastasia/PycharmProjects/visrepProb/task_encs/past_pres/')
+    task_list = ['TENSE']
 
-    # server
-    RunVisrep_TENSE = VisRepEncodings('/local/anasbori/xprobe/de/past_present/tense.txt',
-                                'l6',
-                                '/local/anasbori/visrepProb/task_encs/past_present/')
+    # always spezify greatest value first; used to create encodings dataset
+    data_size_list = [20, 10]
+    create_encodings = True
+    sanity_check = False
+    create_plots = True
 
-    # RunVisrep_OBJ = VisRepEncodings('/local/anasbori/xprobe/de/obj_number/objnum.txt',
-    #                             'l6',
-    #                             '/local/anasbori/visrepProb/task_encs/obj_number/')
+    for task in task_list:
+        path_in = tasks_dict[task]['path_in']
+        path_out = tasks_dict[task]['path_out']
 
-    RunVisrep_SUBJ = VisRepEncodings('/local/anasbori/xprobe/de/subj_number/subjnum.txt',
-                                'l6',
-                                '/local/anasbori/visrepProb/task_encs/subj_number/')
+        if create_encodings:
+            RunVisrep = VisRepEncodings(path_in, path_out)
 
-    # RunVisrep_BIGRAM = VisRepEncodings('/local/anasbori/xprobe/de/bigram_shift/bishift.txt',
-    #                             'l6',
-    #                             '/local/anasbori/visrepProb/task_encs/bigram_shift/')
+            for m_type in ('v', 't'):
+                if m_type == 'v':
+                    RunVisrep.make_vis_model(m_type)
+                else:
+                    RunVisrep.make_text_model(m_type)
+                print(RunVisrep.path_save_encs)
 
-    # for RunVisrep in (RunVisrep_OBJ, RunVisrep_BIGRAM):
-    for RunVisrep in (RunVisrep_TENSE, RunVisrep_SUBJ):
+                if sanity_check:
+                    RunVisrep.sanity_check('results/')
+                    break
 
-        for m_type in ('v', 't'):
-            RunVisrep.make_vis_model(m_type)
+                RunVisrep.translate(RunVisrep.read_in_raw_data(data_size_list[0]))
+                RunVisrep.read_in_avg_enc_data(True)
 
-            RunVisrep.translate(RunVisrep.read_in_raw_data(10000))
-            RunVisrep.read_in_avg_enc_data(True)
+                for data_size in data_size_list:
+                    results = RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy', data_size)
+                    results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/', 'raw_labels.npy', data_size)
+                    results_all = {'avg': results, 'f_t': results_f_t}
+                    df = pd.DataFrame.from_dict(results_all)
+                    df.to_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv')
 
-            for data_size in (10000, 1000):
-                results = RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy', data_size)
-                results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/', 'raw_labels.npy', data_size)
-                RunVisrep.plot_results(results, results_f_t, data_size)
+        if create_plots:
+            print('\n Creating plots...\n')
+            for m_type in ('v', 't'):
+                for data_size in data_size_list:
+                    df_in = pd.read_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv', index_col=0)
+                    plot_results(task, path_out, m_type, df_in, data_size)
