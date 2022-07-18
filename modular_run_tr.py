@@ -272,10 +272,10 @@ if __name__ == '__main__':
     tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
     # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
 
-    task_list = ['TENSE']
+    task_list = ['OBJ', 'BIGRAM']
 
     # always spezify greatest value first; used to create encodings dataset
-    data_size_list = [20, 10]
+    data_size_list = [10000, 1000]
     create_encodings = True
     sanity_check = False
     create_plots = True
