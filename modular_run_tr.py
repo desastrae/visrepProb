@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 import sys
 
 
-def plot_results(enc_task, path_save, m_para, data_dict_all, size):
+def plot_results_avg_f_t(enc_task, path_save, m_para, data_dict_all, size):
     a = plt.plot(data_dict_all['avg'].keys(), data_dict_all['avg'].values)
     b = plt.plot(data_dict_all['f_t'].keys(), data_dict_all['f_t'].values)
     plt.xlabel('Layers')
@@ -32,6 +32,44 @@ def plot_results(enc_task, path_save, m_para, data_dict_all, size):
         plt.title('Text model, task ' + enc_task + ', data-set size ' + str(size))
 
     plt.savefig(path_save + m_para + '/' + m_para + '_results_' + enc_task + '_' + str(size) + '.png')
+    plt.close()
+
+
+def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size):
+    # wasn't able to extract normalized Layer for text-model; temporary fix, drop normalized layer for v_model
+    # data_dict_v.drop(data_dict_v.tail(1).index, inplace=True)
+
+    labels = list(data_dict_v['avg'].keys())
+    v_results = data_dict_v['avg'].values
+    t_results = data_dict_t['avg'].values
+
+    # adding 0.0 for l7 to text-model data, otherwise I'd need more time to fix this
+    t_results = np.append(t_results, 0.0)
+    print(t_results)
+
+    print('labels', labels, '\nv_results', v_results, '\nt_results', t_results)
+
+    x = np.arange(len(labels))  # the label locations
+    width = 0.35  # the width of the bars
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x - width / 2, v_results, width, label='Visual Model')
+    rects2 = ax.bar(x + width / 2, t_results, width, label='Text Model')
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Results Linear Classifier')
+    ax.set_title('Visual vs. Text model, task ' + enc_task + ', data-set size ' + str(size))
+    ax.set_xticks(x, labels)
+    ax.legend()
+
+    ax.bar_label(rects1, padding=3)
+    ax.bar_label(rects2, padding=3)
+
+    fig.tight_layout()
+    plt.ylim([0.45, 1.0])
+
+    # plt.show()
+    plt.savefig(path_save + 'v_vs_t_results_' + enc_task + '_' + str(size) + '.png')
     plt.close()
 
 
@@ -269,16 +307,18 @@ class VisRepEncodings:
 
 
 if __name__ == '__main__':
-    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
 
-    task_list = ['OBJ', 'BIGRAM']
+    task_list = ['TENSE', 'OBJ', 'BIGRAM']
 
     # always spezify greatest value first; used to create encodings dataset
     data_size_list = [10000, 1000]
-    create_encodings = True
+    create_encodings = False
     sanity_check = False
     create_plots = True
+    avg_f_t = False
+    v_vs_t = True
 
     for task in task_list:
         path_in = tasks_dict[task]['path_in']
@@ -310,7 +350,16 @@ if __name__ == '__main__':
 
         if create_plots:
             print('\n Creating plots...\n')
-            for m_type in ('v', 't'):
+            if avg_f_t:
+                for m_type in ('v', 't'):
+                    for data_size in data_size_list:
+                        df_in = pd.read_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv', index_col=0)
+                        plot_results_avg_f_t(task, path_out, m_type, df_in, data_size)
+            if v_vs_t:
                 for data_size in data_size_list:
-                    df_in = pd.read_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv', index_col=0)
-                    plot_results(task, path_out, m_type, df_in, data_size)
+                    df_v = pd.read_csv(path_out + 'v/v_' + task + '_' + str(data_size) + '.csv', index_col=0)
+                    df_t = pd.read_csv(path_out + 't/t_' + task + '_' + str(data_size) + '.csv', index_col=0)
+
+                    plot_results_v_vs_t(task, path_out, df_v, df_t, data_size)
+
+
