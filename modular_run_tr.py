@@ -154,7 +154,6 @@ class VisRepEncodings:
 
         return df
 
-    # TODO !
     def read_in_avg_enc_data(self, para_avg):
         # pass
         layers_list = listdir(self.path_save_encs + 'layers/')
@@ -260,8 +259,6 @@ class VisRepEncodings:
 
         return collect_scores
 
-        # self.plot_results(collect_scores, data_features_dir.split('/')[0], size)
-
     # Translate
     def translate(self, batch):
         print('\n\nTranslating sentences // Creating encodings...\n\n')
@@ -310,15 +307,16 @@ if __name__ == '__main__':
     # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
     tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
 
-    task_list = ['TENSE', 'OBJ', 'BIGRAM']
+    task_list = ['SUBJ']
 
     # always spezify greatest value first; used to create encodings dataset
-    data_size_list = [10000, 1000]
-    create_encodings = False
+    # data_size_list = [10000, 1000]
+    data_size_list = [200, 100]
+    create_encodings = True
     sanity_check = False
-    create_plots = True
-    avg_f_t = False
-    v_vs_t = True
+    create_plots = False
+    plot_avg_f_t = False
+    plot_v_vs_t = False
 
     for task in task_list:
         path_in = tasks_dict[task]['path_in']
@@ -327,7 +325,8 @@ if __name__ == '__main__':
         if create_encodings:
             RunVisrep = VisRepEncodings(path_in, path_out)
 
-            for m_type in ('v', 't'):
+            # for m_type in ('v', 't'):
+            for m_type in ('t', 'v'):
                 if m_type == 'v':
                     RunVisrep.make_vis_model(m_type)
                 else:
@@ -350,12 +349,12 @@ if __name__ == '__main__':
 
         if create_plots:
             print('\n Creating plots...\n')
-            if avg_f_t:
+            if plot_avg_f_t:
                 for m_type in ('v', 't'):
                     for data_size in data_size_list:
                         df_in = pd.read_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv', index_col=0)
                         plot_results_avg_f_t(task, path_out, m_type, df_in, data_size)
-            if v_vs_t:
+            if plot_v_vs_t:
                 for data_size in data_size_list:
                     df_v = pd.read_csv(path_out + 'v/v_' + task + '_' + str(data_size) + '.csv', index_col=0)
                     df_t = pd.read_csv(path_out + 't/t_' + task + '_' + str(data_size) + '.csv', index_col=0)
