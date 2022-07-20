@@ -465,16 +465,12 @@ class TransformerEncoder(FairseqEncoder):
                 assert encoder_states is not None
                 encoder_states.append(x)
 
-        # print(self.layer_dict.keys())
-
         if self.layer_norm is not None:
             x = self.layer_norm(x)
             self.layer_dict['l7'] = x
 
             # if return_all_hiddens:
             #     encoder_states[-1] = x
-
-        print(self.layer_dict.keys())
 
         # print('transformer encoder out shape', x[0].shape, '\n', x[0])
 
