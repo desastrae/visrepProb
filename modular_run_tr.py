@@ -327,8 +327,15 @@ if __name__ == '__main__':
     # data_size_list = [200, 100]
 
     create_encodings = True
-    do_translation = True
+    # collect encodings from every layer, save every sentence in single file
+    do_translation = False
+    # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
+    do_avg_tensor = False
+    # create scores for arrays
+    classify_arrays = True
+    # check if mean tensors are equal across layers
     sanity_check = False
+
     create_plots = True
     plot_avg_f_t = False
     plot_v_vs_t = True
@@ -353,17 +360,19 @@ if __name__ == '__main__':
 
                 if do_translation:
                     RunVisrep.translate(RunVisrep.read_in_raw_data(data_size_list[0]))
-                RunVisrep.read_in_avg_enc_data(True)
+                if do_avg_tensor:
+                    RunVisrep.read_in_avg_enc_data(True)
 
-                for data_size in data_size_list:
-                    results, dummy_results = RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy',
-                                                                                      data_size)
-                    results_f_t, dummy_results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/',
-                                                                                              'raw_labels.npy',
-                                                                                              data_size)
-                    results_all = {'avg': results, 'f_t': results_f_t, 'dummy': dummy_results}
-                    df = pd.DataFrame.from_dict(results_all)
-                    df.to_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv')
+                if classify_arrays:
+                    for data_size in data_size_list:
+                        results, dummy_results = RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy',
+                                                                                          data_size)
+                        results_f_t, dummy_results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/',
+                                                                                                  'raw_labels.npy',
+                                                                                                  data_size)
+                        results_all = {'avg': results, 'f_t': results_f_t, 'dummy': dummy_results}
+                        df = pd.DataFrame.from_dict(results_all)
+                        df.to_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv')
 
         if create_plots:
             print('\n Creating plots...\n')
