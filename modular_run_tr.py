@@ -132,6 +132,7 @@ class VisRepEncodings:
         df = pd.read_csv(self.data, delimiter='\t', header=None)[:data_size]
         # batch_1 = df[:2000]
         # print(batch_1[1].value_counts(), len(batch_1[0]))
+        
         print(df[1].value_counts(), len(df[0]))
 
         print(self.path_save_encs)
@@ -264,6 +265,7 @@ class VisRepEncodings:
         print('\n\nTranslating sentences // Creating encodings...\n\n')
         
         for idx, sent in tqdm(enumerate(batch[0])):
+            print(sent)
             translation, layer_dict = self.model.translate(sent)
             # print(translation)
             # print(layer_dict.keys())
@@ -304,14 +306,14 @@ class VisRepEncodings:
 
 
 if __name__ == '__main__':
-    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
 
-    task_list = ['SUBJ']
+    task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
 
     # always spezify greatest value first; used to create encodings dataset
-    # data_size_list = [10000, 1000]
-    data_size_list = [200, 100]
+    data_size_list = [10000, 1000]
+    # data_size_list = [200, 100]
     create_encodings = True
     sanity_check = False
     create_plots = False
@@ -325,7 +327,6 @@ if __name__ == '__main__':
         if create_encodings:
             RunVisrep = VisRepEncodings(path_in, path_out)
 
-            # for m_type in ('v', 't'):
             for m_type in ('t', 'v'):
                 if m_type == 'v':
                     RunVisrep.make_vis_model(m_type)
