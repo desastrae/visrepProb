@@ -1,3 +1,3 @@
 ,TENSE,OBJ,SUBJ,BIGRAM
-path_in,/local/anasbori/xprobe/de/past_present/tense.txt,/local/anasbori/xprobe/de/obj_number/objnum.txt,/local/anasbori/xprobe/de/subj_number/subjnum.txt,/local/anasbori/xprobe/de/bigram_shift/bishift.txt
+path_in,/local/anasbori/xprobe/de/past_present/tense_out_clean.csv,/local/anasbori/xprobe/de/obj_number/objnum_out_clean.csv,/local/anasbori/xprobe/de/subj_number/subjnum_out_clean.csv,/local/anasbori/xprobe/de/bigram_shift/bishift.txt
 path_out,/local/anasbori/visrepProb/task_encs/past_present/,/local/anasbori/visrepProb/task_encs/obj_number/,/local/anasbori/visrepProb/task_encs/subj_number/,/local/anasbori/visrepProb/task_encs/bigram_shift/
