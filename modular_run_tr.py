@@ -42,6 +42,8 @@ def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size):
     labels = list(data_dict_v['avg'].keys())
     v_results = data_dict_v['avg'].values
     t_results = data_dict_t['avg'].values
+    dummy_val_t = np.array(data_dict_t['dummy'].values).mean()
+    # dummy_val_v = np.array(data_dict_v['dummy'].values).mean()
 
     # adding 0.0 for l7 to text-model data, otherwise I'd need more time to fix this
     t_results = np.append(t_results, 0.0)
@@ -68,8 +70,10 @@ def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size):
     fig.tight_layout()
     plt.ylim([0.45, 1.0])
 
-    # plt.show()
-    plt.savefig(path_save + 'v_vs_t_results_' + enc_task + '_' + str(size) + '.png')
+    plt.axhline(y=dummy_val_t, color='r', linestyle='-')
+
+    plt.show()
+    # plt.savefig(path_save + 'v_vs_t_results_' + enc_task + '_' + str(size) + '.png')
     plt.close()
 
 
@@ -135,8 +139,6 @@ class VisRepEncodings:
         
         print(df[1].value_counts(), len(df[0]))
 
-        print(self.path_save_encs)
-
         with open(self.path_save_encs + 'raw_sentences.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df[0]), allow_pickle=True)
@@ -156,7 +158,6 @@ class VisRepEncodings:
         return df
 
     def read_in_avg_enc_data(self, para_avg):
-        # pass
         layers_list = listdir(self.path_save_encs + 'layers/')
 
         for layer in tqdm(layers_list):
@@ -169,7 +170,7 @@ class VisRepEncodings:
 
             for file in tqdm(filenames):
                 enc_file = np.load(self.path_save_encs + 'layers/' + layer + '/' + file)
-                avg_np_array = np.sum(enc_file, axis=0) / enc_file.shape[0]
+                avg_np_array = np.mean(enc_file, axis=0)
                 collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
                 first_token_arr = np.row_stack((first_token_arr, enc_file[0]))
 
@@ -239,12 +240,13 @@ class VisRepEncodings:
 
     def logistic_regression_classifier(self, data_features_dir, data_labels_file, size):
         collect_scores = defaultdict()
+        collect_dummy_scores = defaultdict()
 
         filenames = natsorted(next(walk(self.path_save_encs + data_features_dir), (None, None, []))[2])
         features_shape = None
 
         for file in filenames:
-            file_name = file.split('.')[0].split('_')[-1]
+            layer = file.split('.')[0].split('_')[-1]
             features = np.load(self.path_save_encs + data_features_dir + file, allow_pickle=True)
             features_shape = features.shape[0]
             labels = np.load(self.path_save_encs + data_labels_file, allow_pickle=True)
@@ -255,17 +257,25 @@ class VisRepEncodings:
             lr_clf = LogisticRegression(random_state=42)
             lr_clf.fit(train_features, train_labels)
 
-            print('\n\n' + file_name + '_lrf_score', lr_clf.score(test_features, test_labels))
-            collect_scores[file_name] = lr_clf.score(test_features, test_labels)
+            print('\n\n' + layer + '_lrf_score', lr_clf.score(test_features, test_labels))
+            collect_scores[layer] = lr_clf.score(test_features, test_labels)
 
-        return collect_scores
+            dummy_clf = DummyClassifier()
+            dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
+
+            collect_dummy_scores[layer] = dummy_scores.mean()
+
+            print("Dummy classifier score for layer" + layer + ": %0.3f (+/- %0.2f)" % (dummy_scores.mean(),
+                                                                                        dummy_scores.std() * 2))
+
+        return collect_scores, collect_dummy_scores
 
     # Translate
     def translate(self, batch):
         print('\n\nTranslating sentences // Creating encodings...\n\n')
         
         for idx, sent in tqdm(enumerate(batch[0])):
-            print(sent)
+            # print(sent)
             translation, layer_dict = self.model.translate(sent)
             # print(translation)
             # print(layer_dict.keys())
@@ -310,15 +320,18 @@ if __name__ == '__main__':
     # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
 
     task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
+    # task_list = ['TENSE']
 
     # always spezify greatest value first; used to create encodings dataset
     data_size_list = [10000, 1000]
     # data_size_list = [200, 100]
+
     create_encodings = True
+    do_translation = True
     sanity_check = False
-    create_plots = False
+    create_plots = True
     plot_avg_f_t = False
-    plot_v_vs_t = False
+    plot_v_vs_t = True
 
     for task in task_list:
         path_in = tasks_dict[task]['path_in']
@@ -328,23 +341,27 @@ if __name__ == '__main__':
             RunVisrep = VisRepEncodings(path_in, path_out)
 
             for m_type in ('t', 'v'):
+
                 if m_type == 'v':
                     RunVisrep.make_vis_model(m_type)
                 else:
                     RunVisrep.make_text_model(m_type)
-                print(RunVisrep.path_save_encs)
 
                 if sanity_check:
                     RunVisrep.sanity_check('results/')
                     break
 
-                RunVisrep.translate(RunVisrep.read_in_raw_data(data_size_list[0]))
+                if do_translation:
+                    RunVisrep.translate(RunVisrep.read_in_raw_data(data_size_list[0]))
                 RunVisrep.read_in_avg_enc_data(True)
 
                 for data_size in data_size_list:
-                    results = RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy', data_size)
-                    results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/', 'raw_labels.npy', data_size)
-                    results_all = {'avg': results, 'f_t': results_f_t}
+                    results, dummy_results = RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy',
+                                                                                      data_size)
+                    results_f_t, dummy_results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/',
+                                                                                              'raw_labels.npy',
+                                                                                              data_size)
+                    results_all = {'avg': results, 'f_t': results_f_t, 'dummy': dummy_results}
                     df = pd.DataFrame.from_dict(results_all)
                     df.to_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv')
 
@@ -353,7 +370,8 @@ if __name__ == '__main__':
             if plot_avg_f_t:
                 for m_type in ('v', 't'):
                     for data_size in data_size_list:
-                        df_in = pd.read_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv', index_col=0)
+                        df_in = pd.read_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) +
+                                            '.csv', index_col=0)
                         plot_results_avg_f_t(task, path_out, m_type, df_in, data_size)
             if plot_v_vs_t:
                 for data_size in data_size_list:
