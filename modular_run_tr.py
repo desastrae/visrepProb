@@ -328,15 +328,15 @@ if __name__ == '__main__':
 
     create_encodings = True
     # collect encodings from every layer, save every sentence in single file
-    do_translation = False
+    do_translation = True
     # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
-    do_avg_tensor = False
+    do_avg_tensor = True
     # create scores for arrays
     classify_arrays = True
     # check if mean tensors are equal across layers
     sanity_check = False
 
-    create_plots = True
+    create_plots = False
     plot_avg_f_t = False
     plot_v_vs_t = True
 
