@@ -9,6 +9,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score
 from sklearn.dummy import DummyClassifier
+from sklearn.utils import shuffle
 import os
 from os import walk, listdir
 from collections import defaultdict
@@ -35,7 +36,7 @@ def plot_results_avg_f_t(enc_task, path_save, m_para, data_dict_all, size):
     plt.close()
 
 
-def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size):
+def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size, maj_cl_val):
     # wasn't able to extract normalized Layer for text-model; temporary fix, drop normalized layer for v_model
     # data_dict_v.drop(data_dict_v.tail(1).index, inplace=True)
 
@@ -59,6 +60,10 @@ def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size):
     rects2 = ax.bar(x + width / 2, t_results, width, label='Text Model')
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_xlabel('''      Layers
+
+                  Majority Class:
+                  ''' + maj_cl_val)
     ax.set_ylabel('Results Linear Classifier')
     ax.set_title('Visual vs. Text model, task ' + enc_task + ', data-set size ' + str(size))
     ax.set_xticks(x, labels)
@@ -72,8 +77,8 @@ def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size):
 
     plt.axhline(y=dummy_val_t, color='r', linestyle='-')
 
-    plt.show()
-    # plt.savefig(path_save + 'v_vs_t_results_' + enc_task + '_' + str(size) + '.png')
+    # plt.show()
+    plt.savefig(path_save + 'v_vs_t_results_' + enc_task + '_' + str(size) + '.png')
     plt.close()
 
 
@@ -132,12 +137,21 @@ class VisRepEncodings:
             # print(error)
             pass
 
-    def read_in_raw_data(self, data_size):
-        df = pd.read_csv(self.data, delimiter='\t', header=None)[:data_size]
-        # batch_1 = df[:2000]
-        # print(batch_1[1].value_counts(), len(batch_1[0]))
-        
-        print(df[1].value_counts(), len(df[0]))
+    def read_in_raw_data(self, data_size, split_data_line):
+        half_data_size = int(data_size / 2)
+
+        df_one = pd.read_csv(self.data, delimiter='\t', header=None)[split_data_line:]
+        df_one = shuffle(df_one)
+        df_one.reset_index(inplace=True, drop=True)
+
+        df_two = pd.read_csv(self.data, delimiter='\t', header=None)[:split_data_line]
+        df_two = shuffle(df_two)
+        df_two.reset_index(inplace=True, drop=True)
+
+        df_combined = pd.concat([df_one[:half_data_size], df_two[:half_data_size]])
+        print('df_combined, shuffle\n', df_combined[1].value_counts(), len(df_combined[0]))
+        # print('df_one, shuffle\n', df_one[1].value_counts(), len(df[0]))
+        # print('df_two, shuffle\n', df_two[1].value_counts(), len(df[0]))
 
         with open(self.path_save_encs + 'raw_sentences.npy', 'wb') as f:
             try:
@@ -146,8 +160,6 @@ class VisRepEncodings:
                 # print(error)
                 pass
         
-        print(np.array(df[1]))
-
         with open(self.path_save_encs + 'raw_labels.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df[1]), allow_pickle=True)
@@ -316,23 +328,31 @@ class VisRepEncodings:
 
 
 if __name__ == '__main__':
-    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    print(tasks_dict.keys())
 
     task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
-    # task_list = ['TENSE']
+    # task_list = ['BIGRAM']
 
     # always spezify greatest value first; used to create encodings dataset
     data_size_list = [10000, 1000]
     # data_size_list = [200, 100]
 
+    # create csv for majority class
+    maj_class = True
+
+    # Start extraction process:
+    # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
     create_encodings = True
+    # read in raw data into pd dataframe, write majority class to csv
+    read_raw_data = True
     # collect encodings from every layer, save every sentence in single file
-    do_translation = True
+    do_translation = False
     # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
-    do_avg_tensor = True
+    do_avg_tensor = False
     # create scores for arrays
-    classify_arrays = True
+    classify_arrays = False
     # check if mean tensors are equal across layers
     sanity_check = False
 
@@ -340,9 +360,29 @@ if __name__ == '__main__':
     plot_avg_f_t = False
     plot_v_vs_t = True
 
+    if maj_class:
+        maj_class_dict = defaultdict()
+
+        for task in task_list:
+            task_maj_class_dict = defaultdict()
+
+            path_in = tasks_dict[task]['path_in']
+
+            for data_size in data_size_list:
+                df = pd.read_csv(path_in, delimiter='\t', header=None)[:data_size]
+                val_df = '   '.join(str(df[1].value_counts()).split(',')[0].split('\n')[:2])
+                task_maj_class_dict[str(data_size)] = val_df
+
+            maj_class_dict[task] = task_maj_class_dict
+
+        maj_class_df = pd.DataFrame.from_dict(maj_class_dict)
+
+        maj_class_df.to_csv(tasks_dict['MAJ_CLASS']['path_out'] + '/majority_class.csv')
+
     for task in task_list:
         path_in = tasks_dict[task]['path_in']
         path_out = tasks_dict[task]['path_out']
+        data_split = int(tasks_dict[task]['data_split'])
 
         if create_encodings:
             RunVisrep = VisRepEncodings(path_in, path_out)
@@ -357,9 +397,10 @@ if __name__ == '__main__':
                 if sanity_check:
                     RunVisrep.sanity_check('results/')
                     break
-
-                if do_translation:
-                    RunVisrep.translate(RunVisrep.read_in_raw_data(data_size_list[0]))
+                if read_raw_data:
+                    raw_data = RunVisrep.read_in_raw_data(data_size_list[0], data_split)
+                    if do_translation:
+                        RunVisrep.translate(raw_data)
                 if do_avg_tensor:
                     RunVisrep.read_in_avg_enc_data(True)
 
@@ -386,7 +427,7 @@ if __name__ == '__main__':
                 for data_size in data_size_list:
                     df_v = pd.read_csv(path_out + 'v/v_' + task + '_' + str(data_size) + '.csv', index_col=0)
                     df_t = pd.read_csv(path_out + 't/t_' + task + '_' + str(data_size) + '.csv', index_col=0)
+                    maj_class_val = pd.read_csv(tasks_dict['MAJ_CLASS']['path_out'] + '/majority_class.csv', index_col=0)
+                    print(maj_class_val['SUBJ'].keys())
 
-                    plot_results_v_vs_t(task, path_out, df_v, df_t, data_size)
-
-
+                    plot_results_v_vs_t(task, path_out, df_v, df_t, data_size, maj_class_val[task][data_size])
