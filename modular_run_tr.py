@@ -328,8 +328,8 @@ class VisRepEncodings:
 
 
 if __name__ == '__main__':
-    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
     print(tasks_dict.keys())
 
     task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
@@ -348,11 +348,11 @@ if __name__ == '__main__':
     # read in raw data into pd dataframe, write majority class to csv
     read_raw_data = True
     # collect encodings from every layer, save every sentence in single file
-    do_translation = False
+    do_translation = True
     # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
-    do_avg_tensor = False
+    do_avg_tensor = True
     # create scores for arrays
-    classify_arrays = False
+    classify_arrays = True
     # check if mean tensors are equal across layers
     sanity_check = False
 
