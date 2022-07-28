@@ -155,19 +155,19 @@ class VisRepEncodings:
 
         with open(self.path_save_encs + 'raw_sentences.npy', 'wb') as f:
             try:
-                np.save(f, np.array(df[0]), allow_pickle=True)
+                np.save(f, np.array(df_combined[0]), allow_pickle=True)
             except FileExistsError as error:
                 # print(error)
                 pass
         
         with open(self.path_save_encs + 'raw_labels.npy', 'wb') as f:
             try:
-                np.save(f, np.array(df[1]), allow_pickle=True)
+                np.save(f, np.array(df_combined[1]), allow_pickle=True)
             except FileExistsError as error:
                 # print(error)
                 pass
 
-        return df
+        return df_combined
 
     def read_in_avg_enc_data(self, para_avg):
         layers_list = listdir(self.path_save_encs + 'layers/')
@@ -258,12 +258,17 @@ class VisRepEncodings:
         features_shape = None
 
         for file in filenames:
+            half_size = int(size / 2)
             layer = file.split('.')[0].split('_')[-1]
-            features = np.load(self.path_save_encs + data_features_dir + file, allow_pickle=True)
-            features_shape = features.shape[0]
-            labels = np.load(self.path_save_encs + data_labels_file, allow_pickle=True)
+            features_all = np.load(self.path_save_encs + data_features_dir + file, allow_pickle=True)
+            features = np.concatenate((features_all[:half_size], features_all[-half_size:]), axis=0)
+            print(len(features))
 
-            train_features, test_features, train_labels, test_labels = train_test_split(features[:size], labels[:size])
+            labels_all = np.load(self.path_save_encs + data_labels_file, allow_pickle=True)
+            labels = np.concatenate((labels_all[:half_size], labels_all[-half_size:]), axis=0)
+            print(len(labels))
+
+            train_features, test_features, train_labels, test_labels = train_test_split(features, labels)
             # print(len(train_labels), len(test_labels))
 
             lr_clf = LogisticRegression(random_state=42)
@@ -328,16 +333,16 @@ class VisRepEncodings:
 
 
 if __name__ == '__main__':
-    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
     print(tasks_dict.keys())
 
-    task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
-    # task_list = ['BIGRAM']
+    # task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
+    task_list = ['BIGRAM']
 
     # always spezify greatest value first; used to create encodings dataset
-    data_size_list = [10000, 1000]
-    # data_size_list = [200, 100]
+    # data_size_list = [10000, 1000]
+    data_size_list = [200, 100]
 
     # create csv for majority class
     maj_class = True
@@ -346,11 +351,11 @@ if __name__ == '__main__':
     # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
     create_encodings = True
     # read in raw data into pd dataframe, write majority class to csv
-    read_raw_data = True
+    read_raw_data = False
     # collect encodings from every layer, save every sentence in single file
-    do_translation = True
+    do_translation = False
     # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
-    do_avg_tensor = True
+    do_avg_tensor = False
     # create scores for arrays
     classify_arrays = True
     # check if mean tensors are equal across layers
@@ -406,6 +411,7 @@ if __name__ == '__main__':
 
                 if classify_arrays:
                     for data_size in data_size_list:
+                        print(data_size)
                         results, dummy_results = RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy',
                                                                                           data_size)
                         results_f_t, dummy_results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/',
