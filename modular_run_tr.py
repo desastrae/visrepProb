@@ -333,16 +333,16 @@ class VisRepEncodings:
 
 
 if __name__ == '__main__':
-    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
     print(tasks_dict.keys())
 
-    # task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
-    task_list = ['BIGRAM']
+    task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
+    # task_list = ['BIGRAM']
 
     # always spezify greatest value first; used to create encodings dataset
-    # data_size_list = [10000, 1000]
-    data_size_list = [200, 100]
+    data_size_list = [10000, 1000]
+    # data_size_list = [200, 100]
 
     # create csv for majority class
     maj_class = True
@@ -351,11 +351,11 @@ if __name__ == '__main__':
     # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
     create_encodings = True
     # read in raw data into pd dataframe, write majority class to csv
-    read_raw_data = False
+    read_raw_data = True
     # collect encodings from every layer, save every sentence in single file
-    do_translation = False
+    do_translation = True
     # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
-    do_avg_tensor = False
+    do_avg_tensor = True
     # create scores for arrays
     classify_arrays = True
     # check if mean tensors are equal across layers
