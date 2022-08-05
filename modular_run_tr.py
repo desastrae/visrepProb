@@ -1,7 +1,6 @@
 # Load the model in python
 from fairseq.models.visual import VisualTextTransformerModel
 from fairseq.models.transformer import TransformerModel
-import h5py
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -15,71 +14,7 @@ from os import walk, listdir
 from collections import defaultdict
 from natsort import natsorted
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-import sys
-
-
-def plot_results_avg_f_t(enc_task, path_save, m_para, data_dict_all, size):
-    a = plt.plot(data_dict_all['avg'].keys(), data_dict_all['avg'].values)
-    b = plt.plot(data_dict_all['f_t'].keys(), data_dict_all['f_t'].values)
-    plt.xlabel('Layers')
-    plt.ylabel('Results Linear Classifier')
-
-    plt.legend(['Averaged tokens', 'First token'])
-
-    if m_para == 'v':
-        plt.title('Visual model, task ' + enc_task + ', data-set size ' + str(size))
-    else:
-        plt.title('Text model, task ' + enc_task + ', data-set size ' + str(size))
-
-    plt.savefig(path_save + m_para + '/' + m_para + '_results_' + enc_task + '_' + str(size) + '.png')
-    plt.close()
-
-
-def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size, maj_cl_val):
-    # wasn't able to extract normalized Layer for text-model; temporary fix, drop normalized layer for v_model
-    # data_dict_v.drop(data_dict_v.tail(1).index, inplace=True)
-
-    labels = list(data_dict_v['avg'].keys())
-    v_results = data_dict_v['avg'].values
-    t_results = data_dict_t['avg'].values
-    dummy_val_t = np.array(data_dict_t['dummy'].values).mean()
-    # dummy_val_v = np.array(data_dict_v['dummy'].values).mean()
-
-    # adding 0.0 for l7 to text-model data, otherwise I'd need more time to fix this
-    t_results = np.append(t_results, 0.0)
-    print(t_results)
-
-    print('labels', labels, '\nv_results', v_results, '\nt_results', t_results)
-
-    x = np.arange(len(labels))  # the label locations
-    width = 0.35  # the width of the bars
-
-    fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width / 2, v_results, width, label='Visual Model')
-    rects2 = ax.bar(x + width / 2, t_results, width, label='Text Model')
-
-    # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_xlabel('''      Layers
-
-                  Majority Class:
-                  ''' + maj_cl_val)
-    ax.set_ylabel('Results Linear Classifier')
-    ax.set_title('Visual vs. Text model, task ' + enc_task + ', data-set size ' + str(size))
-    ax.set_xticks(x, labels)
-    ax.legend()
-
-    ax.bar_label(rects1, padding=3)
-    ax.bar_label(rects2, padding=3)
-
-    fig.tight_layout()
-    plt.ylim([0.45, 1.0])
-
-    plt.axhline(y=dummy_val_t, color='r', linestyle='-')
-
-    # plt.show()
-    plt.savefig(path_save + 'v_vs_t_results_' + enc_task + '_' + str(size) + '.png')
-    plt.close()
+from plot_models import *
 
 
 class VisRepEncodings:
@@ -137,30 +72,29 @@ class VisRepEncodings:
             # print(error)
             pass
 
-    def read_in_raw_data(self, data_size, split_data_line):
-        half_data_size = int(data_size / 2)
+    def read_in_raw_data(self, d_size, split_data_line):
+        half_data_size = int(d_size / 2)
+        df_all = pd.read_csv(self.data, delimiter='\t', header=None)
+        df_values = set(df_all[1].values)
 
-        df_one = pd.read_csv(self.data, delimiter='\t', header=None)[split_data_line:]
-        df_one = shuffle(df_one)
-        df_one.reset_index(inplace=True, drop=True)
+        df_combined = pd.DataFrame(columns=df_all.columns.values)
 
-        df_two = pd.read_csv(self.data, delimiter='\t', header=None)[:split_data_line]
-        df_two = shuffle(df_two)
-        df_two.reset_index(inplace=True, drop=True)
+        for val in df_values:
+            df_val = df_all[df_all[1] == val].sample(half_data_size)
+            df_combined = pd.concat([df_combined, df_val], axis=0)
 
-        df_combined = pd.concat([df_one[:half_data_size], df_two[:half_data_size]])
-        print('df_combined, shuffle\n', df_combined[1].value_counts(), len(df_combined[0]))
-        # print('df_one, shuffle\n', df_one[1].value_counts(), len(df[0]))
-        # print('df_two, shuffle\n', df_two[1].value_counts(), len(df[0]))
+        df_combined.reset_index(inplace=True, drop=True)
 
-        with open(self.path_save_encs + 'raw_sentences.npy', 'wb') as f:
+        print('df_combined', df_combined[1].value_counts(), len(df_combined))
+
+        with open(str(self.path_save_encs) + 'raw_sentences.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df_combined[0]), allow_pickle=True)
             except FileExistsError as error:
                 # print(error)
                 pass
         
-        with open(self.path_save_encs + 'raw_labels.npy', 'wb') as f:
+        with open(str(self.path_save_encs) + 'raw_labels.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df_combined[1]), allow_pickle=True)
             except FileExistsError as error:
@@ -268,7 +202,13 @@ class VisRepEncodings:
             labels = np.concatenate((labels_all[:half_size], labels_all[-half_size:]), axis=0)
             print(len(labels))
 
-            train_features, test_features, train_labels, test_labels = train_test_split(features, labels)
+            # maybe not necessary?
+            features_shuffled, labels_shuffled = shuffle(features, labels, random_state=42)
+
+            train_features, test_features, train_labels, test_labels = train_test_split(features_shuffled,
+                                                                                        labels_shuffled,
+                                                                                        random_state=42,
+                                                                                        stratify=labels_shuffled)
             # print(len(train_labels), len(test_labels))
 
             lr_clf = LogisticRegression(random_state=42)
@@ -333,8 +273,8 @@ class VisRepEncodings:
 
 
 if __name__ == '__main__':
-    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
     print(tasks_dict.keys())
 
     task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
@@ -350,8 +290,10 @@ if __name__ == '__main__':
     # Start extraction process:
     # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
     create_encodings = True
-    # read in raw data into pd dataframe, write majority class to csv
-    read_raw_data = True
+
+    # read in raw data into pd dataframe, write majority class to csv - should be always created
+    # read_raw_data = True
+
     # collect encodings from every layer, save every sentence in single file
     do_translation = True
     # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
@@ -392,6 +334,8 @@ if __name__ == '__main__':
         if create_encodings:
             RunVisrep = VisRepEncodings(path_in, path_out)
 
+            raw_data = RunVisrep.read_in_raw_data(data_size_list[0], data_split)
+
             for m_type in ('t', 'v'):
 
                 if m_type == 'v':
@@ -399,15 +343,14 @@ if __name__ == '__main__':
                 else:
                     RunVisrep.make_text_model(m_type)
 
+                if do_translation:
+                    RunVisrep.translate(raw_data)
+                if do_avg_tensor:
+                    RunVisrep.read_in_avg_enc_data(True)
+
                 if sanity_check:
                     RunVisrep.sanity_check('results/')
                     break
-                if read_raw_data:
-                    raw_data = RunVisrep.read_in_raw_data(data_size_list[0], data_split)
-                    if do_translation:
-                        RunVisrep.translate(raw_data)
-                if do_avg_tensor:
-                    RunVisrep.read_in_avg_enc_data(True)
 
                 if classify_arrays:
                     for data_size in data_size_list:
