@@ -73,6 +73,8 @@ class VisRepEncodings:
             pass
 
     def read_in_raw_data(self, d_size, split_data_line):
+        print('\nRead in raw data...\n')
+
         half_data_size = int(d_size / 2)
         df_all = pd.read_csv(self.data, delimiter='\t', header=None)
         df_values = set(df_all[1].values)
@@ -87,18 +89,18 @@ class VisRepEncodings:
 
         print('df_combined', df_combined[1].value_counts(), len(df_combined))
 
-        with open(str(self.path_save_encs) + 'raw_sentences.npy', 'wb') as f:
+        with open(str(self.path_save) + 'raw_sentences.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df_combined[0]), allow_pickle=True)
             except FileExistsError as error:
                 # print(error)
                 pass
         
-        with open(str(self.path_save_encs) + 'raw_labels.npy', 'wb') as f:
+        with open(str(self.path_save) + 'raw_labels.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df_combined[1]), allow_pickle=True)
             except FileExistsError as error:
-                # print(error)
+                print(error)
                 pass
 
         return df_combined
@@ -198,8 +200,9 @@ class VisRepEncodings:
             features = np.concatenate((features_all[:half_size], features_all[-half_size:]), axis=0)
             print(len(features))
 
-            labels_all = np.load(self.path_save_encs + data_labels_file, allow_pickle=True)
+            labels_all = np.load(self.path_save + data_labels_file, allow_pickle=True)
             labels = np.concatenate((labels_all[:half_size], labels_all[-half_size:]), axis=0)
+            print(labels)
             print(len(labels))
 
             # maybe not necessary?
@@ -273,8 +276,8 @@ class VisRepEncodings:
 
 
 if __name__ == '__main__':
-    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
     print(tasks_dict.keys())
 
     task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
