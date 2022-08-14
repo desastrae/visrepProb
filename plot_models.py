@@ -19,7 +19,7 @@ def plot_results_avg_f_t(enc_task, path_save, m_para, data_dict_all, size):
     plt.close()
 
 
-def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size, maj_cl_val):
+def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size):  # , maj_cl_val):
     # wasn't able to extract normalized Layer for text-model; temporary fix, drop normalized layer for v_model
     # data_dict_v.drop(data_dict_v.tail(1).index, inplace=True)
 
@@ -43,10 +43,11 @@ def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size, maj
     rects2 = ax.bar(x + width / 2, t_results, width, label='Text Model')
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_xlabel('''      Layers
+    """ax.set_xlabel('''      Layers
 
                   Majority Class:
-                  ''' + maj_cl_val)
+                  ''' + maj_cl_val)"""
+    ax.set_xlabel('Layers')
     ax.set_ylabel('Results Linear Classifier')
     ax.set_title('Visual vs. Text model, task ' + enc_task + ', data-set size ' + str(size))
     ax.set_xticks(x, labels)
@@ -60,7 +61,7 @@ def plot_results_v_vs_t(enc_task, path_save, data_dict_v, data_dict_t, size, maj
 
     plt.axhline(y=dummy_val_t, color='r', linestyle='-')
 
-    # plt.show()
-    plt.savefig(path_save + 'v_vs_t_results_' + enc_task + '_' + str(size) + '.png')
+    plt.show()
+    # plt.savefig(path_save + 'v_vs_t_results_' + enc_task + '_' + str(size) + '.png')
     plt.close()
 
