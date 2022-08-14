@@ -1,4 +1,4 @@
 ,TENSE,OBJ,SUBJ,BIGRAM,MAJ_CLASS
-path_in,/local/anasbori/xprobe/de/past_present/tense_out_clean.csv,/local/anasbori/xprobe/de/obj_number/objnum_out_clean.csv,/local/anasbori/xprobe/de/subj_number/subjnum_out_clean.csv,/local/anasbori/xprobe/de/bigram_shift/bishift_out.csv,/local/anasbori/visrepProb/task_encs/
+path_in_train,/local/anasbori/xprobe/de/past_present/tense_tr_out.csv,/local/anasbori/xprobe/de/obj_number/objnum_tr_out.csv,/local/anasbori/xprobe/de/subj_number/subjnum_tr_out.csv,/local/anasbori/xprobe/de/bigram_shift/bishift_tr_out.csv,/local/anasbori/visrepProb/task_encs/
+path_in_test,/local/anasbori/xprobe/de/past_present/tense_te_out.csv,/local/anasbori/xprobe/de/obj_number/objnum_te_out.csv,/local/anasbori/xprobe/de/subj_number/subjnum_te_out.csv,/local/anasbori/xprobe/de/bigram_shift/bishift_te_out.csv,/local/anasbori/visrepProb/task_encs/
 path_out,/local/anasbori/visrepProb/task_encs/past_present/,/local/anasbori/visrepProb/task_encs/obj_number/,/local/anasbori/visrepProb/task_encs/subj_number/,/local/anasbori/visrepProb/task_encs/bigram_shift/,/local/anasbori/visrepProb/task_encs/
-data_split,59820,59683,59799,54508,
