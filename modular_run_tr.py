@@ -14,7 +14,6 @@ from os import walk, listdir
 from collections import defaultdict
 from natsort import natsorted
 from tqdm import tqdm
-from plot_models import *
 
 
 class VisRepEncodings:
@@ -64,7 +63,6 @@ class VisRepEncodings:
         self.m_para = para
 
         self.path_save_encs = self.path_save + self.m_para + '/'
-        print(self.path_save_encs)
 
         try:
             os.mkdir(self.path_save_encs)
@@ -72,10 +70,10 @@ class VisRepEncodings:
             # print(error)
             pass
 
-    def read_in_raw_data(self, d_size, split_data_line):
+    def read_in_raw_data(self, d_size, train_or_test_size, test_train):
         print('\nRead in raw data...\n')
 
-        half_data_size = int(d_size / 2)
+        half_data_size = int(d_size*train_or_test_size / 2)
         df_all = pd.read_csv(self.data, delimiter='\t', header=None)
         df_values = set(df_all[1].values)
 
@@ -89,14 +87,14 @@ class VisRepEncodings:
 
         print('df_combined', df_combined[1].value_counts(), len(df_combined))
 
-        with open(str(self.path_save) + 'raw_sentences.npy', 'wb') as f:
+        with open(str(self.path_save) + test_train + '_raw_sentences.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df_combined[0]), allow_pickle=True)
             except FileExistsError as error:
                 # print(error)
                 pass
         
-        with open(str(self.path_save) + 'raw_labels.npy', 'wb') as f:
+        with open(str(self.path_save) + test_train + '_raw_labels.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df_combined[1]), allow_pickle=True)
             except FileExistsError as error:
@@ -105,56 +103,33 @@ class VisRepEncodings:
 
         return df_combined
 
-    def read_in_avg_enc_data(self, para_avg):
-        layers_list = listdir(self.path_save_encs + 'layers/')
+    # Translate sentences
+    def translate(self, batch, tr_or_te):
+        print('\n\nTranslating sentences // Creating encodings...\n\n')
 
-        for layer in tqdm(layers_list):
-            print('\n\nCollecting all sentence embeddings & creating one np array...\n\n')
+        make_directories = True
 
-            filenames = natsorted(next(walk(self.path_save_encs + 'layers/' + layer + '/'), (None, None, []))[2])
-            first_enc_file = np.load(self.path_save_encs + 'layers/' + layer + '/' + filenames.pop(0))
-            collected_np_arr = np.sum(first_enc_file, axis=0) / first_enc_file.shape[0]
-            first_token_arr = first_enc_file[0]
+        for idx, sent in tqdm(enumerate(batch[0])):
+            translation, layer_dict = self.model.translate(sent)
 
-            for file in tqdm(filenames):
-                enc_file = np.load(self.path_save_encs + 'layers/' + layer + '/' + file)
-                avg_np_array = np.mean(enc_file, axis=0)
-                collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
-                first_token_arr = np.row_stack((first_token_arr, enc_file[0]))
+            if make_directories:
+                make_directories = False
+                self.make_directories(layer_dict, tr_or_te)
 
-            for res_path in ('results/', 'results_f_t/'):
-                try:
-                    os.mkdir(self.path_save_encs + res_path)
-                except OSError as error:
-                    # print(error)
-                    continue
+            self.save_encodings(layer_dict, idx, tr_or_te)
 
-            # save averaged np-array for all sentences
-            with open(self.path_save_encs + 'results/' + 'all_sent_avg_v_' + layer + '.npy', 'wb') as f:
-                try:
-                    np.save(f, collected_np_arr, allow_pickle=True)
-                except FileExistsError as error:
-                    # print(error)
-                    pass
-
-            # save np-array with first token for all sentences
-            with open(self.path_save_encs + 'results_f_t/' + 'first_token_' + layer + '.npy', 'wb') as f:
-                try:
-                    np.save(f, collected_np_arr, allow_pickle=True)
-                except FileExistsError as error:
-                    # print(error)
-                    pass
-
-    def make_dir_save_enc(self, np_dict, sent_num, create_para):
-        self.create_layer_path = create_para
-        path = self.path_save_encs
-        data_name = self.data.split('/')[1].split('.')[0]
+    # Create directories for layers
+    def make_directories(self, np_dict, tr_or_te):
         self.all_layers = np_dict.keys()
 
-        # print(np_dict.items())
-        
         try:
-            os.mkdir(path + 'layers/')
+            os.mkdir(self.path_save_encs + tr_or_te + '/')
+        except OSError as error:
+            # print(error)
+            pass
+
+        try:
+            os.mkdir(self.path_save_encs + tr_or_te + '/layers/')
         except OSError as error:
             # print(error)
             pass
@@ -162,61 +137,100 @@ class VisRepEncodings:
         if self.create_layer_path:
             for key in np_dict.keys():
                 try:
-                    os.mkdir(path + 'layers/' + key + "/")
+                    os.mkdir(self.path_save_encs + tr_or_te + '/layers/' + key + "/")
                 except OSError as error:
                     # print(error)
                     continue
 
-        self.create_layer_path = False
+    def save_encodings(self, np_dict, sent_num, tr_or_te):
+        data_name = self.data.split('/')[1].split('.')[0]
 
         for key, val in np_dict.items():
-            with open(path + 'layers/' + key + '/' + data_name + '_' + self.m_para + '_sent_' + str(sent_num) + '.npy', 'wb') as f:
+            with open(self.path_save_encs + tr_or_te + '/layers/' + key + '/' + data_name + '_' + self.m_para + '_sent_'
+                      + str(sent_num) + '.npy', 'wb') as f:
                 try:
                     np.save(f, val.numpy(), allow_pickle=True)
                 except FileExistsError as error:
                     # print(error)
                     pass
 
-    # TODO !
-    def pad_encoded_data(self, data):
-        # example
-        a = np.array([1, 2, 3, 4])
-        b = np.array([1, 2, 3, 4, 5, 6, 7, 8])
-        a.resize(b.shape)
-        # >> > a
-        # array([1, 2, 3, 4, 0, 0, 0, 0])
+    # for every sentence with n tokens, create one sentence tensor with averaged sentence tokens
+    # for every sentence tensor create one tensor containing all sentence tensors for every layer
+    def read_in_avg_enc_data(self, para_tr_o_te):
+        layers_list = listdir(self.path_save_encs + para_tr_o_te + 'layers/')
 
-    def logistic_regression_classifier(self, data_features_dir, data_labels_file, size):
-        collect_scores = defaultdict()
-        collect_dummy_scores = defaultdict()
+        for layer in tqdm(layers_list):
+            print('\n\nCollecting all sentence embeddings & creating one np array...\n\n')
 
-        filenames = natsorted(next(walk(self.path_save_encs + data_features_dir), (None, None, []))[2])
-        features_shape = None
+            filenames = natsorted(next(walk(self.path_save_encs + para_tr_o_te + 'layers/' + layer + '/'), (None, None, []))[2])
+            first_enc_file = np.load(self.path_save_encs + para_tr_o_te + 'layers/' + layer + '/' + filenames.pop(0))
+            collected_np_arr = np.sum(first_enc_file, axis=0) / first_enc_file.shape[0]
+            first_token_arr = first_enc_file[0]
 
-        for file in filenames:
+            for file in tqdm(filenames):
+                enc_file = np.load(self.path_save_encs + para_tr_o_te + 'layers/' + layer + '/' + file)
+                avg_np_array = np.mean(enc_file, axis=0)
+                collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
+                first_token_arr = np.row_stack((first_token_arr, enc_file[0]))
+
+            for res_path in ('results/', 'results_f_t/'):
+                try:
+                    os.mkdir(self.path_save_encs + para_tr_o_te + res_path)
+                except OSError as error:
+                    # print(error)
+                    continue
+
+            # save averaged np-array for all sentences
+            with open(self.path_save_encs + para_tr_o_te + 'results/' + 'all_sent_avg_v_' + layer + '.npy', 'wb') as f:
+                try:
+                    np.save(f, collected_np_arr, allow_pickle=True)
+                except FileExistsError as error:
+                    # print(error)
+                    pass
+
+            # save np-array with first token for all sentences
+            with open(self.path_save_encs + para_tr_o_te + 'results_f_t/' + 'first_token_' + layer + '.npy', 'wb') as f:
+                try:
+                    np.save(f, collected_np_arr, allow_pickle=True)
+                except FileExistsError as error:
+                    # print(error)
+                    pass
+
+    def create_shuffled_data_and_labels(self, data_features_dir, data_labels_file, size, data):
+        train_test_dict = defaultdict()
+
+        for file in data:
             half_size = int(size / 2)
             layer = file.split('.')[0].split('_')[-1]
-            features_all = np.load(self.path_save_encs + data_features_dir + file, allow_pickle=True)
+            features_all = np.load(self.path_save + data_features_dir + file, allow_pickle=True)
             features = np.concatenate((features_all[:half_size], features_all[-half_size:]), axis=0)
-            print(len(features))
 
             labels_all = np.load(self.path_save + data_labels_file, allow_pickle=True)
             labels = np.concatenate((labels_all[:half_size], labels_all[-half_size:]), axis=0)
-            print(labels)
-            print(len(labels))
 
-            # maybe not necessary?
             features_shuffled, labels_shuffled = shuffle(features, labels, random_state=42)
 
-            train_features, test_features, train_labels, test_labels = train_test_split(features_shuffled,
-                                                                                        labels_shuffled,
-                                                                                        random_state=42,
-                                                                                        stratify=labels_shuffled)
-            # print(len(train_labels), len(test_labels))
+            train_test_dict[layer] = features_shuffled, labels_shuffled
 
-            lr_clf = LogisticRegression(random_state=42)
+        return train_test_dict
+
+    # classify the sentence encoding for every layer
+    def logistic_regression_classifier(self, train_feat_dir, train_labels, test_feat_dir, test_labels, size):
+        filenames_train = natsorted(next(walk(self.path_save + train_feat_dir), (None, None, []))[2])
+        filenames_test = natsorted(next(walk(self.path_save + test_feat_dir), (None, None, []))[2])
+
+        train_dict = self.create_shuffled_data_and_labels(train_feat_dir, train_labels, size, filenames_train)
+        test_dict = self.create_shuffled_data_and_labels(test_feat_dir, test_labels, size, filenames_test)
+
+        collect_scores = defaultdict()
+        collect_dummy_scores = defaultdict()
+
+        lr_clf = LogisticRegression(random_state=42)
+        for layer in sorted(train_dict.keys()):
+            train_features, train_labels = train_dict[layer]
+            test_features, test_labels = test_dict[layer]
+
             lr_clf.fit(train_features, train_labels)
-
             print('\n\n' + layer + '_lrf_score', lr_clf.score(test_features, test_labels))
             collect_scores[layer] = lr_clf.score(test_features, test_labels)
 
@@ -230,18 +244,6 @@ class VisRepEncodings:
 
         return collect_scores, collect_dummy_scores
 
-    # Translate
-    def translate(self, batch):
-        print('\n\nTranslating sentences // Creating encodings...\n\n')
-        
-        for idx, sent in tqdm(enumerate(batch[0])):
-            # print(sent)
-            translation, layer_dict = self.model.translate(sent)
-            # print(translation)
-            # print(layer_dict.keys())
-            # break
-            self.make_dir_save_enc(layer_dict, idx, True)
-
     # ToDo
     def sanity_check(self, data_features_dir):
         filenames = natsorted(next(walk(self.path_save_encs + data_features_dir), (None, None, []))[2])
@@ -251,9 +253,6 @@ class VisRepEncodings:
         features_l4 = np.load(self.path_save_encs + data_features_dir + filenames[3], allow_pickle=True)
         features_l5 = np.load(self.path_save_encs + data_features_dir + filenames[4], allow_pickle=True)
         features_l6 = np.load(self.path_save_encs + data_features_dir + filenames[5], allow_pickle=True)
-
-        print(features_l2[0][:10])
-        print(features_l4[0][:10])
 
         test_l1_l2 = features_l1 == features_l2
         test_l1_l3 = features_l1 == features_l3
@@ -273,113 +272,3 @@ class VisRepEncodings:
 
         print(test_l1_l2, test_l1_l3, test_l1_l4, test_l1_l5, test_l1_l6, test_l2_l3, test_l2_l4, test_l2_l5,
               test_l2_l6, test_l3_l4, test_l3_l5, test_l3_l6, test_l4_l5, test_l4_l6, test_l5_l6)
-
-
-if __name__ == '__main__':
-    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
-    print(tasks_dict.keys())
-
-    task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
-    # task_list = ['BIGRAM']
-
-    # always spezify greatest value first; used to create encodings dataset
-    data_size_list = [10000, 1000]
-    # data_size_list = [200, 100]
-
-    # create csv for majority class
-    maj_class = True
-
-    # Start extraction process:
-    # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-    create_encodings = True
-
-    # read in raw data into pd dataframe, write majority class to csv - should be always created
-    # read_raw_data = True
-
-    # collect encodings from every layer, save every sentence in single file
-    do_translation = True
-    # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
-    do_avg_tensor = True
-    # create scores for arrays
-    classify_arrays = True
-    # check if mean tensors are equal across layers
-    sanity_check = False
-
-    create_plots = False
-    plot_avg_f_t = False
-    plot_v_vs_t = True
-
-    if maj_class:
-        maj_class_dict = defaultdict()
-
-        for task in task_list:
-            task_maj_class_dict = defaultdict()
-
-            path_in = tasks_dict[task]['path_in']
-
-            for data_size in data_size_list:
-                df = pd.read_csv(path_in, delimiter='\t', header=None)[:data_size]
-                val_df = '   '.join(str(df[1].value_counts()).split(',')[0].split('\n')[:2])
-                task_maj_class_dict[str(data_size)] = val_df
-
-            maj_class_dict[task] = task_maj_class_dict
-
-        maj_class_df = pd.DataFrame.from_dict(maj_class_dict)
-
-        maj_class_df.to_csv(tasks_dict['MAJ_CLASS']['path_out'] + '/majority_class.csv')
-
-    for task in task_list:
-        path_in = tasks_dict[task]['path_in']
-        path_out = tasks_dict[task]['path_out']
-        data_split = int(tasks_dict[task]['data_split'])
-
-        if create_encodings:
-            RunVisrep = VisRepEncodings(path_in, path_out)
-
-            raw_data = RunVisrep.read_in_raw_data(data_size_list[0], data_split)
-
-            for m_type in ('t', 'v'):
-
-                if m_type == 'v':
-                    RunVisrep.make_vis_model(m_type)
-                else:
-                    RunVisrep.make_text_model(m_type)
-
-                if do_translation:
-                    RunVisrep.translate(raw_data)
-                if do_avg_tensor:
-                    RunVisrep.read_in_avg_enc_data(True)
-
-                if sanity_check:
-                    RunVisrep.sanity_check('results/')
-                    break
-
-                if classify_arrays:
-                    for data_size in data_size_list:
-                        print(data_size)
-                        results, dummy_results = RunVisrep.logistic_regression_classifier('results/', 'raw_labels.npy',
-                                                                                          data_size)
-                        results_f_t, dummy_results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/',
-                                                                                                  'raw_labels.npy',
-                                                                                                  data_size)
-                        results_all = {'avg': results, 'f_t': results_f_t, 'dummy': dummy_results}
-                        df = pd.DataFrame.from_dict(results_all)
-                        df.to_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv')
-
-        if create_plots:
-            print('\n Creating plots...\n')
-            if plot_avg_f_t:
-                for m_type in ('v', 't'):
-                    for data_size in data_size_list:
-                        df_in = pd.read_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) +
-                                            '.csv', index_col=0)
-                        plot_results_avg_f_t(task, path_out, m_type, df_in, data_size)
-            if plot_v_vs_t:
-                for data_size in data_size_list:
-                    df_v = pd.read_csv(path_out + 'v/v_' + task + '_' + str(data_size) + '.csv', index_col=0)
-                    df_t = pd.read_csv(path_out + 't/t_' + task + '_' + str(data_size) + '.csv', index_col=0)
-                    maj_class_val = pd.read_csv(tasks_dict['MAJ_CLASS']['path_out'] + '/majority_class.csv', index_col=0)
-                    print(maj_class_val['SUBJ'].keys())
-
-                    plot_results_v_vs_t(task, path_out, df_v, df_t, data_size, maj_class_val[task][data_size])
