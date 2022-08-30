@@ -25,14 +25,14 @@ def eval_distribution(read_path_file):
             data_str_dict[tuple(set(sub_ob_num_list))].append(line)
 
     # print(len(data_dict.keys()), '\n', data_dict)
-    print(len(data_str_dict.keys()), '\n', data_str_dict)
+    # print(len(data_str_dict.keys()), '\n', data_str_dict)
 
     return data_dict, data_str_dict
 
 
 def save_dict_to_file(data_path, task, list_dict):
     for key in list_dict.keys():
-        key_name = '_'.join(str(key).split(', '))
+        key_name = "".join("".join("".join('_'.join(str(key).split(', ')).split("'")).split("(")).split(")"))
         with open(data_path + task + '_' + key_name + '.txt', 'w', encoding='utf-8') as f:
             for val in list_dict[key]:
                 f.write(val + '\n')
@@ -69,17 +69,17 @@ def plot_results_pie(enc_task, data_dict, path_save):  # , maj_cl_val):
 
 if __name__ == '__main__':
     # test locally
-    # eval_dict, eval_str_dict = eval_distribution('/home/anastasia/PycharmProjects/xprobe/de/subj_number/Verwaltung_tr.txt')
-    # save_dict_to_file('/home/anastasia/PycharmProjects/visrepProb/task_encs/subj_number/', 'SUBJ', eval_str_dict)
+    eval_dict, eval_str_dict = eval_distribution('/home/anastasia/PycharmProjects/xprobe/de/subj_number/Verwaltung_tr.txt')
+    save_dict_to_file('/home/anastasia/PycharmProjects/visrepProb/task_encs/subj_number/', 'SUBJ', eval_str_dict)
     # plot_results_pie('SUBJ', eval_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/')
 
     # SUBJ
-    eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/subj_number/subjnum_out_clean_uniq.csv')
-    save_dict_to_file('/local/anasbori/visrepProb/task_encs/subj_number/', 'SUBJ', eval_str_dict)
+    # eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/subj_number/subjnum_out_clean_uniq.csv')
+    # save_dict_to_file('/local/anasbori/visrepProb/task_encs/subj_number/', 'SUBJ', eval_str_dict)
     # plot_results_pie('SUBJ', eval_dict, '/local/anasbori/visrepProb/task_encs/')
 
     # OBJ
-    eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/obj_number/objnum_out_uniq.csv')
-    save_dict_to_file('/local/anasbori/visrepProb/task_encs/obj_number/', 'OBJ', eval_str_dict)
+    # eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/obj_number/objnum_out_uniq.csv')
+    # save_dict_to_file('/local/anasbori/visrepProb/task_encs/obj_number/', 'OBJ', eval_str_dict)
     # plot_results_pie('OBJ', eval_dict, '/local/anasbori/visrepProb/task_encs/')
 
