@@ -2,15 +2,15 @@ from plot_models import *
 from modular_run_tr import *
 
 if __name__ == '__main__':
-    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
 
     task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
     # task_list = ['BIGRAM']
 
     # always spezify greatest value first; used to create encodings dataset
-    data_size_list = [10000, 1000]
-    # data_size_list = [200, 100]
+    # data_size_list = [10000, 1000]
+    data_size_list = [20, 10]
 
     # create csv for majority class
     maj_class = False  # True
@@ -20,12 +20,12 @@ if __name__ == '__main__':
     create_encodings = True
 
     # read in raw data into pd dataframe, write majority class to csv
-    read_raw_data = True
+    read_raw_data = False  # True
 
     # collect encodings from every layer, save every sentence in single file
-    do_translation = True
+    do_translation = False  # True
     # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
-    do_avg_tensor = True
+    do_avg_tensor = False  # True
     # create scores for arrays
     classify_arrays = True
     # check if mean tensors are equal across layers
@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     create_plots = False
     plot_avg_f_t = False
-    plot_v_vs_t = True
+    plot_v_vs_t = False  # True
 
     if maj_class:
         maj_class_dict = defaultdict()

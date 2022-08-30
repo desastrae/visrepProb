@@ -14,6 +14,7 @@ from os import walk, listdir
 from collections import defaultdict
 from natsort import natsorted
 from tqdm import tqdm
+import pickle
 
 
 class VisRepEncodings:
@@ -91,15 +92,15 @@ class VisRepEncodings:
             try:
                 np.save(f, np.array(df_combined[0]), allow_pickle=True)
             except FileExistsError as error:
-                # print(error)
-                pass
+                print(error)
+                # pass
         
         with open(str(self.path_save) + test_train + '_raw_labels.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df_combined[1]), allow_pickle=True)
             except FileExistsError as error:
                 print(error)
-                pass
+                # pass
 
         return df_combined
 
@@ -111,6 +112,7 @@ class VisRepEncodings:
 
         for idx, sent in tqdm(enumerate(batch[0])):
             translation, layer_dict = self.model.translate(sent)
+            print(translation)
 
             if make_directories:
                 make_directories = False
@@ -225,8 +227,8 @@ class VisRepEncodings:
         collect_scores = defaultdict()
         collect_dummy_scores = defaultdict()
 
-        lr_clf = LogisticRegression(random_state=42)
         for layer in sorted(train_dict.keys()):
+            lr_clf = LogisticRegression(random_state=42)
             train_features, train_labels = train_dict[layer]
             test_features, test_labels = test_dict[layer]
 
@@ -236,13 +238,29 @@ class VisRepEncodings:
 
             dummy_clf = DummyClassifier()
             dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
-
             collect_dummy_scores[layer] = dummy_scores.mean()
 
-            print("Dummy classifier score for layer" + layer + ": %0.3f (+/- %0.2f)" % (dummy_scores.mean(),
-                                                                                        dummy_scores.std() * 2))
+            # save the model to disk
+            filename = self.path_save_encs + layer + '_lin_reg_model.sav'
+            pickle.dump(lr_clf, open(filename, 'wb'))
 
         return collect_scores, collect_dummy_scores
+
+    def load_classifier_model(self, test_feat_dir, test_labels, size):
+        filenames_test = natsorted(next(walk(self.path_save + test_feat_dir), (None, None, []))[2])
+        test_dict = self.create_shuffled_data_and_labels(test_feat_dir, test_labels, size, filenames_test)
+
+        collect_scores = defaultdict()
+
+        for layer in sorted(test_dict.keys()):
+            # load the model from disk
+            filename = self.path_save_encs + layer + '_lin_reg_model.sav'
+            loaded_model = pickle.load(open(filename, 'rb'))
+            test_features, test_labels = test_dict[layer]
+
+            collect_scores[layer] = loaded_model.score(test_features, test_labels)
+
+        return collect_scores
 
     # ToDo
     def sanity_check(self, data_features_dir):
