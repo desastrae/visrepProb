@@ -24,6 +24,7 @@ def eval_distribution(read_path_file):
             data_dict[tuple(set(sub_ob_num_list))] += 1
             data_str_dict[tuple(set(sub_ob_num_list))].append(line)
 
+    print('int_dict', len(data_dict.keys()), 'str_dict', len(data_str_dict.keys()))
     # print(len(data_dict.keys()), '\n', data_dict)
     # print(len(data_str_dict.keys()), '\n', data_str_dict)
 
