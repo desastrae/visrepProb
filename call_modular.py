@@ -2,15 +2,15 @@ from plot_models import *
 from modular_run_tr import *
 
 if __name__ == '__main__':
-    # tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
-    tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
+    tasks_dict = pd.read_csv('tasks_server.csv', index_col=0)
+    # tasks_dict = pd.read_csv('tasks_lokal.csv', index_col=0)
 
     task_list = ['SUBJ', 'OBJ', 'TENSE', 'BIGRAM']
     # task_list = ['BIGRAM']
 
     # always spezify greatest value first; used to create encodings dataset
-    # data_size_list = [10000, 1000]
-    data_size_list = [20, 10]
+    data_size_list = [10000, 1000]
+    # data_size_list = [20, 10]
 
     # create csv for majority class
     maj_class = False  # True
@@ -88,15 +88,12 @@ if __name__ == '__main__':
                 for m_type in ('t', 'v'):
                     for data_size in data_size_list:
                         print(data_size)
-                        results, dummy_results = RunVisrep.logistic_regression_classifier(m_type + '/train/results/',
+                        results, dummy_results = RunVisrep.logistic_regression_classifier(m_type, m_type +
+                                                                                          '/train/results/',
                                                                                           'train_raw_labels.npy',
                                                                                           m_type + '/test/results/',
                                                                                           'test_raw_labels.npy',
                                                                                           data_size)
-                        # results_f_t, dummy_results_f_t = RunVisrep.logistic_regression_classifier('results_f_t/',
-                        #                                                                           'raw_labels.npy',
-                        #                                                                           data_size)
-                        # results_all = {'avg': results, 'f_t': results_f_t, 'dummy': dummy_results}
                         results_all = {'avg': results, 'dummy': dummy_results}
                         df = pd.DataFrame.from_dict(results_all)
                         df.to_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size) + '.csv')

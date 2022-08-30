@@ -217,7 +217,7 @@ class VisRepEncodings:
         return train_test_dict
 
     # classify the sentence encoding for every layer
-    def logistic_regression_classifier(self, train_feat_dir, train_labels, test_feat_dir, test_labels, size):
+    def logistic_regression_classifier(self, v_or_t, train_feat_dir, train_labels, test_feat_dir, test_labels, size):
         filenames_train = natsorted(next(walk(self.path_save + train_feat_dir), (None, None, []))[2])
         filenames_test = natsorted(next(walk(self.path_save + test_feat_dir), (None, None, []))[2])
 
@@ -241,12 +241,12 @@ class VisRepEncodings:
             collect_dummy_scores[layer] = dummy_scores.mean()
 
             # save the model to disk
-            filename = self.path_save_encs + layer + '_lin_reg_model.sav'
+            filename = self.path_save + v_or_t + '/' + v_or_t + '_' + layer + '_lin_reg_model_' + str(size) + '.sav'
             pickle.dump(lr_clf, open(filename, 'wb'))
 
         return collect_scores, collect_dummy_scores
 
-    def load_classifier_model(self, test_feat_dir, test_labels, size):
+    def load_classifier_model(self, v_or_t, test_feat_dir, test_labels, size):
         filenames_test = natsorted(next(walk(self.path_save + test_feat_dir), (None, None, []))[2])
         test_dict = self.create_shuffled_data_and_labels(test_feat_dir, test_labels, size, filenames_test)
 
@@ -254,7 +254,7 @@ class VisRepEncodings:
 
         for layer in sorted(test_dict.keys()):
             # load the model from disk
-            filename = self.path_save_encs + layer + '_lin_reg_model.sav'
+            filename = self.path_save + v_or_t + '/' + v_or_t + '_' + layer + '_lin_reg_model_' + size + '.sav'
             loaded_model = pickle.load(open(filename, 'rb'))
             test_features, test_labels = test_dict[layer]
 
