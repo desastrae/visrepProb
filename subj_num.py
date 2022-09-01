@@ -2,33 +2,41 @@ import spacy
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
+from sortedcontainers import SortedSet
 
 
 def eval_distribution(read_path_file):
     nlp = spacy.load("de_core_news_sm")
     data_dict = defaultdict(int)
     data_str_dict = defaultdict(list)
-    data_perc_dict = defaultdict(float)
+
+    data_key_list = list()
 
     # with open('/home/anastasia/PycharmProjects/xprobe/de/subj_number/subjnum_tr_out.csv') as file:
     with open(read_path_file) as file:
+        p_sub_num_list = list()
         for line in file:
             feat_list = list()
 
             doc = nlp(line)
+
             sb_num_list = [(token.dep_, token.morph.get('Number')[0]) for token in doc if token.dep_ in
                            ['sb', 'oa', 'oc', 'og'] and token.morph.get('Number')]
             sub_ob_num_list = list(('o', obj[1]) if obj[0] in ['oa', 'oc', 'og'] else obj for obj in sb_num_list)
 
             # empty_morph_list = list(filter(lambda dep_num: dep_num[1] is [], sb_num_list))
-            data_dict[tuple(set(sub_ob_num_list))] += 1
-            data_str_dict[tuple(set(sub_ob_num_list))].append(line)
+            # data_dict[tuple(set(sub_ob_num_list))] += 1
+            data_dict[tuple(SortedSet(sub_ob_num_list))] += 1
+            data_str_dict[tuple(SortedSet(sub_ob_num_list))].append(line)
+
+            data_key_list.append((sub_ob_num_list, set(sub_ob_num_list)))
 
     print('int_dict', len(data_dict.keys()), 'str_dict', len(data_str_dict.keys()))
     # print(len(data_dict.keys()), '\n', data_dict)
     # print(len(data_str_dict.keys()), '\n', data_str_dict)
+    print(data_str_dict.keys())
 
-    return data_dict, data_str_dict
+    return data_dict, data_str_dict  # , data_key_list
 
 
 def save_dict_to_file(data_path, task, list_dict):
@@ -68,19 +76,39 @@ def plot_results_pie(enc_task, data_dict, path_save):  # , maj_cl_val):
     plt.close()
 
 
+def compare_lists(d_key_list1, d_key_list2):
+    first_elem = [x[0] == y[0] for x, y in zip(d_key_list1, d_key_list2)]
+    second_elem = [x[1] == y[1] for x, y in zip(d_key_list1, d_key_list2)]
+
+    print(first_elem, '\n', second_elem, '\n')
+
+    with open('/home/anastasia/PycharmProjects/xprobe/compare_lists.txt', 'w', encoding='utf-8') as f:
+        for tuple1, tuple2 in zip(d_key_list1, d_key_list2):
+            f.write(str(tuple1) + '\t' + str(tuple2) + '\n')
+
+
 if __name__ == '__main__':
     # test locally
-    eval_dict, eval_str_dict = eval_distribution('/home/anastasia/PycharmProjects/xprobe/de/subj_number/Verwaltung_tr.txt')
-    save_dict_to_file('/home/anastasia/PycharmProjects/visrepProb/task_encs/subj_number/', 'SUBJ', eval_str_dict)
+    # eval_dict, eval_str_dict = eval_distribution('/home/anastasia/PycharmProjects/xprobe/de/subj_number/Verwaltung_tr.txt')
+
+    '''CHECK VALIDITY OF KEYS'''
+    # eval_dict, eval_str_dict, key_list = eval_distribution('/home/anastasia/PycharmProjects/xprobe/de/subj_number/'
+    #                                                        'Verwaltung_tr.txt')
+    # eval_dict, eval_str_dict, key_list2 = eval_distribution('/home/anastasia/PycharmProjects/xprobe/de/subj_number/'
+    #                                                         'Verwaltung_tr.txt')
+
+    # compare_lists(key_list, key_list2)
+
+    # save_dict_to_file('/home/anastasia/PycharmProjects/visrepProb/task_encs/subj_number/', 'SUBJ', eval_str_dict)
     # plot_results_pie('SUBJ', eval_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/')
 
-    # SUBJ
-    # eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/subj_number/subjnum_out_clean_uniq.csv')
-    # save_dict_to_file('/local/anasbori/visrepProb/task_encs/subj_number/', 'SUBJ', eval_str_dict)
-    # plot_results_pie('SUBJ', eval_dict, '/local/anasbori/visrepProb/task_encs/')
+    ''' SUBJ '''
+    eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/subj_number/subjnum_out_clean_uniq.csv')
+    save_dict_to_file('/local/anasbori/visrepProb/task_encs/subj_number/', 'SUBJ', eval_str_dict)
+    plot_results_pie('SUBJ', eval_dict, '/local/anasbori/visrepProb/task_encs/')
 
-    # OBJ
-    # eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/obj_number/objnum_out_uniq.csv')
-    # save_dict_to_file('/local/anasbori/visrepProb/task_encs/obj_number/', 'OBJ', eval_str_dict)
-    # plot_results_pie('OBJ', eval_dict, '/local/anasbori/visrepProb/task_encs/')
+    ''' OBJ '''
+    eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/obj_number/objnum_out_uniq.csv')
+    save_dict_to_file('/local/anasbori/visrepProb/task_encs/obj_number/', 'OBJ', eval_str_dict)
+    plot_results_pie('OBJ', eval_dict, '/local/anasbori/visrepProb/task_encs/')
 
