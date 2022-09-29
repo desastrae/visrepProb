@@ -7,13 +7,17 @@ build
 *.swp
 *.so
 *.png
+*_lokal.csv
 
 # macOS dir files
 .DS_Store
 
 # Distribution / packaging
 .Python
+.idea
 env/
+task_encs/
+test_scores/
 build/
 develop-eggs/
 dist/
@@ -77,6 +81,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+render-example.ipynb
 
 # pyenv
 .python-version
