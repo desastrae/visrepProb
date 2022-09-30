@@ -1,0 +1,5 @@
+file: /home/anastasia/PycharmProjects/xprobe/de/subj_number/Verwaltung_tr_no_Labels.npy   # ted-data/de-en-txt/test.1.tok.de.txt
+lang: de                       # fr/de/cs/en
+ftype: npy                     # sgm/txt/+npy
+scrambling:   [real]           # swap, middle, random, key, real
+distribution: [10.0]           # probability of running this op
