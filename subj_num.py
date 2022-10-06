@@ -116,8 +116,9 @@ def plot_results_o_s_pie(enc_task, data_dict, path_save, filename, traintest):  
         )
         plt.title('Data evaluation of task ' + enc_task + ' ' + traintest + ' ' + key_val)
         plt.tight_layout()
-        plt.show()
-        # plt.savefig(path_save + 'eval_' + enc_task + '_' + traintest + '_' + filename + '.png')
+        # plt.show()
+        plt.savefig(path_save + 'eval_' + enc_task + '_' + '_'.join(key_val.split(', ')) + '_' +
+                    filename.split('.')[0] + '.png')
 
         plt.close()
 
