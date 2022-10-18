@@ -24,11 +24,10 @@ def spacy_distribtion(data_list):
 
         # empty_morph_list = list(filter(lambda dep_num: dep_num[1] is [], sb_num_list))
         # data_dict[tuple(set(sub_ob_num_list))] += 1
-        test_tuple = "_".join(sum(tuple(SortedSet(sub_ob_num_list)), ()))
-        print('test_tuple', test_tuple)
+        key_name = "_".join(sum(tuple(SortedSet(sub_ob_num_list)), ()))
 
-        data_dict[tuple(SortedSet(sub_ob_num_list))] += 1
-        data_str_dict[tuple(SortedSet(sub_ob_num_list))].append(element)
+        data_dict[key_name] += 1
+        data_str_dict[key_name].append(element)
 
         data_key_list.append((sub_ob_num_list, set(sub_ob_num_list)))
 
