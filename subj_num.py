@@ -24,6 +24,9 @@ def spacy_distribtion(data_list):
 
         # empty_morph_list = list(filter(lambda dep_num: dep_num[1] is [], sb_num_list))
         # data_dict[tuple(set(sub_ob_num_list))] += 1
+        test_tuple = "_".join(sum(tuple(SortedSet(sub_ob_num_list)), ()))
+        print('test_tuple', test_tuple)
+
         data_dict[tuple(SortedSet(sub_ob_num_list))] += 1
         data_str_dict[tuple(SortedSet(sub_ob_num_list))].append(element)
 
@@ -166,8 +169,8 @@ if __name__ == '__main__':
             pickled_dict = read_in_pickled_dict(file_path + 'eval_' + task + '_' + train_test + '_' + file_name)
 
             # plot_results_pie(task, pickled_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/', file_name)
-            plot_results_o_s_pie(task, pickled_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/', file_name,
-                                 train_test)
+            # plot_results_o_s_pie(task, pickled_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/', file_name,
+            #                     train_test)
 
             ''' SUBJ '''
             # eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/subj_number/subjnum_out_clean_uniq.csv')
