@@ -1,0 +1,19 @@
+config: noise # test_classifier, train_classifier , subj_obj_data...
+tasks: [obj_number] # subj_number, past_present, bigram_shift]
+train_test: [test] # [train, test]
+server_path: /local/anasbori/
+lokal_path: /home/anastasia/PycharmProjects/
+data_path_in: visrepProb/task_encs/
+noise_test_file_in: test_raw_sentences_20.npy  #test_raw_sentences.npy
+noise_test_labels_in: test_raw_labels_20.npy # test_raw_labels.npy
+noise_test_file_out:   test_noise_sentences_20.csv #test_raw_sentences.csv
+noise_test_path_out: visrepProb/noise/
+noise_perc: [0.1, 0.2, 0.4, 0.8]
+noise_type: ['swap', 'cam']
+xprobe_path_in: xprobe/de/
+xprobe_train_file: tense_tr_out.csv
+xprobe_test_file: tense_te_out.csv
+# !! dataset_size: always spezify greatest value first; used to create encodings dataset !!
+dataset_size: [20, 10] #[10000, 1000]
+path_scores: visrepProb/test_scores/
+path_saved_classifier: 10000_sav/ # s-o-l_path + data_path_in + task + m_type + path_saved_classifier 
