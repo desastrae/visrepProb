@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = True  # False
+        create_encodings = False
         create_encodings_test = True
 
         # read in raw data into pd dataframe, write majority class to csv
@@ -271,6 +271,6 @@ if __name__ == '__main__':
                                 print(df_t_filter)
                                 df_v_filter = df_v_new.filter(regex=noise_type)
                                 path_out_noise = path_out + noise_type + '_'
-                                stack_plots(task, path_out_noise, df_v_filter, df_t_filter, df_v_old, df_t_old)
+                                stack_plots(task, path_out_noise, df_v_filter, df_t_filter, df_v_old, df_t_old, config_dict)
                         else:
-                            stack_plots(task, path_out, df_v_new, df_t_new, df_v_old, df_t_old)
+                            stack_plots(task, path_out, df_v_new, df_t_new, df_v_old, df_t_old, config_dict)
