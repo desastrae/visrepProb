@@ -122,7 +122,7 @@ def sub_plots(enc_task, path_save, data_dict_v, data_dict_t, size):
     plt.close()
 
 
-def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict_v_old, data_dict_t_old):
+def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict_v_old, data_dict_t_old, config_dict):
     save_plot_position = 0
     fig, axs = plt.subplots(2, 2, figsize=(12.8, 9.6))
 
@@ -135,17 +135,6 @@ def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict
         plot_y = None
 
         labels = list(data_dict_v_new[col_v].keys())
-        print('labels', labels)
-
-        # new results
-        v_results_new = data_dict_v_new[col_v].values
-        t_results_new = data_dict_t_new[col_v].values
-        t_results_new = np.append(t_results_new, 0.0)
-
-        # old results
-        v_results_old = data_dict_v_old['avg'].values
-        t_results_old = data_dict_t_old['avg'].values
-        t_results_old = np.append(t_results_old, 0.0)
 
         x = np.arange(len(labels))  # the label locations
         width = 0.35  # the width of the bars
@@ -163,35 +152,54 @@ def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict
             plot_x = 1
             plot_y = 1
 
-        # fig, ax = plt.subplots()
+        # new results
+        v_results_new = data_dict_v_new[col_v].values
+        t_results_new = data_dict_t_new[col_v].values
+        t_results_new = np.append(t_results_new, 0.0)
 
-        rects1_old = axs[plot_x, plot_y].bar(x - width / 2, v_results_old, width, label='Visual Model Old',
-                                             color="lightsteelblue")
-        rects2_old = axs[plot_x, plot_y].bar(x + width / 2, t_results_old, width, label='Text Model Old',
-                                             color="bisque")
+        # old results
+        v_results_old = data_dict_v_old['avg'].values
+        t_results_old = data_dict_t_old['avg'].values
+        t_results_old = np.append(t_results_old, 0.0)
 
-        rects1 = axs[plot_x, plot_y].bar(x - width / 2, v_results_new, width*0.5, label='Visual Model New',
-                                         color="royalblue", edgecolor='black')
-        rects2 = axs[plot_x, plot_y].bar(x + width / 2, t_results_new, width*0.5, label='Text Model New',
-                                         color="darkorange", edgecolor='black')
+        if config_dict['config'] == 'noise':
+            # results difference
+            v_results_diff = [element1 - element2 for (element1, element2) in zip(v_results_old, v_results_new)]
+            t_results_diff = [element1 - element2 for (element1, element2) in zip(t_results_old, t_results_new)]
+            print('results difference', v_results_diff, t_results_diff)
 
-        axs[plot_x, plot_y].set_xlabel('Layers')
-        axs[plot_x, plot_y].set_ylabel('Results Linear Classifier')
-        axs[plot_x, plot_y].set_title(col_v)
-        axs[plot_x, plot_y].set_xticks(x, labels)
-        axs[plot_x, plot_y].legend()
+            axs[plot_x, plot_y].plot(x, v_results_diff, label="Visual Model", linestyle="-.")
+            axs[plot_x, plot_y].plot(x, t_results_diff, label="Text Model", linestyle=":")
+            axs[plot_x, plot_y].set_xlabel('Layers')
+            axs[plot_x, plot_y].set_ylabel('Difference between Models')
+            axs[plot_x, plot_y].set_title('Results Clean vs. Noisy Data, ' + col_v + ', ' + enc_task)
+            axs[plot_x, plot_y].set_xticks(x, labels)
+            axs[plot_x, plot_y].legend()
 
-        # axs[plot_x, plot_y].bar_label(rects1_old, padding=3)
-        # axs[plot_x, plot_y].bar_label(rects2_old, padding=3)
-        #
-        # axs[plot_x, plot_y].bar_label(rects1, padding=3)
-        # axs[plot_x, plot_y].bar_label(rects2, padding=3)
+            fig.tight_layout()
 
-        fig.tight_layout()
-        axs[plot_x, plot_y].set_ylim([0.3, 1.0])
+        else:
+            axs[plot_x, plot_y].bar(x - width / 2, v_results_old, width, label='Visual Model Old',
+                                                 color="lightsteelblue")
+            axs[plot_x, plot_y].bar(x + width / 2, t_results_old, width, label='Text Model Old',
+                                                 color="bisque")
+
+            axs[plot_x, plot_y].bar(x - width / 2, v_results_new, width*0.5, label='Visual Model New',
+                                             color="royalblue", edgecolor='black')
+            axs[plot_x, plot_y].bar(x + width / 2, t_results_new, width*0.5, label='Text Model New',
+                                             color="darkorange", edgecolor='black')
+
+            axs[plot_x, plot_y].set_xlabel('Layers')
+            axs[plot_x, plot_y].set_ylabel('Results Linear Classifier')
+            axs[plot_x, plot_y].set_title(col_v)
+            axs[plot_x, plot_y].set_xticks(x, labels)
+            axs[plot_x, plot_y].legend()
+
+            fig.tight_layout()
+            axs[plot_x, plot_y].set_ylim([0.3, 1.0])
         # axs[plot_x, plot_y].set_figure(figsize=(1280, 960))
 
-    # plt.show()
+    plt.show()
     # plt.savefig(path_save + enc_task + '_v_vs_t_results_' + str(int(size)) + '_stack3.png')
-    plt.savefig(path_save + enc_task + '_v_vs_t_results_stack.png')
+    # plt.savefig(path_save + enc_task + '_v_vs_t_results_stack.png')
     plt.close()
