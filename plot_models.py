@@ -168,10 +168,10 @@ def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict
             # t_results_diff = [element1 - element2 for (element1, element2) in zip(t_results_old, t_results_new)]
             # print('results difference', v_results_diff, t_results_diff)
 
-            axs[plot_x, plot_y].plot(x, v_results_old, label="Visual Model", linestyle="-.", color="lightsteelblue")
-            axs[plot_x, plot_y].plot(x, v_results_new, label="Visual Model", linestyle="-.", color="royalblue")
-            axs[plot_x, plot_y].plot(x, t_results_old, label="Text Model", linestyle=":", color="bisque")
-            axs[plot_x, plot_y].plot(x, t_results_new, label="Text Model", linestyle=":", color="darkorange")
+            axs[plot_x, plot_y].plot(x, v_results_old, label="Visual, Clean", linestyle=":", color="royalblue")
+            axs[plot_x, plot_y].plot(x, v_results_new, label="Visual, Noise", linestyle="-", color="royalblue")
+            axs[plot_x, plot_y].plot(x, t_results_old, label="Text, Clean", linestyle=":", color="darkorange")
+            axs[plot_x, plot_y].plot(x, t_results_new, label="Text, Noise", linestyle="-", color="darkorange")
             axs[plot_x, plot_y].set_xlabel('Layers')
             axs[plot_x, plot_y].set_ylabel('Difference between Models')
             axs[plot_x, plot_y].set_title('Results Clean vs. Noisy Data, ' + col_v + ', ' + enc_task)
@@ -179,6 +179,7 @@ def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict
             axs[plot_x, plot_y].legend()
 
             fig.tight_layout()
+            axs[plot_x, plot_y].set_ylim([0.5, 1.0])
 
         else:
             axs[plot_x, plot_y].bar(x - width / 2, v_results_old, width, label='Visual Model Old',
