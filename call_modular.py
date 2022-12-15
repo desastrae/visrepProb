@@ -49,7 +49,7 @@ if __name__ == '__main__':
         # read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
         do_avg_tensor = True
 
-        classify = True
+        classify = False  # True
         # train classifier & create scores for arrays
         classify_arrays = False  # True
         # check if mean tensors are equal across layers
@@ -190,7 +190,9 @@ if __name__ == '__main__':
                                                                                         path_labels)
                                 results_all[noise_folder] = results
                         df = pd.DataFrame.from_dict(results_all)
-                        df.to_csv(path_out + 'noise_' + m_type + '_' + task + '_' + str(data_size) + '.csv')
+                        noise_info_str = '_'.join(config_dict['noise_type']) + '_' + '_'.join(config_dict['noise_perc'])
+                        df.to_csv(path_out + 'noise_' + noise_info_str + m_type + '_' + task + '_' + str(data_size)
+                                  + '.csv')
 
             if create_plots:
                 # path_out = path_server_o_lokal + config_dict['data_path_in']
@@ -223,8 +225,8 @@ if __name__ == '__main__':
                         file_t_old_scores = path_old_scores + '/t/t_' + task + '_' + str(10000) + '.csv'
 
                         # TODO: adpat file names dynamically !
-                        df_v_new = pd.read_csv(path_out + 'noise_v_' + task + '_' + str(data_size) + '.csv', index_col=0)
-                        df_t_new = pd.read_csv(path_out + 'noise_t_' + task + '_' + str(data_size) + '.csv', index_col=0)
+                        df_v_new = pd.read_csv(path_out + 'noise_v_' + task + '_' + str(10000) + '.csv', index_col=0)
+                        df_t_new = pd.read_csv(path_out + 'noise_t_' + task + '_' + str(10000) + '.csv', index_col=0)
 
                         df_v_old = pd.read_csv(file_v_old_scores, index_col=0)
                         df_t_old = pd.read_csv(file_t_old_scores, index_col=0)
@@ -257,20 +259,20 @@ if __name__ == '__main__':
                                     df_n.rename({str(name.split('-')[0] + '3.txt'): name}, errors="raise", axis=1,
                                                 inplace=True)
 
-                        # print('df_t_new.columns', df_t_new.columns)
-                        # print('df_v_new.columns', df_v_new.columns)
-
-                        # build_key =
-                        # print(train_subj_obj_dict[])
-
-                        # for file in files_list:
-                        # sub_plots(task, path_scores, df_v_new, df_t_new, data_size / 2)
                         if config_dict['config'] == 'noise':
                             for noise_type in config_dict['noise_type']:
                                 df_t_filter = df_t_new.filter(regex=noise_type)
                                 print(df_t_filter)
                                 df_v_filter = df_v_new.filter(regex=noise_type)
                                 path_out_noise = path_out + noise_type + '_'
-                                stack_plots(task, path_out_noise, df_v_filter, df_t_filter, df_v_old, df_t_old, config_dict)
+                                if len(list(df_v_filter.columns)) > 1:
+                                    stack_plots(task, path_out_noise, df_v_filter, df_t_filter, df_v_old, df_t_old,
+                                                config_dict)
+                                elif len(list(df_v_filter.columns)) == 1:
+                                    one_plot_old_new(task, path_out_noise, df_v_filter, df_t_filter, df_v_old, df_t_old,
+                                                     config_dict)
                         else:
-                            stack_plots(task, path_out, df_v_new, df_t_new, df_v_old, df_t_old, config_dict)
+                            if len(list(df_v_new.columns)) > 1:
+                                stack_plots(task, path_out, df_v_new, df_t_new, df_v_old, df_t_old, config_dict)
+                            elif len(list(df_v_filter.columns)) == 1:
+                                one_plot_old_new(task, path_out, df_v_new, df_t_new, df_v_old, df_t_old, config_dict)
