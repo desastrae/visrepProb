@@ -134,6 +134,9 @@ def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict
         labels = list(data_dict_v_new[col_v].keys())
 
         x = np.arange(len(labels))  # the label locations
+        print('x',x)
+        x_v = list(range(1, len(labels)+1))
+        x_t = list(range(1, len(labels)))
         width = 0.35  # the width of the bars
 
         plot_x = None
@@ -156,12 +159,15 @@ def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict
         # new results
         v_results_new = data_dict_v_new[col_v].values
         t_results_new = data_dict_t_new[col_v].values
-        t_results_new = np.append(t_results_new, 0.0)
 
         # old results
         v_results_old = data_dict_v_old['avg'].values
         t_results_old = data_dict_t_old['avg'].values
-        t_results_old = np.append(t_results_old, 0.0)
+
+        # bar plots need same length
+        if config_dict['config'] != 'noise':
+            t_results_new = np.append(t_results_new, 0.0)
+            t_results_old = np.append(t_results_old, 0.0)
 
         if config_dict['config'] == 'noise':
             # results difference
@@ -169,12 +175,12 @@ def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict
             t_results_diff = [element1 - element2 for (element1, element2) in zip(t_results_old, t_results_new)]
             # print('results difference', v_results_diff, t_results_diff)
 
-            axs[plot_x, plot_y].plot(x, v_results_diff, label="Visual Model", linestyle="-", color="royalblue")
-            axs[plot_x, plot_y].plot(x, t_results_diff, label="Text Model", linestyle="-", color="darkorange")
+            axs[plot_x, plot_y].plot(x_v, v_results_diff, label="Visual Model", linestyle="-", color="royalblue")
+            axs[plot_x, plot_y].plot(x_t, t_results_diff, label="Text Model", linestyle="-", color="darkorange")
             axs[plot_x, plot_y].set_xlabel('Layers')
             axs[plot_x, plot_y].set_ylabel('Difference between Models')
             axs[plot_x, plot_y].set_title('Results Clean vs. Noisy Data, ' + col_v + ', ' + enc_task)
-            axs[plot_x, plot_y].set_xticks(x, labels)
+            # axs[plot_x, plot_y].set_xticks(x, labels)
             axs[plot_x, plot_y].legend()
 
             # axs[plot_x, plot_y].fill_between(labels, v_results_new, t_results_new, color="grey", alpha=0.3)
@@ -220,30 +226,36 @@ def one_plot_old_new(enc_task, path_save, data_dict_v_new, data_dict_t_new, data
         labels = list(data_dict_v_new[col_v].keys())
 
         x = np.arange(len(labels))  # the label locations
+        print('x', x)
+        x_v = np.arange(len(labels))  # the label locations
+        x_t = np.arange(len(labels) - 1)  # the label locations
         width = 0.35  # the width of the bars
 
         # new results
         v_results_new = data_dict_v_new[col_v].values
         t_results_new = data_dict_t_new[col_v].values
-        t_results_new = np.append(t_results_new, 0.0)
 
         # old results
         v_results_old = data_dict_v_old['avg'].values
         t_results_old = data_dict_t_old['avg'].values
-        t_results_old = np.append(t_results_old, 0.0)
 
-        if config_dict['config'] == 'noise':
+        # bar plots need same length
+        if config_dict['config'] != 'noise':
+            t_results_new = np.append(t_results_new, 0.0)
+            t_results_old = np.append(t_results_old, 0.0)
+
+        if config_dict['config'] == 'oise':
             # results difference
             v_results_diff = [element1 - element2 for (element1, element2) in zip(v_results_old, v_results_new)]
             t_results_diff = [element1 - element2 for (element1, element2) in zip(t_results_old, t_results_new)]
             # print('results difference', v_results_diff, t_results_diff)
 
-            axs.plot(x, v_results_new, label="Visual Model", linestyle="-", color="royalblue")
-            axs.plot(x, t_results_new, label="Text Model", linestyle="-", color="darkorange")
+            axs.plot(x_v, v_results_new, label="Visual Model", linestyle="-", color="royalblue")
+            axs.plot(x_t, t_results_new, label="Text Model", linestyle="-", color="darkorange")
             axs.set_xlabel('Layers')
             axs.set_ylabel('Difference between Models')
             axs.set_title('Results Clean vs. Noisy Data, ' + col_v + ', ' + enc_task)
-            axs.set_xticks(x, labels)
+            # axs.set_xticks(x, labels)
             axs.legend()
 
             # axs.fill_between(labels, v_results_new, t_results_new, color="grey", alpha=0.3)
