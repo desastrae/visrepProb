@@ -186,7 +186,7 @@ def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict
             # axs[plot_x, plot_y].fill_between(labels, v_results_new, t_results_new, color="grey", alpha=0.3)
 
             fig.tight_layout()
-            # axs[plot_x, plot_y].set_ylim([0.5, 1.0])
+            axs[plot_x, plot_y].set_ylim([-0.0025, 0.16])
 
         else:
             axs[plot_x, plot_y].bar(x - width / 2, v_results_old, width, label='Visual Model Old',
@@ -211,7 +211,7 @@ def stack_plots(enc_task, path_save, data_dict_v_new, data_dict_t_new, data_dict
 
     plt.show()
     # plt.savefig(path_save + enc_task + '_v_vs_t_results_' + str(int(size)) + '_stack3.png')
-    # plt.savefig(path_save + enc_task + '_v_vs_t_results_stack.png')
+    plt.savefig(path_save + enc_task + '_v_vs_t_results_stack.png')
     plt.close()
 
 
