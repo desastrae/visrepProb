@@ -9,6 +9,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score
 from sklearn.dummy import DummyClassifier
 from sklearn.utils import shuffle
+from sklearn.neural_network import MLPClassifier
 import os
 from os import walk, listdir
 from collections import defaultdict
@@ -16,6 +17,7 @@ from natsort import natsorted
 from tqdm import tqdm
 import pickle
 import yaml
+from get_image_slices_clean import get_wordpixels_in_pic_slice, get_pic_num_for_word
 
 
 class VisRepEncodings:
@@ -24,7 +26,8 @@ class VisRepEncodings:
         self.model = None
         self.encoded_data = None
         self.file_path = file_path
-        self.data = file_path + config_dict['noise_test_file_out']
+        # if self.config_dict['config'] == 'noise':
+        # self.data = file_path + self.config_dict['noise_test_file_out']
         self.train_dict = defaultdict
         self.m_para = None
         self.path_save = path_save_encs
@@ -113,6 +116,22 @@ class VisRepEncodings:
 
         return df_combined
 
+    def read_pos_raw_data(self, path_file_name):
+        pos_tags_file_list = list()
+        sentence_list = list()
+
+        # with open('de-utb/de-train.tt') as file:
+        with open(path_file_name, 'r', encoding='utf-8') as file:
+            for line in file:
+                if line == '\n':
+                    pos_tags_file_list.append(sentence_list)
+                    sentence_list = list()
+                    if len(pos_tags_file_list) == self.config_dict['dataset_size'][0]:
+                        break
+                    continue
+                sentence_list.append(tuple(line.split()))
+        return pos_tags_file_list
+
     # Translate sentences
     def translate_save(self, batch, tr_or_te, data_name):
         print('\n\nTranslating sentences // Creating encodings...\n\n')
@@ -129,6 +148,28 @@ class VisRepEncodings:
 
             self.save_encodings(layer_dict, idx, tr_or_te, data_name)
 
+    def translate_word_level_save(self, batch, tr_or_te, data_name):
+        print('\n\nTranslating sentences // Creating encodings...\n\n')
+
+        make_directories = True
+
+        for idx, sent in tqdm(enumerate(batch)):
+            print('sent:', sent)
+            sent_list, pos_list = list(zip(*sent))
+            print('sent_list :', ' '.join(sent_list))
+            translation, layer_dict = self.model.translate(' '.join(sent_list))
+            # print('len(layer_dict[l1])', layer_dict['l'].shape)
+            pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(' '.join(sent_list)))
+            print('translation: ', translation, len(layer_dict['l1']), pic_num_words)
+            # print('translation', translation)
+
+            if make_directories:
+                print('Make directories...')
+                make_directories = False
+                self.make_directories(layer_dict, tr_or_te, data_name)
+
+            self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, pos_list)
+
     def translate_process(self, batch):
         collect_layer_dicts = defaultdict(list)
         collect_idx_sent_dict = defaultdict(list)
@@ -143,6 +184,7 @@ class VisRepEncodings:
 
     # Create directories for layers
     def make_directories(self, np_dict, tr_or_te, data_name):
+        print('self.path_save_encs', self.path_save_encs )
         self.all_layers = np_dict.keys()
 
         try:
@@ -169,6 +211,7 @@ class VisRepEncodings:
             for key in np_dict.keys():
                 try:
                     os.mkdir(self.path_save_encs + tr_or_te + '/layers/' + data_name + '/' + key + '/')
+                    os.mkdir(self.path_save_encs + tr_or_te + '/results/' + data_name + '/' + key + '/')
                 except OSError as error:
                     # print(error)
                     continue
@@ -177,7 +220,7 @@ class VisRepEncodings:
         # data_name = self.data.split('/')[1].split('.')[0]
         # print(data_name)
         # print('Saving encodings...')
-
+        print(np_dict)
         for key, val in np_dict.items():
             with open(self.path_save_encs + tr_or_te + '/layers/' + d_name + '/' + key + '/' + d_name + '_'
                       + self.m_para + '_sent_' + str(sent_num) + '.npy', 'wb') as f:
@@ -186,6 +229,38 @@ class VisRepEncodings:
                 except FileExistsError as error:
                     # print(error)
                     pass
+
+    def save_word_level_encodings(self, np_dict, sent_num, tr_or_te, d_name, pic_num_words_list, pos_list):
+        # data_name = self.data.split('/')[1].split('.')[0]
+        # print(data_name)
+        # print('Saving encodings...')
+        for key, val in np_dict.items():
+            print(len(val), pic_num_words_list)
+            np.array(val)
+            # print('val: \n', val[0:3])
+            # print(np.mean(key_val[1][0:3].numpy(), axis=0))
+            # np.save(f, np.mean(val[pic_nums[0]:pic_nums[-1]]), allow_pickle=True)
+            count_val = -1
+            for word_pic_nums, pos in list(zip(pic_num_words_list, pos_list)):
+                # print('pic_nums', pic_nums)
+                count_val += 1
+                with open(self.path_save_encs + tr_or_te + '/results/' + d_name + '/' + key + '/' + d_name + '_'
+                          + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' + word_pic_nums[0]
+                          + '_' + pos + '.npy', 'wb') as f:
+                    try:
+                        np.save(f, np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-1]].numpy(), axis=0),
+                                allow_pickle=True)
+                    except FileExistsError as error:
+                        # print(error)
+                        pass
+                    except TypeError:
+                        if word_pic_nums[1] <= len(val)-1:
+                            np.save(f, val[word_pic_nums[1]].numpy(), allow_pickle=True)
+                        else:
+                            np.save(f, val[word_pic_nums[1] - 1].numpy(), allow_pickle=True)
+                    except IndexError and len(word_pic_nums[1]) > 1:
+                        np.save(f, np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-2]].numpy(), axis=0),
+                                allow_pickle=True)
 
     # for every sentence with n tokens, create one sentence tensor with averaged sentence tokens
     # for every sentence tensor create one tensor containing all sentence tensors for every layer
@@ -284,6 +359,37 @@ class VisRepEncodings:
             # save the model to disk
             filename = self.path_save + v_or_t + '/' + v_or_t + '_' + layer + '_lin_reg_model_' + str(size) + '.sav'
             pickle.dump(lr_clf, open(filename, 'wb'))
+
+        return collect_scores, collect_dummy_scores
+
+    # TODO: classify word-level encodings for every layer
+    def mlp_classifier(self, v_or_t, train_feat_dir, train_labels, test_feat_dir, test_labels,
+                                       size):
+        filenames_train = natsorted(next(walk(self.path_save + train_feat_dir), (None, None, []))[2])
+        filenames_test = natsorted(next(walk(self.path_save + test_feat_dir), (None, None, []))[2])
+
+        train_dict = self.create_shuffled_data_and_labels(train_feat_dir, train_labels, size, filenames_train)
+        test_dict = self.create_shuffled_data_and_labels(test_feat_dir, test_labels, size, filenames_test)
+
+        collect_scores = defaultdict()
+        collect_dummy_scores = defaultdict()
+
+        for layer in sorted(train_dict.keys()):
+            train_features, train_labels = train_dict[layer]
+            test_features, test_labels = test_dict[layer]
+
+            mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
+
+            print('\n\n' + layer + '_lrf_score', mlp_clf.score(test_features, test_labels))
+            collect_scores[layer] = mlp_clf.score(test_features, test_labels)
+
+            dummy_clf = DummyClassifier()
+            dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
+            collect_dummy_scores[layer] = dummy_scores.mean()
+
+            # save the model to disk
+            filename = self.path_save + v_or_t + '/' + v_or_t + '_' + layer + '_mlp_model_' + str(size) + '.sav'
+            pickle.dump(mlp_clf, open(filename, 'wb'))
 
         return collect_scores, collect_dummy_scores
 
