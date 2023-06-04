@@ -99,7 +99,7 @@ class VisRepEncodings:
         df_all = pd.read_csv(self.data, delimiter='\t', header=None)
         df_values = set(df_all[1].values)
 
-        print(df_values)
+        # print(df_values)
 
         df_combined = pd.DataFrame(columns=df_all.columns.values)
 
@@ -109,7 +109,7 @@ class VisRepEncodings:
 
         df_combined.reset_index(inplace=True, drop=True)
 
-        print('df_combined', df_combined[1].value_counts(), len(df_combined))
+        # print('df_combined', df_combined[1].value_counts(), len(df_combined))
 
         if save_df:
             self.save_raw_data(df_combined, test_train)
@@ -154,19 +154,16 @@ class VisRepEncodings:
         make_directories = True
 
         for idx, sent in tqdm(enumerate(batch)):
-            print('sent:', sent)
             sent_list, pos_list = list(zip(*sent))
-            print('sent_list :', ' '.join(sent_list))
             translation, layer_dict = self.model.translate(' '.join(sent_list))
-            # print('len(layer_dict[l1])', layer_dict['l'].shape)
+            # print('len(layer_dict[l1])', layer_dict['l1'].shape)
             pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(' '.join(sent_list)))
-            print('translation: ', translation, len(layer_dict['l1']), pic_num_words)
             # print('translation', translation)
 
             if make_directories:
                 print('Make directories...')
                 make_directories = False
-                self.make_directories(layer_dict, tr_or_te, data_name)
+                self.make_directories(layer_dict)
 
             self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, pos_list)
 
@@ -183,44 +180,67 @@ class VisRepEncodings:
         return collect_layer_dicts, collect_idx_sent_dict
 
     # Create directories for layers
-    def make_directories(self, np_dict, tr_or_te, data_name):
-        print('self.path_save_encs', self.path_save_encs )
+    def make_directories(self, np_dict):
+        print('self.path_save_encs', self.path_save_encs)
         self.all_layers = np_dict.keys()
+        data_name = ['train', 'test']
 
-        try:
-            os.mkdir(self.path_save_encs + tr_or_te + '/')
-        except OSError as error:
-            # print(error)
-            pass
+        for tr_or_te in data_name:
+            try:
+                os.mkdir(self.path_save_encs)
+            except OSError as error:
+                # print(error)
+                pass
 
-        try:
-            os.mkdir(self.path_save_encs + tr_or_te + '/layers/')
-            os.mkdir(self.path_save_encs + tr_or_te + '/results/')
-        except OSError as error:
-            # print(error)
-            pass
+            try:
+                os.mkdir(self.path_save_encs + tr_or_te + '/')
+            except OSError as error:
+                # print(error)
+                pass
 
-        try:
-            os.mkdir(self.path_save_encs + tr_or_te + '/layers/' + data_name + '/')
-            os.mkdir(self.path_save_encs + tr_or_te + '/results/' + data_name + '/')
-        except OSError as error:
-            # print(error)
-            pass
+            try:
+                os.mkdir(self.path_save_encs + tr_or_te + '/layers/')
+                os.mkdir(self.path_save_encs + tr_or_te + '/results/')
+            except OSError as error:
+                # print(error)
+                pass
+
+        # try:
+        #     os.mkdir(self.path_save_encs + tr_or_te + '/layers/' + data_name + '/')
+        #     os.mkdir(self.path_save_encs + tr_or_te + '/results/' + data_name + '/')
+        # except OSError as error:
+        #     # print(error)
+        #     pass
 
         if self.create_layer_path:
             for key in np_dict.keys():
                 try:
-                    os.mkdir(self.path_save_encs + tr_or_te + '/layers/' + data_name + '/' + key + '/')
-                    os.mkdir(self.path_save_encs + tr_or_te + '/results/' + data_name + '/' + key + '/')
+                    os.mkdir(self.path_save_encs + 'train/layers/' + key + '/')
                 except OSError as error:
                     # print(error)
                     continue
+
+        for cl_noi in ['clean/', 'noise/']:
+            try:
+                os.mkdir(self.path_save_encs + 'test/layers/' + cl_noi)
+                os.mkdir(self.path_save_encs + 'test/results/' + cl_noi)
+            except OSError as error:
+                # print(error)
+                pass
+
+            if self.create_layer_path:
+                for key in np_dict.keys():
+                    try:
+                        os.mkdir(self.path_save_encs + 'test/layers/' + cl_noi + key + '/')
+                        os.mkdir(self.path_save_encs + 'test/results/' + cl_noi + key + '/')
+                    except OSError as error:
+                        # print(error)
+                        continue
 
     def save_encodings(self, np_dict, sent_num, tr_or_te, d_name):
         # data_name = self.data.split('/')[1].split('.')[0]
         # print(data_name)
         # print('Saving encodings...')
-        print(np_dict)
         for key, val in np_dict.items():
             with open(self.path_save_encs + tr_or_te + '/layers/' + d_name + '/' + key + '/' + d_name + '_'
                       + self.m_para + '_sent_' + str(sent_num) + '.npy', 'wb') as f:
@@ -235,7 +255,6 @@ class VisRepEncodings:
         # print(data_name)
         # print('Saving encodings...')
         for key, val in np_dict.items():
-            print(len(val), pic_num_words_list)
             np.array(val)
             # print('val: \n', val[0:3])
             # print(np.mean(key_val[1][0:3].numpy(), axis=0))
@@ -244,9 +263,15 @@ class VisRepEncodings:
             for word_pic_nums, pos in list(zip(pic_num_words_list, pos_list)):
                 # print('pic_nums', pic_nums)
                 count_val += 1
-                with open(self.path_save_encs + tr_or_te + '/results/' + d_name + '/' + key + '/' + d_name + '_'
-                          + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' + word_pic_nums[0]
-                          + '_' + pos + '.npy', 'wb') as f:
+                if tr_or_te == 'test' and self.config_dict['config'] == 'noise':
+                    path_tr_te = 'noise/'
+                elif tr_or_te == 'test' and self.config_dict['config'] != 'noise':
+                    path_tr_te = 'clean/'
+                else:
+                    path_tr_te = ''
+                with open(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + key + '/' + d_name
+                          + '_' + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' +
+                          word_pic_nums[0] + '_' + pos + '.npy', 'wb') as f:
                     try:
                         np.save(f, np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-1]].numpy(), axis=0),
                                 allow_pickle=True)
@@ -286,7 +311,6 @@ class VisRepEncodings:
                 collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
                 # first_token_arr = np.row_stack((first_token_arr, enc_sent[0]))
 
-
             print('results_name', results_name)
             # save averaged np-array for all sentences
             with open(results_name + 'all_sent_avg_v_' + layer + '.npy', 'wb') as f:
@@ -305,18 +329,64 @@ class VisRepEncodings:
             #         # print(error)
             #         pass
 
+    def read_in_word_level_make_matrix(self, para_tr_o_te):
+        print('\n\nReading in all word and sentence embeddings & creating one np matrix...\n\n')
+
+        if para_tr_o_te == 'test' and self.config_dict['config'] == 'noise':
+            data_name = 'noise/'
+        elif para_tr_o_te == 'test' and self.config_dict['config'] != 'noise':
+            data_name = 'clean/'
+        else:
+            data_name = ''
+
+        folder_name = self.path_save_encs + para_tr_o_te + '/layers/' + data_name
+        results_name = self.path_save_encs + para_tr_o_te + '/results/' + data_name
+        layers_list = listdir(folder_name)
+        print('layers_list', layers_list)
+        print('self.path_save_encs', self.path_save_encs)
+        print('results_name', results_name)
+
+        for layer in tqdm(layers_list):
+
+            filenames = natsorted(next(walk(folder_name + layer + '/'), (None, None, []))[2])
+            # print('filenames', filenames)
+            first_name_file = filenames.pop(0)
+            collected_np_arr_matrix = np.load(folder_name + layer + '/' + first_name_file)
+            collected_np_label_array = np.array(first_name_file.split('.')[0].split('_')[5])
+            # collected_np_arr = np.mean(first_enc_file, axis=0)
+            # first_token_arr = first_enc_file[0]
+
+            for word_file in tqdm(filenames):
+                enc_word = np.load(folder_name + layer + '/' + word_file)
+                enc_label = np.array(word_file.split('.n')[0].split('_')[5])
+                collected_np_arr_matrix = np.row_stack((collected_np_arr_matrix, enc_word))
+                collected_np_label_array = np.append(collected_np_label_array, enc_label)
+                # first_token_arr = np.row_stack((first_token_arr, enc_sent[0]))
+
+            print('results_name', results_name)
+            # save averaged np-array for all sentences
+            with open(results_name + 'all_word_arrays_matrix_' + layer + '.npy', 'wb') as f:
+                try:
+                    np.save(f, collected_np_arr_matrix, allow_pickle=True)
+                except FileExistsError as error:
+                    # print(error)
+                    pass
+
+            with open(results_name + 'all_word_POS_array_' + layer + '.npy', 'wb') as f:
+                try:
+                    np.save(f, collected_np_label_array, allow_pickle=True)
+                except FileExistsError as error:
+                    # print(error)
+                    pass
+
     def create_shuffled_data_and_labels(self, data_features_dir, data_labels_file, size, data):
         train_test_dict = defaultdict()
 
         for file in data:
-            half_size = int(size / 2)
             layer = file.split('.')[0].split('_')[-1]
-            features_all = np.load(self.path_save + data_features_dir + file, allow_pickle=True)
-            features = np.concatenate((features_all[:half_size], features_all[-half_size:]), axis=0)
 
             # labels_all = np.load(self.path_save + data_labels_file, allow_pickle=True)
             labels_all = np.load(self.file_path + data_labels_file, allow_pickle=True)
-            labels = np.concatenate((labels_all[:half_size], labels_all[-half_size:]), axis=0)
 
             features_shuffled, labels_shuffled = shuffle(features, labels, random_state=42)
 
@@ -363,25 +433,38 @@ class VisRepEncodings:
         return collect_scores, collect_dummy_scores
 
     # TODO: classify word-level encodings for every layer
-    def mlp_classifier(self, v_or_t, train_feat_dir, train_labels, test_feat_dir, test_labels,
-                                       size):
-        filenames_train = natsorted(next(walk(self.path_save + train_feat_dir), (None, None, []))[2])
-        filenames_test = natsorted(next(walk(self.path_save + test_feat_dir), (None, None, []))[2])
-
-        train_dict = self.create_shuffled_data_and_labels(train_feat_dir, train_labels, size, filenames_train)
-        test_dict = self.create_shuffled_data_and_labels(test_feat_dir, test_labels, size, filenames_test)
+    def mlp_classifier(self, v_or_t, train_feat_dir, train_labels, test_feat_dir, test_labels, size):
+        print('Training MLP Classifier...')
+        train_path = self.path_save_encs + 'train/results/'
+        test_path = self.path_save_encs + 'test/results/clean/'
+        filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
+        train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
+        train_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_train)))
+        # print(train_features)
+        # print(self.path_save_encs + 'train/results/')
+        filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
+        test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
+        test_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_test)))
 
         collect_scores = defaultdict()
         collect_dummy_scores = defaultdict()
 
-        for layer in sorted(train_dict.keys()):
-            train_features, train_labels = train_dict[layer]
-            test_features, test_labels = test_dict[layer]
+        for train_feat, train_lab, test_feat, test_lab in list(zip(train_features, train_labels, test_features,
+                                                                   test_labels)):
+            layer = train_feat.split('.')[0].split('_')[-1]
+            print('layer', layer)
+            train_features = np.load(train_path + train_feat, allow_pickle=True)
+            train_labels = np.load(train_path + train_lab, allow_pickle=True)
+            test_features = np.load(test_path + test_feat, allow_pickle=True)
+            test_labels = np.load(test_path + test_lab, allow_pickle=True)
+            print(train_features.shape, train_labels.shape)
+            print(train_labels)
 
             mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
 
             print('\n\n' + layer + '_lrf_score', mlp_clf.score(test_features, test_labels))
             collect_scores[layer] = mlp_clf.score(test_features, test_labels)
+            print('collect_scores', collect_scores)
 
             dummy_clf = DummyClassifier()
             dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
