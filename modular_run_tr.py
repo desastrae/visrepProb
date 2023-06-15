@@ -156,7 +156,9 @@ class VisRepEncodings:
         for idx, sent in tqdm(enumerate(batch)):
             sent_list, pos_list = list(zip(*sent))
             translation, layer_dict = self.model.translate(' '.join(sent_list))
-            # print('len(layer_dict[l1])', layer_dict['l1'].shape)
+            print('len(layer_dict[l1])', layer_dict['l1'].shape)
+            # for key, item in layer_dict.items():
+            #     print('np.where: ', np.where(np.isnan(layer_dict[key])))
             pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(' '.join(sent_list)))
             # print('translation', translation)
 
@@ -272,20 +274,50 @@ class VisRepEncodings:
                 with open(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + key + '/' + d_name
                           + '_' + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' +
                           word_pic_nums[0] + '_' + pos + '.npy', 'wb') as f:
+                    # print('word_pic_nums[1]: ', word_pic_nums[1], 'len(val): ', len(val))
                     try:
-                        np.save(f, np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-1]].numpy(), axis=0),
-                                allow_pickle=True)
-                    except FileExistsError as error:
-                        # print(error)
-                        pass
-                    except TypeError:
-                        if word_pic_nums[1] <= len(val)-1:
-                            np.save(f, val[word_pic_nums[1]].numpy(), allow_pickle=True)
+                        # print('Normal')
+                        # print(np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-1]]))
+                        # print(len(word_pic_nums[1]))
+                        if len(word_pic_nums[1]) == 1:
+                            print('len(word_pic_nums) == 1', word_pic_nums[1][0])
+                            print('save word-level', word_pic_nums[0], 'len(w_pic_nums): ', len(word_pic_nums[1]),
+                                  np.where(np.isnan(val[word_pic_nums[1][0]].numpy())))
+                            np.save(f, val[word_pic_nums[1]].numpy(), axis=0, allow_pickle=True)
                         else:
-                            np.save(f, val[word_pic_nums[1] - 1].numpy(), allow_pickle=True)
-                    except IndexError and len(word_pic_nums[1]) > 1:
-                        np.save(f, np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-2]].numpy(), axis=0),
-                                allow_pickle=True)
+                            # print('save word-level', word_pic_nums[0], 'len(w_pic_nums): ', len(word_pic_nums[1]),
+                            #     np.where(np.isnan(np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-1]].numpy(),
+                            #     axis=0))))
+                            np.save(f, np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-1]].numpy(), axis=0),
+                                    allow_pickle=True)
+                    # except FileExistsError:
+                    #     # print('FileExists Error')
+                    #     pass
+                    except TypeError:
+                        print('val: ', len(val) - 1, 'word_pic_nums[1]: ', word_pic_nums[1])
+                        if isinstance(word_pic_nums[1], int):
+                            if word_pic_nums[1] <= (len(val)-1):
+                                # print('save word-level', word_pic_nums[0],
+                                # np.where(np.isnan(val[word_pic_nums[1]].numpy())))
+                                np.save(f, val[word_pic_nums[1]].numpy(), allow_pickle=True)
+                            else:
+                                # print('save word-level', word_pic_nums[0],
+                                # np.where(np.isnan(val[word_pic_nums[1] - 1].numpy())))
+                                np.save(f, val[word_pic_nums[1] - 1].numpy(), allow_pickle=True)
+                        elif isinstance(word_pic_nums[1], list):
+                            if word_pic_nums[1][0] <= (len(val)-1):
+                                # print('save word-level', word_pic_nums[0],
+                                # np.where(np.isnan(val[word_pic_nums[1]].numpy())))
+                                np.save(f, val[word_pic_nums[1][0]].numpy(), allow_pickle=True)
+                            else:
+                                # print('save word-level', word_pic_nums[0],
+                                # np.where(np.isnan(val[word_pic_nums[1] - 1].numpy())))
+                                np.save(f, val[word_pic_nums[1][0] - 1].numpy(), allow_pickle=True)
+
+                    # except IndexError and len(word_pic_nums[1]) > 1:
+                    #     # print('Index Error')
+                    #     np.save(f, np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-2]].numpy(), axis=0),
+                    #             allow_pickle=True)
 
     # for every sentence with n tokens, create one sentence tensor with averaged sentence tokens
     # for every sentence tensor create one tensor containing all sentence tensors for every layer
@@ -352,14 +384,16 @@ class VisRepEncodings:
             # print('filenames', filenames)
             first_name_file = filenames.pop(0)
             collected_np_arr_matrix = np.load(folder_name + layer + '/' + first_name_file)
-            collected_np_label_array = np.array(first_name_file.split('.')[0].split('_')[5])
+            collected_np_label_array = np.array(first_name_file.split('.n')[0].split('_')[5])
             # collected_np_arr = np.mean(first_enc_file, axis=0)
             # first_token_arr = first_enc_file[0]
 
             for word_file in tqdm(filenames):
                 enc_word = np.load(folder_name + layer + '/' + word_file)
+                # print('word_file: ', folder_name + layer + '/' + word_file, 'matrix, np.where: ', np.where(np.isnan(enc_word)))
                 enc_label = np.array(word_file.split('.n')[0].split('_')[5])
                 collected_np_arr_matrix = np.row_stack((collected_np_arr_matrix, enc_word))
+                # print('word_file: ', word_file, 'matrix, np.where: ', np.where(np.isnan(collected_np_arr_matrix)))
                 collected_np_label_array = np.append(collected_np_label_array, enc_label)
                 # first_token_arr = np.row_stack((first_token_arr, enc_sent[0]))
 
@@ -367,6 +401,7 @@ class VisRepEncodings:
             # save averaged np-array for all sentences
             with open(results_name + 'all_word_arrays_matrix_' + layer + '.npy', 'wb') as f:
                 try:
+                    # print('matrix, np.where: ', np.where(np.isnan(collected_np_arr_matrix)))
                     np.save(f, collected_np_arr_matrix, allow_pickle=True)
                 except FileExistsError as error:
                     # print(error)
@@ -374,6 +409,7 @@ class VisRepEncodings:
 
             with open(results_name + 'all_word_POS_array_' + layer + '.npy', 'wb') as f:
                 try:
+                    # print('labels, np.where: ', len(np.where(np.isnan(collected_np_label_array))))
                     np.save(f, collected_np_label_array, allow_pickle=True)
                 except FileExistsError as error:
                     # print(error)
@@ -458,7 +494,11 @@ class VisRepEncodings:
             test_features = np.load(test_path + test_feat, allow_pickle=True)
             test_labels = np.load(test_path + test_lab, allow_pickle=True)
             print(train_features.shape, train_labels.shape)
-            print(train_labels)
+            print(test_features.shape, test_labels.shape)
+            # print(test_features[100])
+            # print(np.where(np.isnan(test_features)))
+
+            # print(test_labels[100])
 
             mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
 
