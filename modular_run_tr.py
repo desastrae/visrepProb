@@ -271,9 +271,13 @@ class VisRepEncodings:
                     path_tr_te = 'clean/'
                 else:
                     path_tr_te = ''
+                if word_pic_nums[0] == '/':
+                    word_file = '"backslash"'
+                else:
+                    word_file = word_pic_nums[0]
                 with open(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + key + '/' + d_name
                           + '_' + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' +
-                          word_pic_nums[0] + '_' + pos + '.npy', 'wb') as f:
+                          word_file + '_' + pos + '.npy', 'wb') as f:
                     # print('word_pic_nums[1]: ', word_pic_nums[1], 'len(val): ', len(val))
                     try:
                         # print('Normal')
