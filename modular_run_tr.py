@@ -156,7 +156,7 @@ class VisRepEncodings:
         for idx, sent in tqdm(enumerate(batch)):
             sent_list, pos_list = list(zip(*sent))
             translation, layer_dict = self.model.translate(' '.join(sent_list))
-            print('len(layer_dict[l1])', layer_dict['l1'].shape)
+            # print('len(layer_dict[l1])', layer_dict['l1'].shape)
             # for key, item in layer_dict.items():
             #     print('np.where: ', np.where(np.isnan(layer_dict[key])))
             pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(' '.join(sent_list)))
@@ -272,6 +272,8 @@ class VisRepEncodings:
                 else:
                     path_tr_te = ''
                 if word_pic_nums[0] == '/':
+                    word_file = word_pic_nums[0].replace('/', '"backslash"')
+                elif '/' in word_pic_nums[0]:
                     word_file = '"backslash"'
                 else:
                     word_file = word_pic_nums[0]
@@ -284,9 +286,9 @@ class VisRepEncodings:
                         # print(np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-1]]))
                         # print(len(word_pic_nums[1]))
                         if len(word_pic_nums[1]) == 1:
-                            print('len(word_pic_nums) == 1', word_pic_nums[1][0])
-                            print('save word-level', word_pic_nums[0], 'len(w_pic_nums): ', len(word_pic_nums[1]),
-                                  np.where(np.isnan(val[word_pic_nums[1][0]].numpy())))
+                            # print('len(word_pic_nums) == 1', word_pic_nums[1][0])
+                            # print('save word-level', word_pic_nums[0], 'len(w_pic_nums): ', len(word_pic_nums[1]),
+                            #      np.where(np.isnan(val[word_pic_nums[1][0]].numpy())))
                             np.save(f, val[word_pic_nums[1]].numpy(), axis=0, allow_pickle=True)
                         else:
                             # print('save word-level', word_pic_nums[0], 'len(w_pic_nums): ', len(word_pic_nums[1]),
