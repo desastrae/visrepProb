@@ -275,6 +275,14 @@ class VisRepEncodings:
                     word_file = word_pic_nums[0].replace('/', '"backslash"')
                 elif '/' in word_pic_nums[0]:
                     word_file = '"backslash"'
+                elif word_pic_nums[0] == '$':
+                    word_file = '"dollar"'
+                elif word_pic_nums[0] == '€:
+                    word_file = '"euro"'
+                elif word_pic_nums[0] is not in []:
+                    word_file = '"euro"'
+                elif not word_pic_nums[0].isalnum():
+                    word_file = '"SUBST"'
                 else:
                     word_file = word_pic_nums[0]
                 with open(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + key + '/' + d_name
@@ -300,7 +308,7 @@ class VisRepEncodings:
                     #     # print('FileExists Error')
                     #     pass
                     except TypeError:
-                        print('val: ', len(val) - 1, 'word_pic_nums[1]: ', word_pic_nums[1])
+                        # print('val: ', len(val) - 1, 'word_pic_nums[1]: ', word_pic_nums[1])
                         if isinstance(word_pic_nums[1], int):
                             if word_pic_nums[1] <= (len(val)-1):
                                 # print('save word-level', word_pic_nums[0],
