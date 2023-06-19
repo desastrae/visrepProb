@@ -277,9 +277,7 @@ class VisRepEncodings:
                     word_file = '"backslash"'
                 elif word_pic_nums[0] == '$':
                     word_file = '"dollar"'
-                elif word_pic_nums[0] == '€:
-                    word_file = '"euro"'
-                elif word_pic_nums[0] is not in []:
+                elif word_pic_nums[0] == '€':
                     word_file = '"euro"'
                 elif not word_pic_nums[0].isalnum():
                     word_file = '"SUBST"'
