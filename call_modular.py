@@ -22,6 +22,8 @@ if __name__ == '__main__':
             print('Parameter ' + str(sys.argv[1]) + ' not existent.')
             exit(0)
 
+        # path_server_o_lokal = config_dict['lokal_path']
+
         # TODO
         # path_tasks = None
         #
@@ -54,7 +56,7 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = True
+        classify = False  # True
         # train classifier & create scores for arrays
         classify_arrays = True
         # check if mean tensors are equal across layers
@@ -128,10 +130,10 @@ if __name__ == '__main__':
                         # data_size_list[0] * 0.75)
                         # sents_list, pos_list = [list(zip(*sent)) for sent in raw_sent_pos_data[0]]
 
-                        raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
+                        # raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
                         raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
 
-                    for m_type in ('v', 't')[:1]:
+                    for m_type in ('t', 'v')[:1]:
 
                         if m_type == 'v':
                             RunVisrep.make_vis_model(m_type)
@@ -143,9 +145,9 @@ if __name__ == '__main__':
                         if do_translation and config_dict['sent_word_prob'] == 'sent':
                             RunVisrep.translate_save(raw_data_train, 'train', task)
                             RunVisrep.translate_save(raw_data_test, 'test', task)
-                        if do_translation and config_dict['sent_word_prob'] == 'word' and m_type == 'v':
-                            RunVisrep.translate_word_level_save(raw_data_train, 'train', task)
-                            RunVisrep.translate_word_level_save(raw_data_test, 'test', task)
+                        if do_translation and config_dict['sent_word_prob'] == 'word': # and m_type == 'v':
+                            # RunVisrep.translate_word_level_save(raw_data_train, 'train', task)
+                            RunVisrep.translate_word_level_save(raw_data_test[161:], 'test', task)
                         if do_avg_tensor and config_dict['sent_word_prob'] == 'sent':
                             RunVisrep.read_in_avg_enc_data('train/', 'clean')
                             RunVisrep.read_in_avg_enc_data('test/', 'clean')

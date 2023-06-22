@@ -154,12 +154,14 @@ class VisRepEncodings:
         make_directories = True
 
         for idx, sent in tqdm(enumerate(batch)):
+            print(sent)
             sent_list, pos_list = list(zip(*sent))
             translation, layer_dict = self.model.translate(' '.join(sent_list))
             # print('len(layer_dict[l1])', layer_dict['l1'].shape)
             # for key, item in layer_dict.items():
             #     print('np.where: ', np.where(np.isnan(layer_dict[key])))
-            pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(' '.join(sent_list)))
+            if self.m_para == 'v':
+                pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(' '.join(sent_list)))
             # print('translation', translation)
 
             if make_directories:
@@ -167,14 +169,17 @@ class VisRepEncodings:
                 make_directories = False
                 self.make_directories(layer_dict)
 
-            self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, pos_list)
+            if self.m_para == 'v':
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, pos_list)
+            elif self.m_para == 't':
+                test123 = list()
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, test123, pos_list)
 
     def translate_process(self, batch):
         collect_layer_dicts = defaultdict(list)
         collect_idx_sent_dict = defaultdict(list)
 
         for idx, sent in tqdm(enumerate(batch[0])):
-            print(sent)
             translation, layer_dict = self.model.translate(sent)
             for key_layer, val_enc in layer_dict.items():
                 collect_layer_dicts[key_layer].append(np.mean(val_enc.numpy(), axis=0))
