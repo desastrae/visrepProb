@@ -99,32 +99,35 @@ if __name__ == '__main__':
 
             if create_encodings:
 
+                # TODO: change paths
+                if config_dict['sent_word_prob'] == 'sent':
+                    path_in_train = path_server_o_lokal + config_dict['xprobe_path_in'] \
+                                    + config_dict['xprobe_train_file']
+                    path_in_test = path_server_o_lokal + config_dict['xprobe_path_in'] + config_dict['xprobe_test_file']
+                    path_out = path_server_o_lokal + config_dict['data_path_in']
+
+                    RunVisrep = VisRepEncodings(config_dict, path_in_train, path_out)
+
+                elif config_dict['sent_word_prob'] == 'word' and task == 'pos':
+                    path_in_file = path_server_o_lokal + config_dict['data_path_in'] + \
+                                   config_dict['pos_path_in'] + config_dict['pos_file']
+                    path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
+
+                    try:
+                        os.mkdir(path_out)
+                    except OSError as error:
+                        # print(error)
+                        pass
+
+                    RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out)
+
                 if read_raw_data:
-                    # TODO: change paths
+
                     if config_dict['sent_word_prob'] == 'sent':
-                        path_in_train = path_server_o_lokal + config_dict['xprobe_path_in'] \
-                                        + config_dict['xprobe_train_file']
-                        path_in_test = path_server_o_lokal + config_dict['xprobe_path_in'] + config_dict['xprobe_test_file']
-                        path_out = path_server_o_lokal + config_dict['data_path_in']
-
-                        RunVisrep = VisRepEncodings(config_dict, path_in_train, path_out)
-
                         raw_data_train = RunVisrep.read_in_raw_data(data_size_list[0], 0.75, 'train', 'raw')
                         raw_data_test = RunVisrep.read_in_raw_data(data_size_list[0], 0.25, 'test', 'raw')
 
-                    elif config_dict['sent_word_prob'] == 'word' and task == 'pos':
-                        path_in_file = path_server_o_lokal + config_dict['data_path_in'] + \
-                                        config_dict['pos_path_in'] + config_dict['pos_file']
-                        path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
-
-                        try:
-                            os.mkdir(path_out)
-                        except OSError as error:
-                            # print(error)
-                            pass
-
-                        RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out)
-
+                    elif config_dict['sent_word_prob'] == 'word' and config_dict['task'] == 'pos':
                         raw_sent_pos_data = RunVisrep.read_pos_raw_data(path_in_file)
                         # print('raw_sent_pos_data', len(raw_sent_pos_data), 'data_size_list[0] * 0.75',
                         # data_size_list[0] * 0.75)
@@ -133,34 +136,34 @@ if __name__ == '__main__':
                         raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
                         raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
 
-                    for m_type in ('v', 't')[:1]:
+                for m_type in ('v', 't')[:1]:
 
-                        if m_type == 'v':
-                            RunVisrep.make_vis_model(m_type)
-                        else:
-                            RunVisrep.make_text_model(m_type)
+                    if m_type == 'v':
+                        RunVisrep.make_vis_model(m_type)
+                    else:
+                        RunVisrep.make_text_model(m_type)
 
-                        print(do_avg_tensor, config_dict['sent_word_prob'])
+                    print(do_avg_tensor, config_dict['sent_word_prob'])
 
-                        if do_translation and config_dict['sent_word_prob'] == 'sent':
-                            print('Translate sentences at sentence-level...')
-                            RunVisrep.translate_save(raw_data_train, 'train', task)
-                            RunVisrep.translate_save(raw_data_test, 'test', task)
-                        if do_translation and config_dict['sent_word_prob'] == 'word':
-                            print('Translate sentences at word-level...')
-                            RunVisrep.translate_word_level_save(raw_data_train, 'train', task)
-                            RunVisrep.translate_word_level_save(raw_data_test, 'test', task)
-                        if do_avg_tensor and config_dict['sent_word_prob'] == 'sent':
-                            print('Create averaged encodings at sentence-level...\n')
-                            RunVisrep.read_in_avg_enc_data('train/', 'clean')
-                            RunVisrep.read_in_avg_enc_data('test/', 'clean')
-                        if do_avg_tensor and config_dict['sent_word_prob'] == 'word':
-                            print('Create averaged encodings at word-level...\n')
-                            RunVisrep.read_in_word_level_make_matrix('train')
-                            RunVisrep.read_in_word_level_make_matrix('test')
-                        if sanity_check:
-                            RunVisrep.sanity_check('results/')
-                            break
+                    if do_translation and config_dict['sent_word_prob'] == 'sent':
+                        print('Translate sentences at sentence-level...')
+                        RunVisrep.translate_save(raw_data_train, 'train', task)
+                        RunVisrep.translate_save(raw_data_test, 'test', task)
+                    if do_translation and config_dict['sent_word_prob'] == 'word':
+                        print('Translate sentences at word-level...')
+                        RunVisrep.translate_word_level_save(raw_data_train, 'train', task)
+                        RunVisrep.translate_word_level_save(raw_data_test, 'test', task)
+                    if do_avg_tensor and config_dict['sent_word_prob'] == 'sent':
+                        print('Create averaged encodings at sentence-level...\n')
+                        RunVisrep.read_in_avg_enc_data('train/', 'clean')
+                        RunVisrep.read_in_avg_enc_data('test/', 'clean')
+                    if do_avg_tensor and config_dict['sent_word_prob'] == 'word':
+                        print('Create averaged encodings at word-level...\n')
+                        RunVisrep.read_in_word_level_make_matrix('train')
+                        RunVisrep.read_in_word_level_make_matrix('test')
+                    if sanity_check:
+                        RunVisrep.sanity_check('results/')
+                        break
 
                 if create_encodings_test:
                     path_in_test = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
