@@ -214,10 +214,7 @@ class VisRepEncodings:
 
             try:
                 os.mkdir(self.path_save_encs + tr_or_te + '/layers/')
-                if self.config_dict['sent_word_prob'] == 'sent':
-                    os.mkdir(self.path_save_encs + tr_or_te + '/results_array/')
-                elif self.config_dict['sent_word_prob'] == 'word':
-                    os.mkdir(self.path_save_encs + tr_or_te + '/results_matrix/')
+                os.mkdir(self.path_save_encs + tr_or_te + '/results/')
             except OSError as error:
                 # print(error)
                 pass
@@ -240,10 +237,7 @@ class VisRepEncodings:
         for cl_noi in ['clean/', 'noise/']:
             try:
                 os.mkdir(self.path_save_encs + 'test/layers/' + cl_noi)
-                if self.config_dict['sent_word_prob'] == 'sent':
-                    os.mkdir(self.path_save_encs + 'test/results_array/' + cl_noi)
-                elif self.config_dict['sent_word_prob'] == 'word':
-                    os.mkdir(self.path_save_encs + 'test/results_matrix/' + cl_noi)
+                os.mkdir(self.path_save_encs + 'test/results/' + cl_noi)
             except OSError as error:
                 # print(error)
                 pass
@@ -252,10 +246,7 @@ class VisRepEncodings:
                 for key in np_dict.keys():
                     try:
                         os.mkdir(self.path_save_encs + 'test/layers/' + cl_noi + key + '/')
-                        if self.config_dict['sent_word_prob'] == 'sent':
-                            os.mkdir(self.path_save_encs + 'test/results_array/' + cl_noi + key + '/')
-                        elif self.config_dict['sent_word_prob'] == 'word':
-                            os.mkdir(self.path_save_encs + 'test/results_matrix/' + cl_noi + key + '/')
+                        os.mkdir(self.path_save_encs + 'test/results/' + cl_noi + key + '/')
                     except OSError as error:
                         # print(error)
                         continue
@@ -503,8 +494,8 @@ class VisRepEncodings:
 
     def mlp_classifier(self, v_or_t, train_feat_dir, train_labels, test_feat_dir, test_labels, size):
         print('Training MLP Classifier...')
-        train_path = self.path_save_encs + 'train/results_matrix/'
-        test_path = self.path_save_encs + 'test/results_matrix/clean/'
+        train_path = self.path_save_encs + 'train/results/'
+        test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
         train_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_train)))
@@ -550,9 +541,9 @@ class VisRepEncodings:
         return collect_scores, collect_dummy_scores
 
     def log_reg_no_dict_classifier(self, v_or_t, train_feat_dir, train_labels, test_feat_dir, test_labels, size):
-        print('Training MLP Classifier...')
-        train_path = self.path_save_encs + 'train/results_matrix/'
-        test_path = self.path_save_encs + 'test/results_matrix/clean/'
+        print('Training log_reg Classifier...')
+        train_path = self.path_save_encs + 'train/results/'
+        test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
         train_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_train)))
