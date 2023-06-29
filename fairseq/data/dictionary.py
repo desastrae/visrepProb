@@ -300,6 +300,10 @@ class Dictionary:
         reverse_order=False,
     ) -> torch.IntTensor:
         words = line_tokenizer(line)
+        print('words list: ', words)
+        with open('bpe_list.txt', 'w') as f:
+            for item in words:
+                f.write("%s\n" % item)
         if reverse_order:
             words = list(reversed(words))
         nwords = len(words)
