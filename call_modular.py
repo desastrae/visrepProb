@@ -43,18 +43,18 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = True
+        create_encodings = False  # True
         create_encodings_test = False
 
         # read in raw data into pd dataframe, write majority class to csv
-        read_raw_data = False  # True
+        read_raw_data = True  # False
         # collect encodings from every layer, save every sentence in single file
-        do_translation = False  # True
+        do_translation = True  # False
         # SENT: read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
-        do_avg_tensor = True
+        do_avg_tensor = False  # True
 
         classify = True
         # train classifier & create scores for arrays
@@ -100,7 +100,7 @@ if __name__ == '__main__':
             if create_encodings:
 
                 # TODO: change paths
-                if config_dict['sent_word_prob'] == 'sent':
+                if config_dict['sent_word_prob'] == 'sent' and task != 'pos':
                     path_in_train = path_server_o_lokal + config_dict['xprobe_path_in'] \
                                     + config_dict['xprobe_train_file']
                     path_in_test = path_server_o_lokal + config_dict['xprobe_path_in'] + config_dict['xprobe_test_file']
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
                     RunVisrep = VisRepEncodings(config_dict, path_in_train, path_out)
 
-                elif config_dict['sent_word_prob'] == 'word' and task == 'pos':
+                elif task == 'pos' and config_dict['sent_word_prob'] == 'word':
                     path_in_file = path_server_o_lokal + config_dict['data_path_in'] + \
                                    config_dict['pos_path_in'] + config_dict['pos_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
@@ -127,7 +127,7 @@ if __name__ == '__main__':
                         raw_data_train = RunVisrep.read_in_raw_data(data_size_list[0], 0.75, 'train', 'raw')
                         raw_data_test = RunVisrep.read_in_raw_data(data_size_list[0], 0.25, 'test', 'raw')
 
-                    elif config_dict['sent_word_prob'] == 'word' and config_dict['task'] == 'pos':
+                    elif config_dict['sent_word_prob'] == 'word' and task == 'pos':
                         raw_sent_pos_data = RunVisrep.read_pos_raw_data(path_in_file)
                         # print('raw_sent_pos_data', len(raw_sent_pos_data), 'data_size_list[0] * 0.75',
                         # data_size_list[0] * 0.75)
@@ -136,7 +136,7 @@ if __name__ == '__main__':
                         raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
                         raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
 
-                for m_type in ('v', 't')[:1]:
+                for m_type in ('t', 'v')[:1]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -182,7 +182,7 @@ if __name__ == '__main__':
                         print(noise_data_test[col])
                         print(col)
 
-                        for m_type in ('v', 't')[:1]:
+                        for m_type in ('t', 'v')[:1]:
 
                             if m_type == 'v':
                                 RunVisrep.make_vis_model(m_type)
@@ -218,13 +218,15 @@ if __name__ == '__main__':
 
                     if classify_arrays:
                         print('Training Classifier & Evaluating Data...\n')
-                        results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
+                        # results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
+                        results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type, m_type + '/train/results/',
                                                                           'train_raw_labels.npy',
                                                                           m_type + '/test/results/',
                                                                           'test_raw_labels.npy', data_size_list[0])
                         results_all = {'avg': results, 'dummy': dummy_results}
                         df = pd.DataFrame.from_dict(results_all)
-                        df.to_csv(path_out + m_type + '/' + m_type + '_' + task + '_' + str(data_size_list[0]) + '.csv')
+                        df.to_csv(path_out + m_type + '/' + config_dict['sent_word_prob'] + '_' + m_type + '_' + task
+                                  + '_' + str(data_size_list[0]) + '.csv')
 
                 if saved_classifier:
                     # data_size_list = [10000]  # , 1000]
