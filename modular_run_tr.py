@@ -10,6 +10,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.dummy import DummyClassifier
 from sklearn.utils import shuffle
 from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import classification_report
 import os
 from os import walk, listdir
 from collections import defaultdict
@@ -347,7 +348,7 @@ class VisRepEncodings:
     # for every sentence tensor create one tensor containing all sentence tensors for every layer
     def read_in_avg_enc_data(self, para_tr_o_te, data_name):
         folder_name = self.path_save_encs + para_tr_o_te + '/layers/' + data_name + '/'
-        results_name = self.path_save_encs + para_tr_o_te + 'results_array/' + data_name + '/'
+        results_name = self.path_save_encs + para_tr_o_te + 'results/' + data_name + '/'
         layers_list = listdir(folder_name)
         print('layers_list', layers_list)
         print('self.path_save_encs', self.path_save_encs)
@@ -396,7 +397,7 @@ class VisRepEncodings:
             data_name = ''
 
         folder_name = self.path_save_encs + para_tr_o_te + '/layers/' + data_name
-        results_name = self.path_save_encs + para_tr_o_te + '/results_matrix/' + data_name
+        results_name = self.path_save_encs + para_tr_o_te + '/results/' + data_name
         layers_list = listdir(folder_name)
         print('layers_list', layers_list)
         print('self.path_save_encs', self.path_save_encs)
@@ -499,6 +500,7 @@ class VisRepEncodings:
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
         train_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_train)))
+        print(train_labels)
         # print(train_features)
         # print(self.path_save_encs + 'train/results/')
         filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
@@ -510,12 +512,14 @@ class VisRepEncodings:
 
         for train_feat, train_lab, test_feat, test_lab in list(zip(train_features, train_labels, test_features,
                                                                    test_labels)):
+
             layer = train_feat.split('.')[0].split('_')[-1]
             print('layer', layer)
             train_features = np.load(train_path + train_feat, allow_pickle=True)
             train_labels = np.load(train_path + train_lab, allow_pickle=True)
             test_features = np.load(test_path + test_feat, allow_pickle=True)
             test_labels = np.load(test_path + test_lab, allow_pickle=True)
+            print('train_labels', train_labels)
             # print(train_features.shape, train_labels.shape)
             # print(test_features.shape, test_labels.shape)
             # print(test_features[100])
@@ -524,10 +528,14 @@ class VisRepEncodings:
             # print(test_labels[100])
 
             mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
-
+            print('mlp_clf.predict: ', mlp_clf.predict(test_features[:5, :]))
             print('\n\n' + layer + '_mlp_score', mlp_clf.score(test_features, test_labels))
             collect_scores[layer] = mlp_clf.score(test_features, test_labels)
             print('collect_scores', collect_scores)
+
+            # use model to make predictions on test data
+            y_pred = mlp_clf.predict(test_features)
+            print(classification_report(test_features, y_pred))
 
             dummy_clf = DummyClassifier()
             dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
@@ -538,6 +546,7 @@ class VisRepEncodings:
                        + '_mlp_model_' + str(size) + '.sav'
             pickle.dump(mlp_clf, open(filename, 'wb'))
 
+        print('test123')
         return collect_scores, collect_dummy_scores
 
     def log_reg_no_dict_classifier(self, v_or_t, train_feat_dir, train_labels, test_feat_dir, test_labels, size):
@@ -547,6 +556,7 @@ class VisRepEncodings:
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
         train_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_train)))
+        print(train_labels)
         # print(train_features)
         # print(self.path_save_encs + 'train/results/')
         filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
@@ -564,11 +574,16 @@ class VisRepEncodings:
             train_labels = np.load(train_path + train_lab, allow_pickle=True)
             test_features = np.load(test_path + test_feat, allow_pickle=True)
             test_labels = np.load(test_path + test_lab, allow_pickle=True)
+            print('train_labels', train_labels)
             lr_clf = LogisticRegression(random_state=42).fit(train_features, train_labels)
 
             print('\n\n' + layer + '_lr_score', lr_clf.score(test_features, test_labels))
             collect_scores[layer] = lr_clf.score(test_features, test_labels)
             print('collect_scores', collect_scores)
+
+            # use model to make predictions on test data
+            y_pred = lr_clf.predict(test_features)
+            print(classification_report(test_features, y_pred))
 
             dummy_clf = DummyClassifier()
             dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
