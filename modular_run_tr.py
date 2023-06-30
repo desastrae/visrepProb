@@ -528,14 +528,14 @@ class VisRepEncodings:
             # print(test_labels[100])
 
             mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
-            print('mlp_clf.predict: ', mlp_clf.predict(test_features[:5, :]))
+            #  print('mlp_clf.predict: ', mlp_clf.predict(test_features[:5, :]))
             print('\n\n' + layer + '_mlp_score', mlp_clf.score(test_features, test_labels))
             collect_scores[layer] = mlp_clf.score(test_features, test_labels)
             print('collect_scores', collect_scores)
 
             # use model to make predictions on test data
             y_pred = mlp_clf.predict(test_features)
-            print(classification_report(test_features, y_pred))
+            print(classification_report(test_labels, y_pred))
 
             dummy_clf = DummyClassifier()
             dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
@@ -583,7 +583,8 @@ class VisRepEncodings:
 
             # use model to make predictions on test data
             y_pred = lr_clf.predict(test_features)
-            print(classification_report(test_features, y_pred))
+            # print(test_labels, y_pred)
+            print(classification_report(test_labels, y_pred))
 
             dummy_clf = DummyClassifier()
             dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
