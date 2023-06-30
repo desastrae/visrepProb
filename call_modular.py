@@ -14,15 +14,15 @@ if __name__ == '__main__':
 
         path_server_o_lokal = None
 
-        if sys.argv[1] == 's':
-            path_server_o_lokal = config_dict['server_path']
-        elif sys.argv[1] == 'l':
-            path_server_o_lokal = config_dict['lokal_path']
-        else:
-            print('Parameter ' + str(sys.argv[1]) + ' not existent.')
-            exit(0)
+        # if sys.argv[1] == 's':
+        #     path_server_o_lokal = config_dict['server_path']
+        # elif sys.argv[1] == 'l':
+        #     path_server_o_lokal = config_dict['lokal_path']
+        # else:
+        #     print('Parameter ' + str(sys.argv[1]) + ' not existent.')
+        #     exit(0)
 
-        # path_server_o_lokal = config_dict['lokal_path']
+        path_server_o_lokal = config_dict['lokal_path']
 
         # TODO
         # path_tasks = None
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
-        do_avg_tensor = False  # True
+        do_avg_tensor = True
 
         classify = True
         # train classifier & create scores for arrays
@@ -136,7 +136,7 @@ if __name__ == '__main__':
                         raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
                         raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
 
-                for m_type in ('t', 'v')[:1]:
+                for m_type in ('v', 't')[:1]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -182,7 +182,7 @@ if __name__ == '__main__':
                         print(noise_data_test[col])
                         print(col)
 
-                        for m_type in ('t', 'v')[:1]:
+                        for m_type in ('v', 't')[:1]:
 
                             if m_type == 'v':
                                 RunVisrep.make_vis_model(m_type)
@@ -218,8 +218,8 @@ if __name__ == '__main__':
 
                     if classify_arrays:
                         print('Training Classifier & Evaluating Data...\n')
-                        # results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
-                        results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type, m_type + '/train/results/',
+                        results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
+                        # results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type, m_type + '/train/results/',
                                                                           'train_raw_labels.npy',
                                                                           m_type + '/test/results/',
                                                                           'test_raw_labels.npy', data_size_list[0])
