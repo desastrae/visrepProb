@@ -136,7 +136,7 @@ if __name__ == '__main__':
                         raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
                         raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
 
-                for m_type in ('v', 't')[:1]:
+                for m_type in ('v', 't')[1:]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -182,7 +182,7 @@ if __name__ == '__main__':
                         print(noise_data_test[col])
                         print(col)
 
-                        for m_type in ('v', 't')[:1]:
+                        for m_type in ('v', 't')[1:]:
 
                             if m_type == 'v':
                                 RunVisrep.make_vis_model(m_type)
@@ -209,7 +209,7 @@ if __name__ == '__main__':
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out)
 
-                for m_type in ('v', 't')[:1]:
+                for m_type in ('v', 't')[1:]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
