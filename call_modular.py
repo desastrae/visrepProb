@@ -209,7 +209,7 @@ if __name__ == '__main__':
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out)
 
-                for m_type in ('v', 't')[1:]:
+                for m_type in ('v', 't')[:1]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -218,8 +218,8 @@ if __name__ == '__main__':
 
                     if classify_arrays:
                         print('Training Classifier & Evaluating Data...\n')
-                        results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
-                        # results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type, m_type + '/train/results/',
+                        # results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
+                        results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type, m_type + '/train/results/',
                                                                           'train_raw_labels.npy',
                                                                           m_type + '/test/results/',
                                                                           'test_raw_labels.npy', data_size_list[0])
