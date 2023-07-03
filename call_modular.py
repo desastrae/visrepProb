@@ -218,8 +218,8 @@ if __name__ == '__main__':
 
                     if classify_arrays:
                         print('Training Classifier & Evaluating Data...\n')
-                        # results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
-                        results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type, m_type + '/train/results/',
+                        results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
+                        # results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type, m_type + '/train/results/',
                                                                           'train_raw_labels.npy',
                                                                           m_type + '/test/results/',
                                                                           'test_raw_labels.npy', data_size_list[0])
