@@ -218,15 +218,26 @@ if __name__ == '__main__':
 
                     if classify_arrays:
                         print('Training Classifier & Evaluating Data...\n')
-                        # results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
-                        results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type, m_type + '/train/results/',
-                                                                          'train_raw_labels.npy',
-                                                                          m_type + '/test/results/',
-                                                                          'test_raw_labels.npy', data_size_list[0])
+                        if config_dict['classifier'] == 'mlp':
+                            results, dummy_results = RunVisrep.mlp_classifier(m_type, m_type + '/train/results/',
+                                                                              'train_raw_labels.npy',
+                                                                              m_type + '/test/results/',
+                                                                              'test_raw_labels.npy', data_size_list[0])
+                        elif config_dict['classifier'] == 'lr':
+                            results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type,
+                                                                                          m_type + '/train/results/',
+                                                                                          'train_raw_labels.npy',
+                                                                                          m_type + '/test/results/',
+                                                                                          'test_raw_labels.npy',
+                                                                                          data_size_list[0])
+                        else:
+                            print('Unknown classifier...')
+                            sys.exit()
                         results_all = {'avg': results, 'dummy': dummy_results}
                         df = pd.DataFrame.from_dict(results_all)
-                        df.to_csv(path_out + m_type + '/' + config_dict['sent_word_prob'] + '_' + m_type + '_' + task
-                                  + '_' + str(data_size_list[0]) + '.csv')
+                        df.to_csv(path_out + m_type + '/' + config_dict['classifier'] + '_' +
+                                  config_dict['sent_word_prob'] + '_' + m_type + '_' + task + '_' +
+                                  str(data_size_list[0]) + '.csv')
 
                 if saved_classifier:
                     # data_size_list = [10000]  # , 1000]
@@ -254,9 +265,14 @@ if __name__ == '__main__':
                                                                                         path_labels)
                                 results_all[noise_folder] = results
                         df = pd.DataFrame.from_dict(results_all)
-                        noise_info_str = '_'.join(config_dict['noise_type']) + '_' + '_'.join(config_dict['noise_perc'])
-                        df.to_csv(path_out + 'noise_' + noise_info_str + m_type + '_' + task + '_' + str(data_size)
-                                  + '.csv')
+                        if config_dict['config'] == 'noise':
+                            noise_info_str = '_'.join(config_dict['noise_type']) + '_' + '_'.join(config_dict['noise_perc'])
+                            df.to_csv(path_out + 'noise_' + noise_info_str + m_type + '_' + task + '_' + str(data_size)
+                                      + '.csv')
+                        else:
+                            info_str = config_dict['classifier'] + '_' + m_type
+                            df.to_csv(path_out + config_dict['classifier'] + '_' + m_type + '_' + task + '_' +
+                                      str(data_size) + '.csv')
 
             if create_plots:
                 # path_out = path_server_o_lokal + config_dict['data_path_in']
