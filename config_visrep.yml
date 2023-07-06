@@ -15,6 +15,7 @@ noise_test_path_out: visrepProb/noise_wordlevel/
 # noise_type: ['swap', 'cam', 'l33t']
 pos_path_in: de-utb/
 pos_file: de-train.tt #stunde.tt # de-train.tt # train_dummy.tt
+classifier: mlp # lr
 xprobe_path_in: xprobe/de/
 xprobe_train_file: tense_tr_out.csv
 xprobe_test_file: tense_te_out.csv
