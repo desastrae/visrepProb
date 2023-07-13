@@ -609,12 +609,34 @@ class VisRepEncodings:
         collect_scores = self.load_classifier_model()
 
     def load_classifier_model_load_avg_encs(self, path_avg_encs, path_classifier, path_labels):
-        print('Loading trained classifier...')
+        print('Loading trained classifier for sentence-level evaluation...')
 
         classifier_list = natsorted(next(walk(path_classifier), (None, None, []))[2])
         eval_files_list = natsorted(next(walk(path_avg_encs), (None, None, []))[2])
         layer_list = [l.split('.')[0].split('_')[-1] for l in eval_files_list]
-        df_labels = np.load(path_labels,allow_pickle=True)
+        collect_scores = defaultdict()
+
+        for layer in layer_list:
+            # load the model from disk
+            df_labels = np.load(path_labels + layer + '.npy', allow_pickle=True)
+            classifier_model = path_classifier + [elem for elem in classifier_list if layer in elem][0]
+            eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
+                                allow_pickle=True)
+            loaded_model = pickle.load(open(classifier_model, 'rb'))
+            test_features, test_labels = shuffle(eval_file, df_labels, random_state=42)
+
+            collect_scores[layer] = loaded_model.score(test_features, test_labels)
+
+        # return df_test, collect_scores
+        return collect_scores
+
+    def load_classifier_model_word_level(self, path_avg_encs, path_classifier, path_labels):
+        print('Loading trained classifier for word-level evaluation...')
+
+        classifier_list = natsorted(next(walk(path_classifier), (None, None, []))[2])
+        eval_files_list = natsorted(next(walk(path_avg_encs), (None, None, []))[2])
+        layer_list = [l.split('.')[0].split('_')[-1] for l in eval_files_list]
+        df_labels = np.load(path_labels, allow_pickle=True)
         collect_scores = defaultdict()
 
         for layer in layer_list:
