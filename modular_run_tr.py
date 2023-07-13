@@ -614,12 +614,11 @@ class VisRepEncodings:
         classifier_list = natsorted(next(walk(path_classifier), (None, None, []))[2])
         eval_files_list = natsorted(next(walk(path_avg_encs), (None, None, []))[2])
         layer_list = [l.split('.')[0].split('_')[-1] for l in eval_files_list]
+        df_labels = np.load(path_labels, allow_pickle=True)
         collect_scores = defaultdict()
 
         for layer in layer_list:
             # load the model from disk
-            print('labels file...', path_labels + layer + '.npy')
-            df_labels = np.load(path_labels + layer + '.npy', allow_pickle=True)
             classifier_model = path_classifier + [elem for elem in classifier_list if layer in elem][0]
             eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
                                 allow_pickle=True)
@@ -637,11 +636,12 @@ class VisRepEncodings:
         classifier_list = natsorted(next(walk(path_classifier), (None, None, []))[2])
         eval_files_list = natsorted(next(walk(path_avg_encs), (None, None, []))[2])
         layer_list = [l.split('.')[0].split('_')[-1] for l in eval_files_list]
-        df_labels = np.load(path_labels, allow_pickle=True)
         collect_scores = defaultdict()
 
         for layer in layer_list:
             # load the model from disk
+            print('labels file...', path_labels + layer + '.npy')
+            df_labels = np.load(path_labels + layer + '.npy', allow_pickle=True)
             classifier_model = path_classifier + [elem for elem in classifier_list if layer in elem][0]
             eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
                                 allow_pickle=True)
