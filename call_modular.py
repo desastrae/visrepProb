@@ -239,37 +239,48 @@ if __name__ == '__main__':
                                   config_dict['sent_word_prob'] + '_' + m_type + '_' + task + '_' +
                                   str(data_size_list[0]) + '.csv')
 
-                if saved_classifier:
-                    # data_size_list = [10000]  # , 1000]
-                    data_size_list = config_dict['dataset_size'][:1]
-                    path_in_test = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
-                    path_out = path_server_o_lokal + config_dict['noise_test_path_out'] + task + '/'
-
-                    RunVisrep = VisRepEncodings(config_dict, path_in_test, path_out)
-
-                    print('Loading saved Classifier & Evaluating Data...\n')
-                    for m_type in ('v', 't')[:1]:
-                        folder_name_path = path_server_o_lokal + config_dict['noise_test_path_out'] + task \
-                                           + '/' + m_type + '/test/results/'
-                        noise_folder_names = natsorted(next(walk(folder_name_path), (None, [], None))[1])
-                        results_all = defaultdict()
-                        for data_size in data_size_list:
-                            for noise_folder in noise_folder_names:
-                                path_avg_encs = path_server_o_lokal + config_dict['noise_test_path_out'] + task + \
-                                                '/' + m_type + '/test/results/' + noise_folder + '/'
-                                path_classifier = path_server_o_lokal + config_dict['data_path_in'] + task + '/' \
-                                                  + m_type + '/' + config_dict['path_saved_classifier']
-                                path_labels = path_server_o_lokal + config_dict['data_path_in'] + task + '/' \
-                                                  + config_dict['noise_test_labels_in']
-                                results = RunVisrep.load_classifier_model_load_avg_encs(path_avg_encs, path_classifier,
-                                                                                        path_labels)
-                                results_all[noise_folder] = results
-                        df = pd.DataFrame.from_dict(results_all)
+                    if saved_classifier:
+                        # data_size_list = [10000]  # , 1000]
+                        data_size_list = config_dict['dataset_size'][:1]
+                        path_in_test = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                         if config_dict['config'] == 'noise':
+                            path_out = path_server_o_lokal + config_dict['noise_test_path_out'] + task + '/'
+                        else:
+                            path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/' + m_type + '/'
+
+                        RunVisrep = VisRepEncodings(config_dict, path_in_test, path_out)
+
+                        print('Loading saved Classifier & Evaluating Data...\n')
+                        # for m_type in ('v', 't')[:1]:
+                        #     folder_name_path = path_server_o_lokal + config_dict['noise_test_path_out'] + task \
+                        #                        + '/' + m_type + '/test/results/'
+                        results_all = defaultdict()
+                        if config_dict['config'] == 'noise':
+                            # noise_folder_names = natsorted(next(walk(folder_name_path), (None, [], None))[1])
+                            noise_folder_names = natsorted(next(walk(path_out), (None, [], None))[1])
+                            for data_size in data_size_list:
+                                for noise_folder in noise_folder_names:
+                                    path_avg_encs = path_server_o_lokal + config_dict['noise_test_path_out'] + task + \
+                                                    '/' + m_type + '/test/results/' + noise_folder + '/'
+                                    path_classifier = path_server_o_lokal + config_dict['data_path_in'] + task + '/' \
+                                                      + m_type + '/' + config_dict['path_saved_classifier']
+                                    path_labels = path_server_o_lokal + config_dict['data_path_in'] + task + '/' \
+                                                      + config_dict['noise_test_labels_in']
+                                    results = RunVisrep.load_classifier_model_load_avg_encs(path_avg_encs, path_classifier,
+                                                                                            path_labels)
+                                    results_all[noise_folder] = results
+                            df = pd.DataFrame.from_dict(results_all)
                             noise_info_str = '_'.join(config_dict['noise_type']) + '_' + '_'.join(config_dict['noise_perc'])
                             df.to_csv(path_out + 'noise_' + noise_info_str + m_type + '_' + task + '_' + str(data_size)
                                       + '.csv')
                         else:
+                            path_avg_encs = path_out + 'test/results/clean/'
+                            path_classifier = path_out + config_dict['classifier'] + '_sav/'
+                            path_labels = path_server_o_lokal + config_dict['data_path_in'] + task + '/' \
+                                          + config_dict['noise_test_labels_in']
+                            results = RunVisrep.load_classifier_model_load_avg_encs(path_avg_encs, path_classifier,
+                                                                                    path_labels)
+                            results_all[noise_folder] = results
                             info_str = config_dict['classifier'] + '_' + m_type
                             df.to_csv(path_out + config_dict['classifier'] + '_' + m_type + '_' + task + '_' +
                                       str(data_size) + '.csv')
