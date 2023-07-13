@@ -276,8 +276,7 @@ if __name__ == '__main__':
                         else:
                             path_avg_encs = path_out + 'test/results/clean/'
                             path_classifier = path_out + config_dict['classifier'] + '_sav/'
-                            path_labels = path_server_o_lokal + config_dict['data_path_in'] + task + '/' \
-                                          + 'all_word_POS_array_'
+                            path_labels = path_out + 'all_word_POS_array_'
                             results = RunVisrep.load_classifier_model_word_level(path_avg_encs, path_classifier,
                                                                                     path_labels)
                             results_all[noise_folder] = results
