@@ -279,10 +279,9 @@ if __name__ == '__main__':
                             path_labels = path_avg_encs + 'all_word_POS_array_'
                             results = RunVisrep.load_classifier_model_word_level(path_avg_encs, path_classifier,
                                                                                     path_labels)
-                            results_all[noise_folder] = results
+                            # results_all[noise_folder] = results
                             info_str = config_dict['classifier'] + '_' + m_type
-                            df.to_csv(path_out + config_dict['classifier'] + '_' + m_type + '_' + task + '_' +
-                                      str(data_size) + '.csv')
+                            df.to_csv(path_avg_encs + info_str + '.csv')
 
             if create_plots:
                 # path_out = path_server_o_lokal + config_dict['data_path_in']
