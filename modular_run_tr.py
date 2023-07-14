@@ -20,14 +20,17 @@ import pickle
 import yaml
 from get_image_slices_clean import get_wordpixels_in_pic_slice, get_pic_num_for_word
 from get_bpe_word import ref_bpe_word
+from conllu import parse
+from collections import defaultdict
 
 
 class VisRepEncodings:
-    def __init__(self, config_dict, file_path, path_save_encs):
+    def __init__(self, config_dict, file_path, path_save_encs, task):
         self.config_dict = config_dict
         self.model = None
         self.encoded_data = None
         self.file_path = file_path
+        self.task = task
         if self.config_dict['config'] == 'noise':
             self.data = file_path + self.config_dict['noise_test_file_out']
         else:
@@ -136,6 +139,29 @@ class VisRepEncodings:
                 sentence_list.append(tuple(line.split()))
         return pos_tags_file_list
 
+    def read_UD_data(self, path_file):
+        dep_data_list = list()
+
+        # with open('word_level/UD_dataset/test30.conllu', "r", encoding="utf-8") as data_file:
+        with open(path_file, "r", encoding="utf-8") as data_file:
+            data = data_file.read()
+            sentences = parse(data)
+            for sentence in sentences:
+                sent_token_list = list()
+                # print(sentence.metadata['text'])
+                # print(sentence.default_fields)
+                for token in sentence:
+                    # print(token['id'], token, token['head'], token['deprel'])
+                    sent_token_list.append((token['id'], token['form'], token['head'], token['deprel'], token['upos'],
+                                            token['xpos']))
+                # dep_data_dict[sentence.metadata['sent_id']] = sent_token_list
+                dep_data_list.append((sent_token_list, sentence.metadata['text']))
+
+                if len(dep_data_list) == self.config_dict['dataset_size'][0]:
+                    break
+        # print(dep_data_list)
+        return dep_data_list
+
     # Translate sentences
     def translate_save(self, batch, tr_or_te, data_name):
         print('\n\nTranslating sentences // Creating encodings...\n\n')
@@ -157,30 +183,38 @@ class VisRepEncodings:
 
         make_directories = True
 
-        for idx, sent in tqdm(enumerate(batch)):
-            print(sent)
-            sent_list, pos_list = list(zip(*sent))
-            print('sent: ', sent_list)
-            translation, layer_dict = self.model.translate(' '.join(sent_list))
+        for idx, sent_data in tqdm(enumerate(batch)):
+            # print(sent_data)
+            # sent_list, pos_list = list(zip(*sent))
+            data_tuple, sent = sent_data
+            zipped_data_list = list(zip(*data_tuple))
+            # print('sent: ', sent)
+            translation, layer_dict = self.model.translate(sent)
             # print('len(layer_dict[l1])', layer_dict['l1'].shape)
             # for key, item in layer_dict.items():
             #     print('np.where: ', np.where(np.isnan(layer_dict[key])))
-            if self.m_para == 'v':
-                pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(' '.join(sent_list)))
-            # print('translation', translation)
-            elif self.m_para == 't':
-                sent_bpe_list = ref_bpe_word(list(sent_list))
-
             if make_directories:
                 print('Make directories...')
-                make_directories = False
+                # make_directories = False
                 self.make_directories(layer_dict)
 
             if self.m_para == 'v':
-                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, pos_list)
+                pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(sent))
+                if self.task == 'xpos':
+                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, zipped_data_list[4])
+                elif self.task == 'upos':
+                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, zipped_data_list[3])
+                elif self.task == 'dep':
+                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, zipped_data_list[2])
+            # print('translation', translation)
             elif self.m_para == 't':
-                test123 = list()
-                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list, pos_list)
+                sent_bpe_list = ref_bpe_word(list(zipped_data_list[1]))
+                if self.task == 'xpos':
+                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list, zipped_data_list[4])
+                elif self.task == 'upos':
+                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list, zipped_data_list[3])
+                elif self.task == 'dep':
+                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list, zipped_data_list[2])
 
     def translate_process(self, batch):
         collect_layer_dicts = defaultdict(list)
@@ -269,6 +303,7 @@ class VisRepEncodings:
         # data_name = self.data.split('/')[1].split('.')[0]
         # print(data_name)
         # print('Saving encodings...')
+        # print('pos_list: ', pos_list, 'pic_num_words_list: ', pic_num_words_list)
         for key, val in np_dict.items():
             np.array(val)
             # print('val: \n', val[0:3])
@@ -296,9 +331,11 @@ class VisRepEncodings:
                     word_file = '"SUBST"'
                 else:
                     word_file = word_pic_nums[0]
+                if str(pos) == '.':
+                    pos = "dot"
                 with open(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + key + '/' + d_name
                           + '_' + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' +
-                          word_file + '_' + pos + '.npy', 'wb') as f:
+                          word_file + '_' + str(pos) + '.npy', 'wb') as f:
                     # print('word_pic_nums[1]: ', word_pic_nums[1], 'len(val): ', len(val))
                     try:
                         # print('Normal')
@@ -404,9 +441,9 @@ class VisRepEncodings:
         print('results_name', results_name)
 
         for layer in tqdm(layers_list):
-
+            print(folder_name + layer + '/')
             filenames = natsorted(next(walk(folder_name + layer + '/'), (None, None, []))[2])
-            # print('filenames', filenames)
+            print('filenames', filenames)
             first_name_file = filenames.pop(0)
             collected_np_arr_matrix = np.load(folder_name + layer + '/' + first_name_file)
             collected_np_label_array = np.array(first_name_file.split('.n')[0].split('_')[5])
@@ -493,10 +530,13 @@ class VisRepEncodings:
 
         return collect_scores, collect_dummy_scores
 
-    def mlp_classifier(self, v_or_t, train_feat_dir, train_labels, test_feat_dir, test_labels, size):
+    def mlp_classifier(self, v_or_t, size):
         print('Training MLP Classifier...')
         train_path = self.path_save_encs + 'train/results/'
-        test_path = self.path_save_encs + 'test/results/clean/'
+        if self.config_dict['noise']:
+            test_path = self.path_save_encs + 'test/results/noise/'
+        else:
+            test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
         train_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_train)))
@@ -549,10 +589,13 @@ class VisRepEncodings:
         print('test123')
         return collect_scores, collect_dummy_scores
 
-    def log_reg_no_dict_classifier(self, v_or_t, train_feat_dir, train_labels, test_feat_dir, test_labels, size):
+    def log_reg_no_dict_classifier(self, v_or_t, size):
         print('Training log_reg Classifier...')
         train_path = self.path_save_encs + 'train/results/'
-        test_path = self.path_save_encs + 'test/results/clean/'
+        if self.config_dict['noise']:
+            test_path = self.path_save_encs + 'test/results/noise/'
+        else:
+            test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
         train_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_train)))
@@ -640,12 +683,10 @@ class VisRepEncodings:
 
         for layer in layer_list:
             # load the model from disk
-            print('labels file...', path_labels + layer + '.npy')
             df_labels = np.load(path_labels + layer + '.npy', allow_pickle=True)
             classifier_model = path_classifier + [elem for elem in classifier_list if layer in elem][0]
             eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
                                 allow_pickle=True)
-            print('labels shape ', df_labels.shape, '\n eval file shape ', eval_file.shape)
             loaded_model = pickle.load(open(classifier_model, 'rb'))
             test_features, test_labels = shuffle(eval_file, df_labels, random_state=42)
 

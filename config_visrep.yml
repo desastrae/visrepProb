@@ -1,7 +1,7 @@
 sent_word_prob: word # sent
 config: bleu # noise # test_classifier, train_classifier , subj_obj_data...
 tasks: [test_word_prob] # [obj_number , subj_number, past_present, bigram_shift]
-tasks_word: [pos]
+tasks_word: [xpos, upos, dep]
 train_test: [train, test]
 server_path: /local/anasbori/
 lokal_path: /home/anastasia/PycharmProjects/
@@ -10,17 +10,18 @@ noise_test_file_in: test_raw_sentences.npy  #test_raw_sentences.npy
 noise_test_labels_in: test_raw_labels.npy # test_raw_labels.npy
 test_file_out: test_raw_sentences.csv
 noise_test_file_out:   test_noise_sentences.csv #test_raw_sentences.csv
-noise_test_path_out: visrepProb/noise_wordlevel/
+noise_test_path_out: visrepProb/noise/
+# test_path_out:
 # noise_perc: [0.1, 0.2, 0.4, 0.8]
 # noise_type: ['swap', 'cam', 'l33t']
-pos_path_in: de-utb/
-pos_file: de-train.tt #stunde.tt # de-train.tt # train_dummy.tt
+UD_path_in: UD_dataset/ # de-utb/
+UD_file: de_gsd-ud-train.conllu # de-train.tt
 classifier: mlp # lr
 xprobe_path_in: xprobe/de/
 xprobe_train_file: tense_tr_out.csv
 xprobe_test_file: tense_te_out.csv
 # !! dataset_size: always spezify greatest value first; used to create encodings dataset !!
-dataset_size: [10000, 1000] #[20, 10]
+dataset_size: [10000, 1000] #[20, 10] #
 path_scores: visrepProb/test_scores/
 # path classifier server, e.g. /local/anasbori/  visrepProb/word_level/  pos/  v/  lr_sav/
 path_saved_classifier: mlp_sav/ # lr_sav/, 10000_sav/ # s-o-l_path + data_path_in + task + m_type + path_saved_classifier

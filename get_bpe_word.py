@@ -4,16 +4,18 @@ def open_bpe_file():
         for line in f:
             x = line[:-1]
             bpe_list.append(x)
-
+    # print('bpe_list: ', bpe_list)
     return bpe_list
 
 
 def ref_bpe_word(sent):
+    # print(sent)
     # sent = ['Sehr', 'gute', 'Beratung', ',', 'schnelle', 'Behebung', 'der', 'Probleme', ',', 'so', 'stelle', 'ich', 'mir',
     #         'Kundenservice', 'vor', '.']
     # words_list = ['▁S', 'ehr', '▁gute', '▁Beratung', '▁', ',', '▁schnell', 'e', '▁Be', 'hebung', '▁der', '▁Probleme', '▁',
     #               ',', '▁so', '▁', 'stelle', '▁ich', '▁mir', '▁K', 'und', 'en', 'serv', 'ice', '▁vor', '▁', '.']
     words_list = open_bpe_file()
+    # print(words_list)
     words_list = [elem.strip('▁') for elem in words_list]
     # print(words_list)
 
