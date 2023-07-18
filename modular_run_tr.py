@@ -188,7 +188,7 @@ class VisRepEncodings:
             # sent_list, pos_list = list(zip(*sent))
             data_tuple, sent = sent_data
             zipped_data_list = list(zip(*data_tuple))
-            # print('sent: ', sent)
+            print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
             # print('len(layer_dict[l1])', layer_dict['l1'].shape)
             # for key, item in layer_dict.items():
@@ -221,7 +221,6 @@ class VisRepEncodings:
         collect_idx_sent_dict = defaultdict(list)
 
         for idx, sent in tqdm(enumerate(batch[0])):
-            print(sent)
             translation, layer_dict = self.model.translate(sent)
             for key_layer, val_enc in layer_dict.items():
                 collect_layer_dicts[key_layer].append(np.mean(val_enc.numpy(), axis=0))
