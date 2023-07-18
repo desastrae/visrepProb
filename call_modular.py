@@ -14,15 +14,15 @@ if __name__ == '__main__':
 
         path_server_o_lokal = None
 
-        if sys.argv[1] == 's':
-            path_server_o_lokal = config_dict['server_path']
-        elif sys.argv[1] == 'l':
-            path_server_o_lokal = config_dict['lokal_path']
-        else:
-            print('Parameter ' + str(sys.argv[1]) + ' not existent.')
-            exit(0)
+        # if sys.argv[1] == 's':
+        #     path_server_o_lokal = config_dict['server_path']
+        # elif sys.argv[1] == 'l':
+        #     path_server_o_lokal = config_dict['lokal_path']
+        # else:
+        #     print('Parameter ' + str(sys.argv[1]) + ' not existent.')
+        #     exit(0)
 
-        # path_server_o_lokal = config_dict['lokal_path']
+        path_server_o_lokal = config_dict['lokal_path']
 
         # TODO
         # path_tasks = None
@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
                     if do_translation and config_dict['sent_word_prob'] == 'sent':
                         print('Translate sentences at sentence-level...')
-                        RunVisrep.translate_save(raw_data_train, 'train', task)
+                        RunVisrep.translate_save(raw_data_train[730:], 'train', task)
                         RunVisrep.translate_save(raw_data_test, 'test', task)
                     if do_translation and config_dict['sent_word_prob'] == 'word':
                         print('Translate sentences at word-level...')
