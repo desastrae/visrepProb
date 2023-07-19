@@ -155,12 +155,24 @@ class VisRepEncodings:
                     sent_token_list.append((token['id'], token['form'], token['head'], token['deprel'], token['upos'],
                                             token['xpos']))
                 # dep_data_dict[sentence.metadata['sent_id']] = sent_token_list
-                dep_data_list.append((sent_token_list, sentence.metadata['text']))
+                dep_data_list.append(sent_token_list)
 
                 if len(dep_data_list) == self.config_dict['dataset_size'][0]:
                     break
         # print(dep_data_list)
         return dep_data_list
+
+    def save_label_data(self, data_array, task, tr_or_te):
+        data_array = np.delete(data_array, 0)
+        # print('data_array', data_array)
+
+        with open(self.path_save_encs + tr_or_te + '_' + task + '_all_labels_array.npy', 'wb') as f:
+            try:
+                # print('labels, np.where: ', len(np.where(np.isnan(collected_np_label_array))))
+                np.save(f, data_array, allow_pickle=True)
+            except FileExistsError as error:
+                # print(error)
+                pass
 
     # Translate sentences
     def translate_save(self, batch, tr_or_te, data_name):
@@ -183,38 +195,47 @@ class VisRepEncodings:
 
         make_directories = True
 
+        id_labels_array = np.array(('NONE'))
+        head_labels_array = np.array(('NONE'))
+        dep_labels_array = np.array(('NONE'))
+        xpos_labels_array = np.array(('NONE'))
+        upos_labels_array = np.array(('NONE'))
+
         for idx, sent_data in tqdm(enumerate(batch)):
             # print(sent_data)
             # sent_list, pos_list = list(zip(*sent))
-            data_tuple, sent = sent_data
-            zipped_data_list = list(zip(*data_tuple))
-            print('sent: ', sent)
+            data_tuple_list = list(zip(*sent_data))
+            # print('data_tuple_list: ', len(data_tuple_list), data_tuple_list)
+            id_labels_array = np.append(id_labels_array, data_tuple_list[0])
+            head_labels_array = np.append(head_labels_array, data_tuple_list[2])
+            dep_labels_array = np.append(dep_labels_array, data_tuple_list[3])
+            xpos_labels_array = np.append(xpos_labels_array, data_tuple_list[4])
+            upos_labels_array = np.append(upos_labels_array, data_tuple_list[5])
+            # print('dep_labels_array: ', dep_labels_array)
+            # print('sent: ', ' '.join(data_tuple_list[1]))
+            sent = ' '.join(data_tuple_list[1])
             translation, layer_dict = self.model.translate(sent)
             # print('len(layer_dict[l1])', layer_dict['l1'].shape)
             # for key, item in layer_dict.items():
             #     print('np.where: ', np.where(np.isnan(layer_dict[key])))
             if make_directories:
                 print('Make directories...')
-                # make_directories = False
+                make_directories = False
                 self.make_directories(layer_dict)
 
             if self.m_para == 'v':
                 pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(sent))
-                if self.task == 'xpos':
-                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, zipped_data_list[4])
-                elif self.task == 'upos':
-                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, zipped_data_list[3])
-                elif self.task == 'dep':
-                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words, zipped_data_list[2])
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words) #, zipped_data_list[2])
             # print('translation', translation)
             elif self.m_para == 't':
-                sent_bpe_list = ref_bpe_word(list(zipped_data_list[1]))
-                if self.task == 'xpos':
-                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list, zipped_data_list[4])
-                elif self.task == 'upos':
-                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list, zipped_data_list[3])
-                elif self.task == 'dep':
-                    self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list, zipped_data_list[2])
+                sent_bpe_list = ref_bpe_word(list(data_tuple_list[1]))
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list) #, zipped_data_list[2])
+
+        self.save_label_data(id_labels_array, 'id', tr_or_te)
+        self.save_label_data(head_labels_array, 'head', tr_or_te)
+        self.save_label_data(dep_labels_array, 'dep', tr_or_te)
+        self.save_label_data(xpos_labels_array, 'xpos', tr_or_te)
+        self.save_label_data(upos_labels_array, 'upos', tr_or_te)
 
     def translate_process(self, batch):
         collect_layer_dicts = defaultdict(list)
@@ -230,7 +251,7 @@ class VisRepEncodings:
 
     # Create directories for layers
     def make_directories(self, np_dict):
-        print('self.path_save_encs', self.path_save_encs)
+        # print('self.path_save_encs', self.path_save_encs)
         self.all_layers = np_dict.keys()
         data_name = ['train', 'test']
 
@@ -299,18 +320,19 @@ class VisRepEncodings:
                     # print(error)
                     pass
 
-    def save_word_level_encodings(self, np_dict, sent_num, tr_or_te, d_name, pic_num_words_list, pos_list):
+    def save_word_level_encodings(self, np_dict, sent_num, tr_or_te, d_name, pic_num_words_list):  #, pos_list):
         # data_name = self.data.split('/')[1].split('.')[0]
         # print(data_name)
         # print('Saving encodings...')
         # print('pos_list: ', pos_list, 'pic_num_words_list: ', pic_num_words_list)
+
         for key, val in np_dict.items():
             np.array(val)
             # print('val: \n', val[0:3])
             # print(np.mean(key_val[1][0:3].numpy(), axis=0))
             # np.save(f, np.mean(val[pic_nums[0]:pic_nums[-1]]), allow_pickle=True)
             count_val = -1
-            for word_pic_nums, pos in list(zip(pic_num_words_list, pos_list)):
+            for word_pic_nums in pic_num_words_list:
                 # print('pic_nums', pic_nums)
                 count_val += 1
                 if tr_or_te == 'test' and self.config_dict['config'] == 'noise':
@@ -331,11 +353,9 @@ class VisRepEncodings:
                     word_file = '"SUBST"'
                 else:
                     word_file = word_pic_nums[0]
-                if str(pos) == '.':
-                    pos = "dot"
                 with open(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + key + '/' + d_name
                           + '_' + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' +
-                          word_file + '_' + str(pos) + '.npy', 'wb') as f:
+                          word_file + '.npy', 'wb') as f:
                     # print('word_pic_nums[1]: ', word_pic_nums[1], 'len(val): ', len(val))
                     try:
                         # print('Normal')
@@ -345,7 +365,10 @@ class VisRepEncodings:
                             # print('len(word_pic_nums) == 1', word_pic_nums[1][0])
                             # print('save word-level', word_pic_nums[0], 'len(w_pic_nums): ', len(word_pic_nums[1]),
                             #      np.where(np.isnan(val[word_pic_nums[1][0]].numpy())))
-                            np.save(f, val[word_pic_nums[1]].numpy(), axis=0, allow_pickle=True)
+                            try:
+                                np.save(f, val[word_pic_nums[1]].numpy(), axis=0, allow_pickle=True)
+                            except IndexError:
+                                np.save(f, val[word_pic_nums[1] - 1].numpy(), axis=0, allow_pickle=True)
                         else:
                             # print('save word-level', word_pic_nums[0], 'len(w_pic_nums): ', len(word_pic_nums[1]),
                             #     np.where(np.isnan(np.mean(val[word_pic_nums[1][0]:word_pic_nums[1][-1]].numpy(),
@@ -441,23 +464,26 @@ class VisRepEncodings:
         print('results_name', results_name)
 
         for layer in tqdm(layers_list):
+            print('layer: ', layer)
             print(folder_name + layer + '/')
             filenames = natsorted(next(walk(folder_name + layer + '/'), (None, None, []))[2])
             print('filenames', filenames)
             first_name_file = filenames.pop(0)
             collected_np_arr_matrix = np.load(folder_name + layer + '/' + first_name_file)
-            collected_np_label_array = np.array(first_name_file.split('.n')[0].split('_')[5])
+            # collected_np_label_array = np.array(first_name_file.split('.n')[0].split('_')[5])
             # collected_np_arr = np.mean(first_enc_file, axis=0)
             # first_token_arr = first_enc_file[0]
 
             for word_file in tqdm(filenames):
                 enc_word = np.load(folder_name + layer + '/' + word_file)
                 # print('word_file: ', folder_name + layer + '/' + word_file, 'matrix, np.where: ', np.where(np.isnan(enc_word)))
-                enc_label = np.array(word_file.split('.n')[0].split('_')[5])
+                # enc_label = np.array(word_file.split('.n')[0].split('_')[5])
                 collected_np_arr_matrix = np.row_stack((collected_np_arr_matrix, enc_word))
                 # print('word_file: ', word_file, 'matrix, np.where: ', np.where(np.isnan(collected_np_arr_matrix)))
-                collected_np_label_array = np.append(collected_np_label_array, enc_label)
+                # collected_np_label_array = np.append(collected_np_label_array, enc_label)
                 # first_token_arr = np.row_stack((first_token_arr, enc_sent[0]))
+            # if layer == 'l1':
+            #     print('collected_np_label_array: ', collected_np_label_array)
 
             print('results_name', results_name)
             # save averaged np-array for all sentences
@@ -469,13 +495,13 @@ class VisRepEncodings:
                     # print(error)
                     pass
 
-            with open(results_name + 'all_word_POS_array_' + layer + '.npy', 'wb') as f:
-                try:
-                    # print('labels, np.where: ', len(np.where(np.isnan(collected_np_label_array))))
-                    np.save(f, collected_np_label_array, allow_pickle=True)
-                except FileExistsError as error:
-                    # print(error)
-                    pass
+            # with open(results_name + 'all_word_POS_array_' + layer + '.npy', 'wb') as f:
+            #     try:
+            #         # print('labels, np.where: ', len(np.where(np.isnan(collected_np_label_array))))
+            #         np.save(f, collected_np_label_array, allow_pickle=True)
+            #     except FileExistsError as error:
+            #         # print(error)
+            #         pass
 
     def create_shuffled_data_and_labels(self, data_features_dir, data_labels_file, size, data):
         train_test_dict = defaultdict()
@@ -533,112 +559,107 @@ class VisRepEncodings:
     def mlp_classifier(self, v_or_t, size):
         print('Training MLP Classifier...')
         train_path = self.path_save_encs + 'train/results/'
-        if self.config_dict['noise']:
+        if self.config_dict['config'] == 'noise':
             test_path = self.path_save_encs + 'test/results/noise/'
         else:
             test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
-        train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
-        train_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_train)))
-        print(train_labels)
-        # print(train_features)
-        # print(self.path_save_encs + 'train/results/')
-        filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
-        test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
-        test_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_test)))
 
-        collect_scores = defaultdict()
-        collect_dummy_scores = defaultdict()
+        for task in ['dep', 'upos', 'xpos']:
+            filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
+            train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
+            test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
 
-        for train_feat, train_lab, test_feat, test_lab in list(zip(train_features, train_labels, test_features,
-                                                                   test_labels)):
+            collect_scores = defaultdict()
+            collect_dummy_scores = defaultdict()
 
-            layer = train_feat.split('.')[0].split('_')[-1]
-            print('layer', layer)
-            train_features = np.load(train_path + train_feat, allow_pickle=True)
-            train_labels = np.load(train_path + train_lab, allow_pickle=True)
-            test_features = np.load(test_path + test_feat, allow_pickle=True)
-            test_labels = np.load(test_path + test_lab, allow_pickle=True)
-            print('train_labels', train_labels)
-            # print(train_features.shape, train_labels.shape)
-            # print(test_features.shape, test_labels.shape)
-            # print(test_features[100])
-            # print(np.where(np.isnan(test_features)))
+            for train_feat, test_feat in list(zip(train_features, test_features)):
 
-            # print(test_labels[100])
+                layer = train_feat.split('.')[0].split('_')[-1]
+                # print('layer', layer)
+                train_features = np.load(train_path + train_feat, allow_pickle=True)
+                train_labels = np.load(self.path_save_encs + 'train_' + task + '_all_labels_array.npy', allow_pickle=True)
+                test_features = np.load(test_path + test_feat, allow_pickle=True)
+                test_labels = np.load(self.path_save_encs + 'test_' + task + '_all_labels_array.npy', allow_pickle=True)
+                # print('train_labels', train_labels)
+                # print(train_features.shape, train_labels.shape)
+                # print(test_features.shape, test_labels.shape)
+                # print(test_features[100])
+                # print(np.where(np.isnan(test_features)))
 
-            mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
-            #  print('mlp_clf.predict: ', mlp_clf.predict(test_features[:5, :]))
-            print('\n\n' + layer + '_mlp_score', mlp_clf.score(test_features, test_labels))
-            collect_scores[layer] = mlp_clf.score(test_features, test_labels)
-            print('collect_scores', collect_scores)
+                # print(test_labels[100])
 
-            # use model to make predictions on test data
-            y_pred = mlp_clf.predict(test_features)
-            print(classification_report(test_labels, y_pred))
+                mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
+                #  print('mlp_clf.predict: ', mlp_clf.predict(test_features[:5, :]))
+                print('\n\n' + layer + '_mlp_score', mlp_clf.score(test_features, test_labels))
+                collect_scores[layer] = mlp_clf.score(test_features, test_labels)
+                print('collect_scores', collect_scores)
 
-            dummy_clf = DummyClassifier()
-            dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
-            collect_dummy_scores[layer] = dummy_scores.mean()
+                # use model to make predictions on test data
+                y_pred = mlp_clf.predict(test_features)
+                print(classification_report(test_labels, y_pred))
 
-            # save the model to disk
-            filename = self.path_save + v_or_t + '/' + self.config_dict['sent_word_prob'] + '_' + v_or_t + '_' + layer \
-                       + '_mlp_model_' + str(size) + '.sav'
-            pickle.dump(mlp_clf, open(filename, 'wb'))
+                dummy_clf = DummyClassifier()
+                dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
+                collect_dummy_scores[layer] = dummy_scores.mean()
 
-        print('test123')
-        return collect_scores, collect_dummy_scores
+                # save the model to disk
+                filename = self.path_save + v_or_t + '/' + self.config_dict['sent_word_prob'] + '_' + v_or_t + '_' + layer \
+                           + '_mlp_model_' + str(size) + '.sav'
+                pickle.dump(mlp_clf, open(filename, 'wb'))
+
+            return collect_scores, collect_dummy_scores
 
     def log_reg_no_dict_classifier(self, v_or_t, size):
         print('Training log_reg Classifier...')
         train_path = self.path_save_encs + 'train/results/'
-        if self.config_dict['noise']:
+        if self.config_dict['config'] == 'noise':
             test_path = self.path_save_encs + 'test/results/noise/'
         else:
             test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
-        train_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_train)))
-        print(train_labels)
-        # print(train_features)
-        # print(self.path_save_encs + 'train/results/')
-        filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
-        test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
-        test_labels = sorted(list(filter(lambda k: 'POS' in k, filenames_test)))
 
-        collect_scores = defaultdict()
-        collect_dummy_scores = defaultdict()
 
-        for train_feat, train_lab, test_feat, test_lab in list(zip(train_features, train_labels, test_features,
-                                                                   test_labels)):
-            layer = train_feat.split('.')[0].split('_')[-1]
-            print('layer', layer)
-            train_features = np.load(train_path + train_feat, allow_pickle=True)
-            train_labels = np.load(train_path + train_lab, allow_pickle=True)
-            test_features = np.load(test_path + test_feat, allow_pickle=True)
-            test_labels = np.load(test_path + test_lab, allow_pickle=True)
-            print('train_labels', train_labels)
-            lr_clf = LogisticRegression(random_state=42).fit(train_features, train_labels)
 
-            print('\n\n' + layer + '_lr_score', lr_clf.score(test_features, test_labels))
-            collect_scores[layer] = lr_clf.score(test_features, test_labels)
-            print('collect_scores', collect_scores)
+        for task in ['dep', 'upos', 'xpos']:
+            # print(train_features)
+            # print(self.path_save_encs + 'train/results/')
+            filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
+            test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
 
-            # use model to make predictions on test data
-            y_pred = lr_clf.predict(test_features)
-            # print(test_labels, y_pred)
-            print(classification_report(test_labels, y_pred))
+            collect_scores = defaultdict()
+            collect_dummy_scores = defaultdict()
 
-            dummy_clf = DummyClassifier()
-            dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
-            collect_dummy_scores[layer] = dummy_scores.mean()
+            for train_feat, train_lab, test_feat, test_lab in list(zip(train_features, test_features)):
+                layer = train_feat.split('.')[0].split('_')[-1]
+                # print('layer', layer)
+                train_features = np.load(train_path + train_feat, allow_pickle=True)
+                train_labels = np.load(self.path_save_encs + 'train_' + task + '_all_labels_array.npy', allow_pickle=True)
+                test_features = np.load(test_path + test_feat, allow_pickle=True)
+                test_labels = np.load(self.path_save_encs + 'test_' + task + '_all_labels_array.npy', allow_pickle=True)
+                # print('train_labels', train_labels)
+                lr_clf = LogisticRegression(random_state=42).fit(train_features, train_labels)
 
-            # save the model to disk
-            filename = self.path_save + v_or_t + '/' + self.config_dict['sent_word_prob'] + '_' + v_or_t + '_' + layer \
-                       + '_lr_model_' + str(size) + '.sav'
-            pickle.dump(lr_clf, open(filename, 'wb'))
+                print('\n\n' + layer + '_lr_score', lr_clf.score(test_features, test_labels))
+                collect_scores[layer] = lr_clf.score(test_features, test_labels)
+                print('collect_scores', collect_scores)
 
-        return collect_scores, collect_dummy_scores
+                # use model to make predictions on test data
+                y_pred = lr_clf.predict(test_features)
+                # print(test_labels, y_pred)
+                print(classification_report(test_labels, y_pred))
+
+                dummy_clf = DummyClassifier()
+                dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
+                collect_dummy_scores[layer] = dummy_scores.mean()
+
+                # save the model to disk
+                filename = self.path_save + v_or_t + '/' + self.config_dict['sent_word_prob'] + '_' + v_or_t + '_' + layer \
+                           + '_lr_model_' + str(size) + '.sav'
+                pickle.dump(lr_clf, open(filename, 'wb'))
+
+            return collect_scores, collect_dummy_scores
 
     def process_raw_test_data_forward_to_saved_classifier(self, size):
         pass

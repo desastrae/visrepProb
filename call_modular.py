@@ -56,7 +56,7 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = True
+        classify = False  # True
         # train classifier & create scores for arrays
         classify_arrays = True
         # check if mean tensors are equal across layers
@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
                     if do_translation and config_dict['sent_word_prob'] == 'sent':
                         print('Translate sentences at sentence-level...')
-                        RunVisrep.translate_save(raw_data_train[730:], 'train', task)
+                        RunVisrep.translate_save(raw_data_train, 'train', task)
                         RunVisrep.translate_save(raw_data_test, 'test', task)
                     if do_translation and config_dict['sent_word_prob'] == 'word':
                         print('Translate sentences at word-level...')
