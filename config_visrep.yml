@@ -15,7 +15,7 @@ noise_test_path_out: visrepProb/noise/
 # noise_perc: [0.1, 0.2, 0.4, 0.8]
 # noise_type: ['swap', 'cam', 'l33t']
 UD_path_in: UD_dataset/ # de-utb/
-UD_file: de_gsd-ud-train_clean.conllu # de-train.tt
+UD_file: de_gsd-ud-train_clean3.conllu # de-train.tt
 classifier: mlp # lr
 xprobe_path_in: xprobe/de/
 xprobe_train_file: tense_tr_out.csv
