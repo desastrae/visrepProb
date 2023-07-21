@@ -214,6 +214,7 @@ class VisRepEncodings:
             # print('dep_labels_array: ', dep_labels_array)
             # print('sent: ', ' '.join(data_tuple_list[1]))
             sent = ' '.join(data_tuple_list[1])
+            print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
             # print('len(layer_dict[l1])', layer_dict['l1'].shape)
             # for key, item in layer_dict.items():
@@ -410,9 +411,9 @@ class VisRepEncodings:
         folder_name = self.path_save_encs + para_tr_o_te + '/layers/' + data_name + '/'
         results_name = self.path_save_encs + para_tr_o_te + 'results/' + data_name + '/'
         layers_list = listdir(folder_name)
-        print('layers_list', layers_list)
-        print('self.path_save_encs', self.path_save_encs)
-        print('results_name', results_name)
+        # print('layers_list', layers_list)
+        # print('self.path_save_encs', self.path_save_encs)
+        # print('results_name', results_name)
 
         for layer in tqdm(layers_list):
             print('\n\nReading in all sentence embeddings & creating one np array...\n\n')
@@ -428,7 +429,7 @@ class VisRepEncodings:
                 collected_np_arr = np.row_stack((collected_np_arr, avg_np_array))
                 # first_token_arr = np.row_stack((first_token_arr, enc_sent[0]))
 
-            print('results_name', results_name)
+            # print('results_name', results_name)
             # save averaged np-array for all sentences
             with open(results_name + 'all_sent_avg_v_' + layer + '.npy', 'wb') as f:
                 try:
@@ -459,15 +460,15 @@ class VisRepEncodings:
         folder_name = self.path_save_encs + para_tr_o_te + '/layers/' + data_name
         results_name = self.path_save_encs + para_tr_o_te + '/results/' + data_name
         layers_list = listdir(folder_name)
-        print('layers_list', layers_list)
-        print('self.path_save_encs', self.path_save_encs)
-        print('results_name', results_name)
+        # print('layers_list', layers_list)
+        # print('self.path_save_encs', self.path_save_encs)
+        # print('results_name', results_name)
 
         for layer in tqdm(layers_list):
-            print('layer: ', layer)
-            print(folder_name + layer + '/')
+            # print('layer: ', layer)
+            # print(folder_name + layer + '/')
             filenames = natsorted(next(walk(folder_name + layer + '/'), (None, None, []))[2])
-            print('filenames', filenames)
+            # print('filenames', filenames)
             first_name_file = filenames.pop(0)
             collected_np_arr_matrix = np.load(folder_name + layer + '/' + first_name_file)
             # collected_np_label_array = np.array(first_name_file.split('.n')[0].split('_')[5])
@@ -485,7 +486,7 @@ class VisRepEncodings:
             # if layer == 'l1':
             #     print('collected_np_label_array: ', collected_np_label_array)
 
-            print('results_name', results_name)
+            # print('results_name', results_name)
             # save averaged np-array for all sentences
             with open(results_name + 'all_word_arrays_matrix_' + layer + '.npy', 'wb') as f:
                 try:
