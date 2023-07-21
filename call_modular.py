@@ -14,15 +14,15 @@ if __name__ == '__main__':
 
         path_server_o_lokal = None
 
-        if sys.argv[1] == 's':
-            path_server_o_lokal = config_dict['server_path']
-        elif sys.argv[1] == 'l':
-            path_server_o_lokal = config_dict['lokal_path']
-        else:
-            print('Parameter ' + str(sys.argv[1]) + ' not existent.')
-            exit(0)
+        # if sys.argv[1] == 's':
+        #     path_server_o_lokal = config_dict['server_path']
+        # elif sys.argv[1] == 'l':
+        #     path_server_o_lokal = config_dict['lokal_path']
+        # else:
+        #     print('Parameter ' + str(sys.argv[1]) + ' not existent.')
+        #     exit(0)
 
-        # path_server_o_lokal = config_dict['lokal_path']
+        path_server_o_lokal = config_dict['lokal_path']
 
         # TODO
         # path_tasks = None
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = False  # True
+        classify = True
         # train classifier & create scores for arrays
         classify_arrays = True
         # check if mean tensors are equal across layers
@@ -154,8 +154,8 @@ if __name__ == '__main__':
                         RunVisrep.translate_save(raw_data_test, 'test', task)
                     if do_translation and config_dict['sent_word_prob'] == 'word':
                         print('Translate sentences at word-level...')
-                        RunVisrep.translate_word_level_save(raw_data_train, 'train', task)
-                        RunVisrep.translate_word_level_save(raw_data_test, 'test', task)
+                        # RunVisrep.translate_word_level_save(raw_data_train, 'train', task)
+                        RunVisrep.translate_word_level_save(raw_data_test[766:], 'test', task)
                     if do_avg_tensor and config_dict['sent_word_prob'] == 'sent':
                         print('Create averaged encodings at sentence-level...\n')
                         RunVisrep.read_in_avg_enc_data('train/', 'clean')
@@ -222,14 +222,14 @@ if __name__ == '__main__':
                     if classify_arrays:
                         print('Training Classifier & Evaluating Data...\n')
                         if config_dict['classifier'] == 'mlp':
-                            results, dummy_results = RunVisrep.mlp_classifier(m_type, data_size_list[0])
+                            results = RunVisrep.mlp_classifier(m_type, data_size_list[0])
                         elif config_dict['classifier'] == 'lr':
-                            results, dummy_results = RunVisrep.log_reg_no_dict_classifier(m_type, data_size_list[0])
+                            results = RunVisrep.log_reg_no_dict_classifier(m_type, data_size_list[0])
                         else:
                             print('Unknown classifier...')
                             sys.exit()
-                        results_all = {'avg': results, 'dummy': dummy_results}
-                        df = pd.DataFrame.from_dict(results_all)
+                        # results_all = {'avg': results, 'dummy': dummy_results}
+                        df = pd.DataFrame.from_dict(results)
                         df.to_csv(path_out + m_type + '/' + config_dict['classifier'] + '_' +
                                   config_dict['sent_word_prob'] + '_' + m_type + '_' + task + '_' +
                                   str(data_size_list[0]) + '.csv')
