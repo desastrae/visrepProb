@@ -214,7 +214,7 @@ class VisRepEncodings:
             # print('dep_labels_array: ', dep_labels_array)
             # print('sent: ', ' '.join(data_tuple_list[1]))
             sent = ' '.join(data_tuple_list[1])
-            print('sent: ', sent)
+            # print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
             # print('len(layer_dict[l1])', layer_dict['l1'].shape)
             # for key, item in layer_dict.items():
