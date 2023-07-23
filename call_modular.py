@@ -154,8 +154,8 @@ if __name__ == '__main__':
                         RunVisrep.translate_save(raw_data_test, 'test', task)
                     if do_translation and config_dict['sent_word_prob'] == 'word':
                         print('Translate sentences at word-level...')
-                        # RunVisrep.translate_word_level_save(raw_data_train, 'train', task)
-                        RunVisrep.translate_word_level_save(raw_data_test[766:], 'test', task)
+                        RunVisrep.translate_word_level_save(raw_data_train, 'train', task)
+                        RunVisrep.translate_word_level_save(raw_data_test, 'test', task)
                     if do_avg_tensor and config_dict['sent_word_prob'] == 'sent':
                         print('Create averaged encodings at sentence-level...\n')
                         RunVisrep.read_in_avg_enc_data('train/', 'clean')
