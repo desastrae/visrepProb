@@ -212,7 +212,7 @@ class VisRepEncodings:
             xpos_labels_array = np.append(xpos_labels_array, data_tuple_list[4])
             upos_labels_array = np.append(upos_labels_array, data_tuple_list[5])
             # print('dep_labels_array: ', dep_labels_array)
-            # print('sent: ', ' '.join(data_tuple_list[1]))
+            print('sent: ', ' '.join(data_tuple_list[1]))
             sent = ' '.join(data_tuple_list[1])
             # print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
@@ -568,6 +568,8 @@ class VisRepEncodings:
 
         tasks_dict = defaultdict()
 
+        os.mkdir(self.path_save_encs + 'mlp_sav/')
+
         for task in ['dep', 'upos', 'xpos']:
             print('task: ', task)
 
@@ -634,6 +636,8 @@ class VisRepEncodings:
             test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
+
+        os.mkdir(self.path_save_encs + 'lr_sav/')
 
         tasks_dict = defaultdict()
 
