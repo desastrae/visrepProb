@@ -22,6 +22,8 @@ from get_image_slices_clean import get_wordpixels_in_pic_slice, get_pic_num_for_
 from get_bpe_word import ref_bpe_word
 from conllu import parse
 from collections import defaultdict
+import sys
+np.set_printoptions(threshold=sys.maxsize)
 
 
 class VisRepEncodings:
@@ -573,7 +575,7 @@ class VisRepEncodings:
         except FileExistsError:
             pass
 
-        for task in ['xpos', 'upos', 'dep']:
+        for task in ['upos', 'xpos', 'dep']:
             print('task: ', task)
 
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
