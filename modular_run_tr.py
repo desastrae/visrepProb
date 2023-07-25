@@ -573,7 +573,7 @@ class VisRepEncodings:
         except FileExistsError:
             pass
 
-        for task in ['upos', 'xpos', 'dep']:
+        for task in ['xpos', 'upos', 'dep']:
             print('task: ', task)
 
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
