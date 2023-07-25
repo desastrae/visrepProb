@@ -568,7 +568,10 @@ class VisRepEncodings:
 
         tasks_dict = defaultdict()
 
-        os.mkdir(self.path_save_encs + 'mlp_sav/')
+        try:
+            os.mkdir(self.path_save_encs + 'mlp_sav/')
+        except FileExistsError:
+            pass
 
         for task in ['upos', 'xpos', 'dep']:
             print('task: ', task)
