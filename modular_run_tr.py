@@ -22,8 +22,8 @@ from get_image_slices_clean import get_wordpixels_in_pic_slice, get_pic_num_for_
 from get_bpe_word import ref_bpe_word
 from conllu import parse
 from collections import defaultdict
-import sys
-np.set_printoptions(threshold=sys.maxsize)
+# import sys
+# np.set_printoptions(threshold=sys.maxsize)
 
 
 class VisRepEncodings:
@@ -154,7 +154,12 @@ class VisRepEncodings:
                 # print(sentence.default_fields)
                 for token in sentence:
                     # print(token['id'], token, token['head'], token['deprel'])
-                    sent_token_list.append((token['id'], token['form'], token['head'], token['deprel'], token['upos'],
+                    if token['xpos'] is None:
+                        sent_token_list.append(
+                            (token['id'], token['form'], token['head'], token['deprel'], token['upos'],
+                             '_'))
+                    else:
+                        sent_token_list.append((token['id'], token['form'], token['head'], token['deprel'], token['upos'],
                                             token['xpos']))
                 # dep_data_dict[sentence.metadata['sent_id']] = sent_token_list
                 dep_data_list.append(sent_token_list)
@@ -200,8 +205,8 @@ class VisRepEncodings:
         id_labels_array = np.array(('NONE'))
         head_labels_array = np.array(('NONE'))
         dep_labels_array = np.array(('NONE'))
-        xpos_labels_array = np.array(('NONE'))
         upos_labels_array = np.array(('NONE'))
+        xpos_labels_array = np.array(('NONE'))
 
         for idx, sent_data in tqdm(enumerate(batch)):
             # print(sent_data)
@@ -211,8 +216,8 @@ class VisRepEncodings:
             id_labels_array = np.append(id_labels_array, data_tuple_list[0])
             head_labels_array = np.append(head_labels_array, data_tuple_list[2])
             dep_labels_array = np.append(dep_labels_array, data_tuple_list[3])
-            xpos_labels_array = np.append(xpos_labels_array, data_tuple_list[4])
-            upos_labels_array = np.append(upos_labels_array, data_tuple_list[5])
+            upos_labels_array = np.append(xpos_labels_array, data_tuple_list[4])
+            xpos_labels_array = np.append(upos_labels_array, data_tuple_list[5])
             # print('dep_labels_array: ', dep_labels_array)
             print('sent: ', ' '.join(data_tuple_list[1]))
             sent = ' '.join(data_tuple_list[1])
