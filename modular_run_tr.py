@@ -219,7 +219,7 @@ class VisRepEncodings:
             upos_labels_array = np.append(xpos_labels_array, data_tuple_list[4])
             xpos_labels_array = np.append(upos_labels_array, data_tuple_list[5])
             # print('dep_labels_array: ', dep_labels_array)
-            print('sent: ', ' '.join(data_tuple_list[1]))
+            # print('sent: ', ' '.join(data_tuple_list[1]))
             sent = ' '.join(data_tuple_list[1])
             # print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
