@@ -300,7 +300,7 @@ class Dictionary:
         reverse_order=False,
     ) -> torch.IntTensor:
         words = line_tokenizer(line)
-        print('words list: ', words)
+        # print('words list: ', words)
         with open('bpe_list.txt', 'w') as f:
             for item in words:
                 f.write("%s\n" % item)
