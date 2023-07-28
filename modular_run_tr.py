@@ -606,7 +606,7 @@ class VisRepEncodings:
                 # print('layer', layer)
                 train_features = np.load(train_path + train_feat, allow_pickle=True)
                 train_labels = np.load(self.path_save_encs + 'train_' + task + '_all_labels_array.npy', allow_pickle=True)
-                print('train_labels: ', train_labels)
+                # print('train_labels: ', train_labels)
                 test_features = np.load(test_path + test_feat, allow_pickle=True)
                 test_labels = np.load(self.path_save_encs + 'test_' + task + '_all_labels_array.npy', allow_pickle=True)
                 # print('train_labels', train_labels)
