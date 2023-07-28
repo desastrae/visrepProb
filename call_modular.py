@@ -12,17 +12,17 @@ if __name__ == '__main__':
     with open('config_visrep.yml') as config:
         config_dict = yaml.load(config, Loader=yaml.FullLoader)
 
-        path_server_o_lokal = None
+        # path_server_o_lokal = None
+        #
+        # if sys.argv[1] == 's':
+        #     path_server_o_lokal = config_dict['server_path']
+        # elif sys.argv[1] == 'l':
+        #     path_server_o_lokal = config_dict['lokal_path']
+        # else:
+        #     print('Parameter ' + str(sys.argv[1]) + ' not existent.')
+        #     exit(0)
 
-        if sys.argv[1] == 's':
-            path_server_o_lokal = config_dict['server_path']
-        elif sys.argv[1] == 'l':
-            path_server_o_lokal = config_dict['lokal_path']
-        else:
-            print('Parameter ' + str(sys.argv[1]) + ' not existent.')
-            exit(0)
-
-        # path_server_o_lokal = config_dict['lokal_path']
+        path_server_o_lokal = config_dict['lokal_path']
 
         # TODO
         # path_tasks = None
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = False  # True
+        create_encodings = True
         create_encodings_test = False
 
         # read in raw data into pd dataframe, write majority class to csv
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
-        do_avg_tensor = True
+        do_avg_tensor = False  # True
 
         classify = True
         # train classifier & create scores for arrays
@@ -142,7 +142,6 @@ if __name__ == '__main__':
                     elif config_dict['sent_word_prob'] == 'word' and task == 'sem':
                         # TODO
                         raw_data_train, raw_data_test = RunVisrep.read_sem_data(path_in_file)
-
 
                 for m_type in ('v', 't'):
 

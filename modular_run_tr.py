@@ -170,8 +170,9 @@ class VisRepEncodings:
         return dep_data_list
 
     def save_label_data(self, data_array, task, tr_or_te):
+        # remove init value...
         data_array = np.delete(data_array, 0)
-        # print('data_array', data_array)
+        print('len(data_array): ', len(data_array))
 
         with open(self.path_save_encs + tr_or_te + '_' + task + '_all_labels_array.npy', 'wb') as f:
             try:
@@ -212,12 +213,14 @@ class VisRepEncodings:
             # print(sent_data)
             # sent_list, pos_list = list(zip(*sent))
             data_tuple_list = list(zip(*sent_data))
+            # print('data_tuple_list: ', idx, data_tuple_list)
             # print('data_tuple_list: ', len(data_tuple_list), data_tuple_list)
+            # print('data: ', len(data_tuple_list[1]), 'POS: ', len(data_tuple_list[4]), len(data_tuple_list[5]))
             id_labels_array = np.append(id_labels_array, data_tuple_list[0])
             head_labels_array = np.append(head_labels_array, data_tuple_list[2])
             dep_labels_array = np.append(dep_labels_array, data_tuple_list[3])
-            upos_labels_array = np.append(xpos_labels_array, data_tuple_list[4])
-            xpos_labels_array = np.append(upos_labels_array, data_tuple_list[5])
+            upos_labels_array = np.append(upos_labels_array, data_tuple_list[4])
+            xpos_labels_array = np.append(xpos_labels_array, data_tuple_list[5])
             # print('dep_labels_array: ', dep_labels_array)
             # print('sent: ', ' '.join(data_tuple_list[1]))
             sent = ' '.join(data_tuple_list[1])
@@ -238,6 +241,11 @@ class VisRepEncodings:
             elif self.m_para == 't':
                 sent_bpe_list = ref_bpe_word(list(data_tuple_list[1]))
                 self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list) #, zipped_data_list[2])
+
+        # print(id_labels_array)
+        # print(xpos_labels_array)
+
+        print(len(dep_labels_array), len(xpos_labels_array), len(upos_labels_array))
 
         self.save_label_data(id_labels_array, 'id', tr_or_te)
         self.save_label_data(head_labels_array, 'head', tr_or_te)
@@ -581,7 +589,7 @@ class VisRepEncodings:
             pass
 
         # for task in ['upos', 'xpos', 'dep']:
-        for task in ['upos', 'dep']:
+        for task in ['upos']: # , 'upos', 'dep']:
             print('task: ', task)
 
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
