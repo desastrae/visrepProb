@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = True
+        create_encodings = False  # True
         create_encodings_test = False
 
         # read in raw data into pd dataframe, write majority class to csv
@@ -127,7 +127,7 @@ if __name__ == '__main__':
                         raw_data_train = RunVisrep.read_in_raw_data(data_size_list[0], 0.75, 'train', 'raw')
                         raw_data_test = RunVisrep.read_in_raw_data(data_size_list[0], 0.25, 'test', 'raw')
 
-                    elif config_dict['sent_word_prob'] == 'word':
+                    elif config_dict['sent_word_prob'] == 'word' and task == 'dep':
                         # raw_sent_pos_data = RunVisrep.read_pos_raw_data(path_in_file)
                         # path_in_file = path_server_o_lokal + config_dict['data_path_in'] + config_dict['UD_path_in'] \
                         #                + config_dict['UD_file']
@@ -138,6 +138,11 @@ if __name__ == '__main__':
 
                         raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
                         raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
+
+                    elif config_dict['sent_word_prob'] == 'word' and task == 'sem':
+                        # TODO
+                        raw_data_train, raw_data_test = RunVisrep.read_sem_data(path_in_file)
+
 
                 for m_type in ('v', 't'):
 

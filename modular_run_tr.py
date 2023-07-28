@@ -580,7 +580,8 @@ class VisRepEncodings:
         except FileExistsError:
             pass
 
-        for task in ['upos', 'xpos', 'dep']:
+        # for task in ['upos', 'xpos', 'dep']:
+        for task in ['upos', 'dep']:
             print('task: ', task)
 
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
@@ -652,7 +653,8 @@ class VisRepEncodings:
 
         tasks_dict = defaultdict()
 
-        for task in ['dep', 'upos', 'xpos']:
+        # for task in ['dep', 'upos', 'xpos']:
+        for task in ['dep', 'xpos']:
             print('task: ', task)
             # print(train_features)
             # print(self.path_save_encs + 'train/results/')
