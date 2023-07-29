@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = False  # True
+        create_encodings = True
         create_encodings_test = False
 
         # read in raw data into pd dataframe, write majority class to csv
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
-        do_avg_tensor = False  # True
+        do_avg_tensor = True
 
         classify = True
         # train classifier & create scores for arrays
@@ -189,7 +189,7 @@ if __name__ == '__main__':
                         print(noise_data_test[col])
                         print(col)
 
-                        for m_type in ('v', 't'):
+                        for m_type in ('v', 't')[1:]:
 
                             if m_type == 'v':
                                 RunVisrep.make_vis_model(m_type)
