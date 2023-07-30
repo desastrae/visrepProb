@@ -203,6 +203,11 @@ class VisRepEncodings:
 
         make_directories = True
 
+        count_dep = 0
+        count_upos = 0
+        count_xpos = 0
+        count_words = 0
+
         id_labels_array = np.array(('NONE'))
         head_labels_array = np.array(('NONE'))
         dep_labels_array = np.array(('NONE'))
@@ -221,6 +226,14 @@ class VisRepEncodings:
             dep_labels_array = np.append(dep_labels_array, data_tuple_list[3])
             upos_labels_array = np.append(upos_labels_array, data_tuple_list[4])
             xpos_labels_array = np.append(xpos_labels_array, data_tuple_list[5])
+
+            count_dep += len(data_tuple_list[3])
+            count_upos += len(data_tuple_list[4])
+            count_xpos += len(data_tuple_list[5])
+            count_words += len(data_tuple_list[1])
+
+            print('dep: ', count_dep, '\nupos: ', count_upos, '\nxpos: ', count_xpos, '\nwords: ', count_words)
+
             # print('dep_labels_array: ', dep_labels_array)
             # print('sent: ', ' '.join(data_tuple_list[1]))
             sent = ' '.join(data_tuple_list[1])
