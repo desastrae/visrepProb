@@ -207,6 +207,7 @@ class VisRepEncodings:
         count_upos = 0
         count_xpos = 0
         count_words = 0
+        count_sent_bpe_list = 0
 
         id_labels_array = np.array(('NONE'))
         head_labels_array = np.array(('NONE'))
@@ -232,14 +233,13 @@ class VisRepEncodings:
             count_xpos += len(data_tuple_list[5])
             count_words += len(data_tuple_list[1])
 
-            if idx % 50 == 0:
-                print('\ndep: ', count_dep, '\nupos: ', count_upos, '\nxpos: ', count_xpos, '\nwords: ', count_words)
 
             # print('dep_labels_array: ', dep_labels_array)
             # print('sent: ', ' '.join(data_tuple_list[1]))
             sent = ' '.join(data_tuple_list[1])
             # print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
+
             # print('len(layer_dict[l1])', layer_dict['l1'].shape)
             # for key, item in layer_dict.items():
             #     print('np.where: ', np.where(np.isnan(layer_dict[key])))
@@ -254,7 +254,12 @@ class VisRepEncodings:
             # print('translation', translation)
             elif self.m_para == 't':
                 sent_bpe_list = ref_bpe_word(list(data_tuple_list[1]))
+                count_sent_bpe_list += len(sent_bpe_list)
                 self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list) #, zipped_data_list[2])
+
+            if idx % 5 == 0:
+                print('\ndep: ', count_dep, '\nupos: ', count_upos, '\nxpos: ', count_xpos, '\nwords: ', count_words,
+                      '\nsent_bpe_list: ', count_sent_bpe_list)
 
         # print(id_labels_array)
         # print(xpos_labels_array)
