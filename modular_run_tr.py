@@ -232,7 +232,8 @@ class VisRepEncodings:
             count_xpos += len(data_tuple_list[5])
             count_words += len(data_tuple_list[1])
 
-            print('\ndep: ', count_dep, '\nupos: ', count_upos, '\nxpos: ', count_xpos, '\nwords: ', count_words)
+            if idx % 50 == 0:
+                print('\ndep: ', count_dep, '\nupos: ', count_upos, '\nxpos: ', count_xpos, '\nwords: ', count_words)
 
             # print('dep_labels_array: ', dep_labels_array)
             # print('sent: ', ' '.join(data_tuple_list[1]))

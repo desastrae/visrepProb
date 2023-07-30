@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = False  # True
+        create_encodings = True
         create_encodings_test = False
 
         # read in raw data into pd dataframe, write majority class to csv
