@@ -136,19 +136,16 @@ if __name__ == '__main__':
                         # data_size_list[0] * 0.75)
                         # sents_list, pos_list = [list(zip(*sent)) for sent in raw_sent_pos_data[0]]
 
-                        # raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
-                        raw_data_train = raw_sent_pos_data[4000:4750]
-                        # raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
-                        raw_data_test = raw_sent_pos_data[4750:5000]
+                        # CHAR ½ verursachte Fehler: Sätze mit diesem Character werden entfernt
 
-                        # bis 6000 hoch gegangen. rückrichtung RICHTIG testen!
-                        # fehler zwischen 5000 und 6000
+                        raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
+                        raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
 
                     elif config_dict['sent_word_prob'] == 'word' and task == 'sem':
                         # TODO
                         raw_data_train, raw_data_test = RunVisrep.read_sem_data(path_in_file)
 
-                for m_type in ('v', 't')[1:]:
+                for m_type in ('v', 't'):
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -221,7 +218,7 @@ if __name__ == '__main__':
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
 
-                for m_type in ('v', 't')[1:]:
+                for m_type in ('v', 't'):
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)

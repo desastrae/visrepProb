@@ -203,11 +203,11 @@ class VisRepEncodings:
 
         make_directories = True
 
-        count_dep = 0
-        count_upos = 0
-        count_xpos = 0
-        count_words = 0
-        count_sent_bpe_list = 0
+        # count_dep = 0
+        # count_upos = 0
+        # count_xpos = 0
+        # count_words = 0
+        # count_sent_bpe_list = 0
 
         id_labels_array = np.array(('NONE'))
         head_labels_array = np.array(('NONE'))
@@ -228,10 +228,10 @@ class VisRepEncodings:
             upos_labels_array = np.append(upos_labels_array, data_tuple_list[4])
             xpos_labels_array = np.append(xpos_labels_array, data_tuple_list[5])
 
-            count_dep += len(data_tuple_list[3])
-            count_upos += len(data_tuple_list[4])
-            count_xpos += len(data_tuple_list[5])
-            count_words += len(data_tuple_list[1])
+            # count_dep += len(data_tuple_list[3])
+            # count_upos += len(data_tuple_list[4])
+            # count_xpos += len(data_tuple_list[5])
+            # count_words += len(data_tuple_list[1])
 
 
             # print('dep_labels_array: ', dep_labels_array)
@@ -254,17 +254,17 @@ class VisRepEncodings:
             # print('translation', translation)
             elif self.m_para == 't':
                 sent_bpe_list = ref_bpe_word(list(data_tuple_list[1]))
-                count_sent_bpe_list += len(sent_bpe_list)
+                # count_sent_bpe_list += len(sent_bpe_list)
                 self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list) #, zipped_data_list[2])
 
-            if idx % 50 == 0:
-                print('\ndep: ', count_dep, '\nupos: ', count_upos, '\nxpos: ', count_xpos, '\nwords: ', count_words,
-                      '\nsent_bpe_list: ', count_sent_bpe_list)
+            # if idx % 50 == 0:
+            #     print('\ndep: ', count_dep, '\nupos: ', count_upos, '\nxpos: ', count_xpos, '\nwords: ', count_words,
+            #           '\nsent_bpe_list: ', count_sent_bpe_list)
 
         # print(id_labels_array)
         # print(xpos_labels_array)
 
-        print(len(dep_labels_array), len(xpos_labels_array), len(upos_labels_array))
+        # print(len(dep_labels_array), len(xpos_labels_array), len(upos_labels_array))
 
         self.save_label_data(id_labels_array, 'id', tr_or_te)
         self.save_label_data(head_labels_array, 'head', tr_or_te)
