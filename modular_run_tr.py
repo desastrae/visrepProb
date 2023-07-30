@@ -165,7 +165,7 @@ class VisRepEncodings:
                 dep_data_list.append(sent_token_list)
 
                 # if len(dep_data_list) == self.config_dict['dataset_size'][0]:
-                if len(dep_data_list) == 3000:
+                if len(dep_data_list) == 4000:
                     break
         # print(dep_data_list)
         return dep_data_list
