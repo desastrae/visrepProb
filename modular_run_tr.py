@@ -257,7 +257,7 @@ class VisRepEncodings:
                 count_sent_bpe_list += len(sent_bpe_list)
                 self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list) #, zipped_data_list[2])
 
-            if idx % 5 == 0:
+            if idx % 50 == 0:
                 print('\ndep: ', count_dep, '\nupos: ', count_upos, '\nxpos: ', count_xpos, '\nwords: ', count_words,
                       '\nsent_bpe_list: ', count_sent_bpe_list)
 
