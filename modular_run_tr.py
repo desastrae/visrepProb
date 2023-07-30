@@ -629,7 +629,8 @@ class VisRepEncodings:
                 # print(np.where(np.isnan(test_features)))
 
                 # print(test_labels[100])
-                print(len(test_features), len(test_labels))
+                print('train: ', len(train_features), len(train_labels))
+                print('test: ', len(test_features), len(test_labels))
 
                 mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
                 #  print('mlp_clf.predict: ', mlp_clf.predict(test_features[:5, :]))
