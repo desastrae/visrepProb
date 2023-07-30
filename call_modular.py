@@ -136,8 +136,10 @@ if __name__ == '__main__':
                         # data_size_list[0] * 0.75)
                         # sents_list, pos_list = [list(zip(*sent)) for sent in raw_sent_pos_data[0]]
 
-                        raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
-                        raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
+                        # raw_data_train = raw_sent_pos_data[0:int(data_size_list[0] * 0.75)]
+                        raw_data_train = raw_sent_pos_data[1000:1750]
+                        # raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
+                        raw_data_test = raw_sent_pos_data[1750:2000]
 
                     elif config_dict['sent_word_prob'] == 'word' and task == 'sem':
                         # TODO
