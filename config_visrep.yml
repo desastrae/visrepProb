@@ -21,7 +21,7 @@ xprobe_path_in: xprobe/de/
 xprobe_train_file: tense_tr_out.csv
 xprobe_test_file: tense_te_out.csv
 # !! dataset_size: always spezify greatest value first; used to create encodings dataset !!
-dataset_size: [1000, 100] # [20, 10] [10000, 1000]
+dataset_size: [100, 10] # [20, 10] [10000, 1000]
 path_scores: visrepProb/test_scores/
 # path classifier server, e.g. /local/anasbori/  visrepProb/word_level/  pos/  v/  lr_sav/
 path_saved_classifier: mlp_sav/ # lr_sav/, 10000_sav/ # s-o-l_path + data_path_in + task + m_type + path_saved_classifier
