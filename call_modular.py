@@ -6,6 +6,7 @@ import sys
 from collections import defaultdict
 from configparser import ConfigParser
 from subj_num import read_in_pickled_dict
+from sem_xml_data import get_train_test_sem, get_sem_data_dirs
 
 
 if __name__ == '__main__':
@@ -56,7 +57,7 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = True
+        classify = False  # True
         # train classifier & create scores for arrays
         classify_arrays = True
         # check if mean tensors are equal across layers
@@ -109,8 +110,11 @@ if __name__ == '__main__':
                     RunVisrep = VisRepEncodings(config_dict, path_in_train, path_out, task)
 
                 elif config_dict['sent_word_prob'] == 'word':
-                    path_in_file = path_server_o_lokal + config_dict['data_path_in'] + \
-                                   config_dict['UD_path_in'] + config_dict['UD_file']
+                    if task == 'sem':
+                        path_in_file = path_server_o_lokal + config_dict['data_path_in'] + config_dict['sem_path_in']
+                    elif task == 'dep':
+                        path_in_file = path_server_o_lokal + config_dict['data_path_in'] + \
+                                       config_dict['UD_path_in'] + config_dict['UD_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
 
                     try:
@@ -143,9 +147,10 @@ if __name__ == '__main__':
 
                     elif config_dict['sent_word_prob'] == 'word' and task == 'sem':
                         # TODO
-                        raw_data_train, raw_data_test = RunVisrep.read_sem_data(path_in_file)
+                        gold, silver, bronze = get_sem_data_dirs(path_in_file)
+                        raw_data_train, raw_data_test = get_train_test_sem(path_in_file, gold, silver, bronze)
 
-                for m_type in ('v', 't')[1:]:
+                for m_type in ('v', 't')[:1]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -218,7 +223,7 @@ if __name__ == '__main__':
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
 
-                for m_type in ('v', 't')[1:]:
+                for m_type in ('v', 't')[:1]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)

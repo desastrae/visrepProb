@@ -203,41 +203,30 @@ class VisRepEncodings:
 
         make_directories = True
 
-        # count_dep = 0
-        # count_upos = 0
-        # count_xpos = 0
-        # count_words = 0
-        # count_sent_bpe_list = 0
-
-        id_labels_array = np.array(('NONE'))
-        head_labels_array = np.array(('NONE'))
-        dep_labels_array = np.array(('NONE'))
-        upos_labels_array = np.array(('NONE'))
-        xpos_labels_array = np.array(('NONE'))
+        if data_name == 'dep':
+            id_labels_array = np.array(('NONE'))
+            head_labels_array = np.array(('NONE'))
+            dep_labels_array = np.array(('NONE'))
+            upos_labels_array = np.array(('NONE'))
+            xpos_labels_array = np.array(('NONE'))
+        elif data_name == 'sem':
+            sem_labels_array = np.array(('NONE'))
 
         for idx, sent_data in tqdm(enumerate(batch)):
             # print(sent_data)
             # sent_list, pos_list = list(zip(*sent))
             data_tuple_list = list(zip(*sent_data))
-            # print('data_tuple_list: ', idx, data_tuple_list)
-            # print('data_tuple_list: ', len(data_tuple_list), data_tuple_list)
-            # print('data: ', len(data_tuple_list[1]), 'POS: ', len(data_tuple_list[4]), len(data_tuple_list[5]))
-            id_labels_array = np.append(id_labels_array, data_tuple_list[0])
-            head_labels_array = np.append(head_labels_array, data_tuple_list[2])
-            dep_labels_array = np.append(dep_labels_array, data_tuple_list[3])
-            upos_labels_array = np.append(upos_labels_array, data_tuple_list[4])
-            xpos_labels_array = np.append(xpos_labels_array, data_tuple_list[5])
 
-            # count_dep += len(data_tuple_list[3])
-            # count_upos += len(data_tuple_list[4])
-            # count_xpos += len(data_tuple_list[5])
-            # count_words += len(data_tuple_list[1])
+            if data_name == 'dep':
+                id_labels_array = np.append(id_labels_array, data_tuple_list[0])
+                head_labels_array = np.append(head_labels_array, data_tuple_list[2])
+                dep_labels_array = np.append(dep_labels_array, data_tuple_list[3])
+                upos_labels_array = np.append(upos_labels_array, data_tuple_list[4])
+                xpos_labels_array = np.append(xpos_labels_array, data_tuple_list[5])
+            elif data_name == 'sem':
+                sem_labels_array = np.append(sem_labels_array, data_tuple_list[1])
 
-
-            # print('dep_labels_array: ', dep_labels_array)
-            # print('sent: ', ' '.join(data_tuple_list[1]))
             sent = ' '.join(data_tuple_list[1])
-            # print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
 
             # print('len(layer_dict[l1])', layer_dict['l1'].shape)
@@ -261,16 +250,14 @@ class VisRepEncodings:
             #     print('\ndep: ', count_dep, '\nupos: ', count_upos, '\nxpos: ', count_xpos, '\nwords: ', count_words,
             #           '\nsent_bpe_list: ', count_sent_bpe_list)
 
-        # print(id_labels_array)
-        # print(xpos_labels_array)
-
-        # print(len(dep_labels_array), len(xpos_labels_array), len(upos_labels_array))
-
-        self.save_label_data(id_labels_array, 'id', tr_or_te)
-        self.save_label_data(head_labels_array, 'head', tr_or_te)
-        self.save_label_data(dep_labels_array, 'dep', tr_or_te)
-        self.save_label_data(xpos_labels_array, 'xpos', tr_or_te)
-        self.save_label_data(upos_labels_array, 'upos', tr_or_te)
+        if data_name == 'dep':
+            self.save_label_data(id_labels_array, 'id', tr_or_te)
+            self.save_label_data(head_labels_array, 'head', tr_or_te)
+            self.save_label_data(dep_labels_array, 'dep', tr_or_te)
+            self.save_label_data(xpos_labels_array, 'xpos', tr_or_te)
+            self.save_label_data(upos_labels_array, 'upos', tr_or_te)
+        elif data_name == 'sem':
+            self.save_label_data(sem_labels_array, 'sem', tr_or_te)
 
     def translate_process(self, batch):
         collect_layer_dicts = defaultdict(list)
