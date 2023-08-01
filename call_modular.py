@@ -145,7 +145,7 @@ if __name__ == '__main__':
                         # TODO
                         raw_data_train, raw_data_test = RunVisrep.read_sem_data(path_in_file)
 
-                for m_type in ('v', 't'):
+                for m_type in ('v', 't')[1:]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -218,7 +218,7 @@ if __name__ == '__main__':
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
 
-                for m_type in ('v', 't'):
+                for m_type in ('v', 't')[1:]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)

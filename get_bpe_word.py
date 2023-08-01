@@ -17,7 +17,8 @@ def ref_bpe_word(sent):
     words_list = open_bpe_file()
     # print(words_list)
     words_list = [elem.strip('▁') for elem in words_list]
-    # print(words_list)
+    # print('words_list: ', words_list)
+    sent_val = len(sent)
 
     word_mem = sent.pop(0)
     word_ref_list = list()
@@ -55,5 +56,9 @@ def ref_bpe_word(sent):
                 compound_word = ''
                 positions_list = list()
 
-    # print(word_ref_list)
+    # print(sent_val, len(word_ref_list))
+
+    if sent_val != len(word_ref_list):
+        print('\nword_ref_list: ', word_ref_list)
+        print('\nsent: ', sent)
     return word_ref_list
