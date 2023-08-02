@@ -1,7 +1,7 @@
 sent_word_prob: word # sent
 config: bleu # noise # test_classifier, train_classifier , subj_obj_data...
 tasks: [test_word_prob] # [obj_number , subj_number, past_present, bigram_shift]
-tasks_word: [sem] # [xpos, upos, dep]
+tasks_word: [dep] # [xpos, upos, dep]
 train_test: [train, test]
 server_path: /local/anasbori/
 lokal_path: /home/anastasia/PycharmProjects/
