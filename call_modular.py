@@ -13,17 +13,17 @@ if __name__ == '__main__':
     with open('config_visrep.yml') as config:
         config_dict = yaml.load(config, Loader=yaml.FullLoader)
 
-        path_server_o_lokal = None
+        # path_server_o_lokal = None
+        #
+        # if sys.argv[1] == 's':
+        #     path_server_o_lokal = config_dict['server_path']
+        # elif sys.argv[1] == 'l':
+        #     path_server_o_lokal = config_dict['lokal_path']
+        # else:
+        #     print('Parameter ' + str(sys.argv[1]) + ' not existent.')
+        #     exit(0)
 
-        if sys.argv[1] == 's':
-            path_server_o_lokal = config_dict['server_path']
-        elif sys.argv[1] == 'l':
-            path_server_o_lokal = config_dict['lokal_path']
-        else:
-            print('Parameter ' + str(sys.argv[1]) + ' not existent.')
-            exit(0)
-
-        # path_server_o_lokal = config_dict['lokal_path']
+        path_server_o_lokal = config_dict['lokal_path']
 
         # TODO
         # path_tasks = None
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = True
+        classify = False  # True
         # train classifier & create scores for arrays
         classify_arrays = True
         # check if mean tensors are equal across layers
@@ -70,9 +70,9 @@ if __name__ == '__main__':
         create_plots = False  # True
         plot_avg_f_t = False
         plot_v_vs_t = False
-        plot_prob_tasks = False  # True
-        plot_stack_plots = True  # False
-        plot_per_layer = True
+        plot_prob_tasks = True
+        plot_stack_plots = False
+        plot_per_layer = False  # True
 
         # TODO: adapt / check if needed; NOT working
         if maj_class:
@@ -146,9 +146,13 @@ if __name__ == '__main__':
                         raw_data_test = raw_sent_pos_data[int(data_size_list[0] * 0.75):]
 
                     elif config_dict['sent_word_prob'] == 'word' and task == 'sem':
-                        # TODO
-                        gold, silver, bronze = get_sem_data_dirs(path_in_file)
-                        raw_data_train, raw_data_test = get_train_test_sem(path_in_file, gold, silver, bronze)
+                        # gold, silver, bronze = get_sem_data_dirs(path_in_file)
+                        # raw_data_train, raw_data_test = get_train_test_sem(path_in_file, gold, silver, bronze)
+
+                        gold = get_sem_data_dirs(path_in_file)
+                        raw_sem_data = get_train_test_sem(path_in_file, gold)
+                        raw_data_train = raw_sem_data[0:int(len(raw_sem_data) * 0.75)]
+                        raw_data_test = raw_sem_data[int(len(raw_sem_data) * 0.75):]
 
                 for m_type in ('v', 't'):
 
@@ -290,12 +294,16 @@ if __name__ == '__main__':
                             results.to_csv(path_avg_encs + info_str + '.csv')
 
             if create_plots:
-                # path_out = path_server_o_lokal + config_dict['data_path_in']
-                path_out = path_server_o_lokal + config_dict['noise_test_path_out'] + task + '/'
+                if config_dict['config'] != 'noise':
+                    path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
+                    print(path_out)
+                else:
+                    path_out = path_server_o_lokal + config_dict['noise_test_path_out'] + task + '/'
                 # filenames = natsorted(next(walk(path_out), (None, None, []))[2])
                 get_filenames = next(walk(path_out), (None, None, []))[2]
-                filenames = list( filter(lambda k: '.csv' in k, get_filenames))
-                # print('filenames', filenames)
+                filenames = list(filter(lambda k: '.csv' in k, get_filenames))
+                print('filenames', filenames)
+
                 print('\n Creating plots...\n')
                 if plot_avg_f_t:
                     for file in filenames:
@@ -313,19 +321,27 @@ if __name__ == '__main__':
                         # plot_results_v_vs_t(task, path_out, df_v, df_t, data_size)
 
                 if plot_prob_tasks:
-                    path_old_scores = path_server_o_lokal + config_dict['data_path_in']
-                    file_v_old_scores = path_old_scores + 'v_prob_tasks_results.csv'
-                    file_t_old_scores = path_old_scores + 't_prob_tasks_results.csv'
 
-                    df_v_old = pd.read_csv(file_v_old_scores, index_col=0, sep=',')
-                    df_t_old = pd.read_csv(file_t_old_scores, index_col=0, sep=',')
+                    if config_dict['sent_word_prob'] == 'sent':
+                        path_old_scores = path_server_o_lokal + config_dict['data_path_in']
+                        file_v_scores = path_old_scores + 'v_prob_tasks_results.csv'
+                        file_t_scores = path_old_scores + 't_prob_tasks_results.csv'
+                    elif config_dict['sent_word_prob'] == 'word' and config_dict['tasks_word'][0] == 'dep':
+                        file_v_scores = path_out + config_dict['classifier'] + '_word_v_dep_10000.csv'
+                        file_t_scores = path_out + config_dict['classifier'] + '_word_t_dep_10000.csv'
 
-                    # line_plot_prob_tasks_v1(df_v_old, df_t_old)
-                    line_plot_prob_tasks_v2(df_v_old, df_t_old)
+                    df_v = pd.read_csv(file_v_scores, index_col=0, sep=',')
+                    df_t = pd.read_csv(file_t_scores, index_col=0, sep=',')
+
+                    print(df_v)
+
+                    line_plot_prob_tasks_v1(df_v, df_t, config_dict['classifier'])
+                    line_plot_prob_tasks_v2(df_v, df_t, config_dict['classifier'])
 
                 # To-Do: Check this step!
                 train_train_what = False
 
+                # relevant for noise
                 if plot_stack_plots:
                     for file in filenames:
                         print('\n Creating plots...\n')
