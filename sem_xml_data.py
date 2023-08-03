@@ -37,8 +37,9 @@ def get_train_test_sem(folder, gold_dir, silver_dir, bronze_dir):
     train_data_list = list()
     test_data_list = list()
 
-    for data_dir, train_val, test_val in ((gold_dir, (0, 2282), (2282, 3043)), (silver_dir, (0, 4916), (4916, 6554)),
-                                          (bronze_dir, (0, 302), (302, 403))):
+    for data_dir, train_val, test_val in ((gold_dir, (0, 2282, 'train'), (2282, 3043, 'test')),
+                                          (silver_dir, (0, 4916, 'train'), (4916, 6554, 'test')),
+                                          (bronze_dir, (0, 302, 'train'), (302, 403, 'test'))):
 
     # for data_dir, train_val, test_val in ((gold_dir, (0, 7, 'train'), (7, 10, 'test')), (gold_dir, (0, 7, 'train'),
     # (7, 10, 'test')))[:1]:
