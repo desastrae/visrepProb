@@ -41,8 +41,9 @@ def get_train_test_sem(folder, gold_dir, silver_dir, bronze_dir):
                                           (silver_dir, (0, 4916, 'train'), (4916, 6554, 'test')),
                                           (bronze_dir, (0, 302, 'train'), (302, 403, 'test'))):
 
-    # for data_dir, train_val, test_val in ((gold_dir, (0, 7, 'train'), (7, 10, 'test')), (gold_dir, (0, 7, 'train'),
-    # (7, 10, 'test')))[:1]:
+    # for data_dir, train_val, test_val in ((gold_dir, (0, 7, 'train'), (7, 10, 'test')),
+    #                                       (gold_dir, (0, 7, 'train'), (7, 10, 'test')),
+    #                                       (gold_dir, (0, 7, 'train'), (7, 10, 'test'))):
 
         for data in (train_val, test_val):
             data_set = list()
@@ -53,8 +54,6 @@ def get_train_test_sem(folder, gold_dir, silver_dir, bronze_dir):
                 tree = ET.parse(folder + file_dir + '/de.drs.xml')
                 root = tree.getroot()
 
-                test_list = list()
-                test_val = None
                 save_tok = None
 
                 for node in tree.iter('tag'):
@@ -81,7 +80,8 @@ def get_train_test_sem(folder, gold_dir, silver_dir, bronze_dir):
                 test_data_list.extend(data_set)
 
     # print(train_data_list, '\n', test_data_list)
-    # print(test_data_list)
+    print('train: ', len(train_data_list))
+    print('test: ', len(test_data_list))
 
     return train_data_list, test_data_list
 
