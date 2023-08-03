@@ -586,7 +586,6 @@ class VisRepEncodings:
         else:
             test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
-
         tasks_dict = defaultdict()
 
         try:
@@ -663,18 +662,25 @@ class VisRepEncodings:
         else:
             test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
-        train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
+        # train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
 
-        os.mkdir(self.path_save_encs + 'lr_sav/')
+        try:
+            os.mkdir(self.path_save_encs + 'lr_sav/')
+        except FileExistsError:
+            pass
 
         tasks_dict = defaultdict()
 
-        # for task in ['dep', 'upos', 'xpos']:
-        for task in ['dep', 'xpos']:
+        for task in ['dep', 'upos', 'xpos']:
+        # for task in ['dep', 'xpos']:
             print('task: ', task)
             # print(train_features)
             # print(self.path_save_encs + 'train/results/')
+            # filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
+            # test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
+
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
+            train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
             test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
 
             collect_scores = defaultdict()
