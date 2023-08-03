@@ -686,7 +686,7 @@ class VisRepEncodings:
             collect_scores = defaultdict()
             collect_dummy_scores = defaultdict()
 
-            for train_feat, train_lab, test_feat, test_lab in list(zip(train_features, test_features)):
+            for train_feat, test_feat in list(zip(train_features, test_features)):
                 layer = train_feat.split('.')[0].split('_')[-1]
                 print('layer', layer)
                 train_features = np.load(train_path + train_feat, allow_pickle=True)
