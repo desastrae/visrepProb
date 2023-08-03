@@ -16,13 +16,13 @@ def get_sem_data_dirs(folder):
     bronze_sub_folders = [['bronze/' + name + '/' + f_dir for f_dir in os.listdir(folder + 'bronze/' + name + '/')]
                           for name in os.listdir(folder + 'bronze/')]
 
-    gold_dir = list(itertools.chain(*gold_sub_folders[0]))
-    silver_dir = list(itertools.chain(*silver_sub_folders[0]))
-    bronze_dir = list(itertools.chain(*bronze_sub_folders[0]))
+    gold_dir = list(itertools.chain(*gold_sub_folders))
+    silver_dir = list(itertools.chain(*silver_sub_folders))
+    bronze_dir = list(itertools.chain(*bronze_sub_folders))
 
     # print(len(gold_sub_folders), len(silver_sub_folders), len(bronze_sub_folders))
     # print(len(gold_sub_folders))
-    # print(gold_sub_folders)
+    print(bronze_dir)
     print('gold', len(gold_dir), 'silver', len(silver_dir[0]), 'bronze', len(bronze_dir[0]))
 
     return gold_dir, silver_dir, bronze_dir
