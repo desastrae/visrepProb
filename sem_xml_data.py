@@ -22,7 +22,7 @@ def get_sem_data_dirs(folder):
     # print(len(gold_sub_folders), len(silver_sub_folders), len(bronze_sub_folders))
     # print(len(gold_sub_folders))
     # print(gold_sub_folders)
-    # print(len(gold_dir), len(silver_dir), len(bronze_dir))
+    print('gold', len(gold_dir), 'silver', len(silver_dir), 'bronze', len(bronze_dir))
 
     return gold_dir, silver_dir, bronze_dir
 
