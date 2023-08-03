@@ -6,7 +6,7 @@ def get_sem_data_dirs(folder):
     # folder = '/home/anastasia/PycharmProjects/visrepProb/word_level/pmb-sample-4.0.0/data/de/'
     # folder = path_dir + 'sem/pmb-sample-4.0.0/data/de/'
 
-    # print(folder + 'gold/')
+    print(folder + 'gold/')
 
     gold_sub_folders = [['gold/' + name + '/' + f_dir for f_dir in os.listdir(folder + 'gold/' + name + '/')]
                         for name in os.listdir(folder + 'gold/')]
