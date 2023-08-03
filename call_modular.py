@@ -13,17 +13,17 @@ if __name__ == '__main__':
     with open('config_visrep.yml') as config:
         config_dict = yaml.load(config, Loader=yaml.FullLoader)
 
-        # path_server_o_lokal = None
-        #
-        # if sys.argv[1] == 's':
-        #     path_server_o_lokal = config_dict['server_path']
-        # elif sys.argv[1] == 'l':
-        #     path_server_o_lokal = config_dict['lokal_path']
-        # else:
-        #     print('Parameter ' + str(sys.argv[1]) + ' not existent.')
-        #     exit(0)
+        path_server_o_lokal = None
 
-        path_server_o_lokal = config_dict['lokal_path']
+        if sys.argv[1] == 's':
+            path_server_o_lokal = config_dict['server_path']
+        elif sys.argv[1] == 'l':
+            path_server_o_lokal = config_dict['lokal_path']
+        else:
+            print('Parameter ' + str(sys.argv[1]) + ' not existent.')
+            exit(0)
+
+        # path_server_o_lokal = config_dict['lokal_path']
 
         # TODO
         # path_tasks = None
