@@ -593,7 +593,12 @@ class VisRepEncodings:
         except FileExistsError:
             pass
 
-        for task in ['upos', 'xpos', 'dep']:
+        if self.config_dict['tasks_word'][0] == 'dep':
+            task_list = ['upos', 'xpos', 'dep']
+        elif self.config_dict['tasks_word'][0] == 'sem':
+            task_list = ['sem']
+
+        for task in task_list:
         # for task in ['dep']: # , 'upos', 'dep']:
             print('task: ', task)
 
@@ -671,7 +676,12 @@ class VisRepEncodings:
 
         tasks_dict = defaultdict()
 
-        for task in ['dep', 'upos', 'xpos']:
+        if self.config_dict['tasks_word'][0] == 'dep':
+            task_list = ['upos', 'xpos', 'dep']
+        elif self.config_dict['tasks_word'][0] == 'sem':
+            task_list = ['sem']
+
+        for task in task_list:
         # for task in ['dep', 'xpos']:
             print('task: ', task)
             # print(train_features)
