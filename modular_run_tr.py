@@ -24,7 +24,7 @@ from conllu import parse
 from collections import defaultdict
 # import sys
 # np.set_printoptions(threshold=sys.maxsize)
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import balanced_accuracy_score, f1_score
 
 
 class VisRepEncodings:
@@ -825,7 +825,8 @@ class VisRepEncodings:
 
                 # collect_scores[layer] = loaded_model.score(test_features, test_labels)
                 # collect_scores[layer] = loaded_model.score(test_features, test_labels)
-                print(layer, balanced_accuracy_score(test_labels, y_pred))
+                # print(layer, balanced_accuracy_score(test_labels, y_pred))
+                print(layer, f1_score(test_labels, y_pred, average='macro'))
 
         # return df_test, collect_scores
         return collect_scores
