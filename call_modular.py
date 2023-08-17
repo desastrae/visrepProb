@@ -57,9 +57,9 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = False  # True
+        classify = True
         # train classifier & create scores for arrays
-        classify_arrays = True
+        classify_arrays = False  # True
         # check if mean tensors are equal across layers
         sanity_check = False
 
