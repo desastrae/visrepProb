@@ -258,6 +258,7 @@ if __name__ == '__main__':
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task, None)
 
                 for m_type in ('v', 't'):
+                    print('MODEL:', m_type, '\n\n')
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -325,7 +326,7 @@ if __name__ == '__main__':
                             elif task == 'sem':
                                 path_labels = path_out + 'test_sem_all_labels_array.npy'
                                 path_out_class_report = path_out + config_dict['classifier'] + \
-                                                        'classification_report_sem.txt'
+                                                        '_classification_report_sem.txt'
                             results = RunVisrep.load_classifier_model_word_level(path_out_class_report, path_avg_encs,
                                                                                  path_classifier, path_labels)
                             # results_all[noise_folder] = results
