@@ -319,9 +319,9 @@ if __name__ == '__main__':
 
                             if task == 'dep':
                                 for dep_task in ['xpos', 'upos', 'dep']:
-                                    path_labels = path_avg_encs + 'test_' + dep_task + '_all_labels_array.npy'
+                                    path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
                             elif task == 'sem':
-                                path_labels = path_avg_encs + 'test_sem_all_labels_array.npy'
+                                path_labels = path_out + 'test_sem_all_labels_array.npy'
                             results = RunVisrep.load_classifier_model_word_level(path_avg_encs, path_classifier,
                                                                                     path_labels)
                             # results_all[noise_folder] = results
