@@ -326,8 +326,8 @@ if __name__ == '__main__':
                                 path_labels = path_out + 'test_sem_all_labels_array.npy'
                                 path_out_class_report = path_out + config_dict['classifier'] + \
                                                         'classification_report_sem.txt'
-                            results = RunVisrep.load_classifier_model_word_level(path_out, path_avg_encs, path_classifier,
-                                                                                    path_labels)
+                            results = RunVisrep.load_classifier_model_word_level(path_out_class_report, path_avg_encs,
+                                                                                 path_classifier, path_labels)
                             # results_all[noise_folder] = results
                             info_str = config_dict['classifier'] + '_' + m_type
                             results.to_csv(path_avg_encs + info_str + '.csv')
