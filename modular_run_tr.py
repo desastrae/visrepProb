@@ -27,12 +27,13 @@ from collections import defaultdict
 
 
 class VisRepEncodings:
-    def __init__(self, config_dict, file_path, path_save_encs, task):
+    def __init__(self, config_dict, file_path, path_save_encs, task, noise_type):
         self.config_dict = config_dict
         self.model = None
         self.encoded_data = None
         self.file_path = file_path
         self.task = task
+        self.noise_type = noise_type
         if self.config_dict['config'] == 'noise':
             self.data = file_path + self.config_dict['noise_test_file_out']
         else:
@@ -198,6 +199,27 @@ class VisRepEncodings:
 
             self.save_encodings(layer_dict, idx, tr_or_te, data_name)
 
+    # Translate sentences for noise
+    def translate_save_noise(self, batch, tr_or_te):
+        print('\n\nTranslating sentences // Creating encodings...\n\n')
+        self.make_noise_directories()
+
+        for idx, sent in tqdm(enumerate(batch[:1])):
+            print('sent: ', sent)
+            translation, layer_dict = self.model.translate(sent)
+            print('translation', translation)
+
+            if self.m_para == 'v':
+                pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(sent))
+                print('pic_num_words: ', pic_num_words)
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, pic_num_words) #, zipped_data_list[2])
+            # print('translation', translation)
+            elif self.m_para == 't':
+                sent_bpe_list = ref_bpe_word(list(sent))
+                print('sent_bpe_list: ', sent_bpe_list)
+                # count_sent_bpe_list += len(sent_bpe_list)
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, sent_bpe_list) #, zipped_data_list[2])
+
     def translate_word_level_save(self, batch, tr_or_te, data_name):
         print('\n\nTranslating sentences // Creating encodings...\n\n')
 
@@ -328,6 +350,19 @@ class VisRepEncodings:
                     except OSError as error:
                         # print(error)
                         continue
+
+    def make_noise_directories(self):
+        # print(self.path_save + self.task + self.m_para + '/test/layers/noise/')
+
+        layers_folders = natsorted(next(walk(self.path_save + self.m_para + '/test/layers/noise/'),
+                                        (None, None, []))[1])
+        for layer in layers_folders:
+            try:
+                os.mkdir(self.path_save + self.m_para + 'test/layers/noise/' + layer + '/' + self.noise_type + '/')
+                os.mkdir(self.path_save + self.m_para + 'test/results/noise/' + layer + '/' + self.noise_type + '/')
+            except OSError as error:
+                # print(error)
+                continue
 
     def save_encodings(self, np_dict, sent_num, tr_or_te, d_name):
         # data_name = self.data.split('/')[1].split('.')[0]
@@ -769,15 +804,19 @@ class VisRepEncodings:
         eval_files_list = natsorted(filter(lambda k: 'matrix' in k, next(walk(path_avg_encs), (None, None, []))[2]))
         layer_list = [l.split('.')[0].split('_')[-1] for l in eval_files_list]
         collect_scores = defaultdict()
+        df_labels = np.load(path_labels, allow_pickle=True)
 
         for layer in layer_list:
             # load the model from disk
-            df_labels = np.load(path_labels + layer + '.npy', allow_pickle=True)
             classifier_model = path_classifier + [elem for elem in classifier_list if layer in elem][0]
             eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
                                 allow_pickle=True)
             loaded_model = pickle.load(open(classifier_model, 'rb'))
             test_features, test_labels = shuffle(eval_file, df_labels, random_state=42)
+
+            # use model to make predictions on test data
+            y_pred = loaded_model.predict(test_features)
+            print(layer, classification_report(test_labels, y_pred))
 
             collect_scores[layer] = loaded_model.score(test_features, test_labels)
 
