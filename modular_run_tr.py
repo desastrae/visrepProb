@@ -24,6 +24,7 @@ from conllu import parse
 from collections import defaultdict
 # import sys
 # np.set_printoptions(threshold=sys.maxsize)
+from sklearn.metrics import balanced_accuracy_score
 
 
 class VisRepEncodings:
@@ -810,7 +811,7 @@ class VisRepEncodings:
             out.write('Classification Report\n\n')
             for layer in layer_list:
                 # load the model from disk
-                out.write('Layer ' + layer[-1] + '\n')
+                out.write('\nLayer ' + layer[-1] + '\n')
                 classifier_model = path_classifier + [elem for elem in classifier_list if layer in elem][0]
                 eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
                                     allow_pickle=True)
@@ -822,7 +823,9 @@ class VisRepEncodings:
                 class_rep = classification_report(test_labels, y_pred)
                 out.write(class_rep)
 
-                collect_scores[layer] = loaded_model.score(test_features, test_labels)
+                # collect_scores[layer] = loaded_model.score(test_features, test_labels)
+                # collect_scores[layer] = loaded_model.score(test_features, test_labels)
+                print(layer, balanced_accuracy_score(test_labels, y_pred))
 
         # return df_test, collect_scores
         return collect_scores
