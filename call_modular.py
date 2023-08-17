@@ -331,7 +331,7 @@ if __name__ == '__main__':
                                                                                  path_classifier, path_labels)
                             # results_all[noise_folder] = results
                             info_str = config_dict['classifier'] + '_' + m_type
-                            results.to_csv(path_avg_encs + info_str + '.csv')
+                            pd.DataFrame(results).to_csv(path_avg_encs + info_str + '.csv')
 
             if create_plots:
                 if config_dict['config'] != 'noise':
