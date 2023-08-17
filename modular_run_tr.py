@@ -807,8 +807,10 @@ class VisRepEncodings:
         df_labels = np.load(path_labels, allow_pickle=True)
 
         with open(path_out_class_report, 'w') as out:
+            out.write('Classification Report\n\n')
             for layer in layer_list:
                 # load the model from disk
+                out.write('Layer ' + layer[-1] + '\n')
                 classifier_model = path_classifier + [elem for elem in classifier_list if layer in elem][0]
                 eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
                                     allow_pickle=True)
@@ -817,7 +819,8 @@ class VisRepEncodings:
 
                 # use model to make predictions on test data
                 y_pred = loaded_model.predict(test_features)
-                print(layer, classification_report(test_labels, y_pred))
+                class_rep = classification_report(test_labels, y_pred)
+                out.write(class_rep)
 
                 collect_scores[layer] = loaded_model.score(test_features, test_labels)
 

@@ -320,10 +320,12 @@ if __name__ == '__main__':
                             if task == 'dep':
                                 for dep_task in ['xpos', 'upos', 'dep']:
                                     path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
-                                    path_out_class_report = path_out + 'classification_report_' + dep_task + '.txt'
+                                    path_out_class_report = path_out + config_dict['classifier'] + \
+                                                            '_classification_report_' + dep_task + '.txt'
                             elif task == 'sem':
                                 path_labels = path_out + 'test_sem_all_labels_array.npy'
-                                path_out_class_report = path_out + 'classification_report_sem.txt'
+                                path_out_class_report = path_out + config_dict['classifier'] + \
+                                                        'classification_report_sem.txt'
                             results = RunVisrep.load_classifier_model_word_level(path_out, path_avg_encs, path_classifier,
                                                                                     path_labels)
                             # results_all[noise_folder] = results
