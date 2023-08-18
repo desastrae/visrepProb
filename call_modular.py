@@ -321,6 +321,7 @@ if __name__ == '__main__':
                             if task == 'dep':
                                 task_dict = defaultdict()
                                 for dep_task in ['xpos', 'upos', 'dep']:
+                                    print(dep_task)
                                     path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
                                     path_out_class_report = path_out + config_dict['classifier'] + \
                                                             '_classification_report_' + dep_task + '.txt'
