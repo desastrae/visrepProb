@@ -686,8 +686,8 @@ class VisRepEncodings:
                 collect_dummy_scores[layer] = dummy_scores.mean()
 
                 # save the model to disk
-                filename = self.path_save + v_or_t + '/mlp_sav/' + self.config_dict['sent_word_prob'] + '_' + v_or_t + \
-                           '_' + layer + '_mlp_model_' + str(size) + '.sav'
+                filename = self.path_save + v_or_t + '/mlp_sav/' + task + '_' + self.config_dict['sent_word_prob'] + \
+                           '_' + v_or_t + '_' + layer + '_mlp_model_' + str(size) + '.sav'
                 pickle.dump(mlp_clf, open(filename, 'wb'))
 
             tasks_dict[task] = collect_scores
@@ -756,8 +756,8 @@ class VisRepEncodings:
                 collect_dummy_scores[layer] = dummy_scores.mean()
 
                 # save the model to disk
-                filename = self.path_save + v_or_t + '/lr_sav/' + self.config_dict['sent_word_prob'] + '_' + v_or_t + \
-                           '_' + layer + '_lr_model_' + str(size) + '.sav'
+                filename = self.path_save + v_or_t + '/lr_sav/' + task + '_' + + self.config_dict['sent_word_prob'] + \
+                           '_' + v_or_t + '_' + layer + '_lr_model_' + str(size) + '.sav'
                 pickle.dump(lr_clf, open(filename, 'wb'))
 
             tasks_dict[task] = collect_scores
