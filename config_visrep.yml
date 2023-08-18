@@ -1,7 +1,7 @@
 sent_word_prob: word # sent
 config: moise # noise # test_classifier, train_classifier , subj_obj_data...
 tasks: [test_word_prob] # [obj_number , subj_number, past_present, bigram_shift]
-tasks_word: [dep] # [sem, dep]
+tasks_word: [sem] # [sem, dep]
 train_test: [train, test]
 server_path: /local/anasbori/
 lokal_path: /home/anastasia/PycharmProjects/
@@ -17,7 +17,7 @@ noise_type: ['swap', 'cam', 'l33t']
 UD_path_in: UD_dataset/ # de-utb/
 UD_file: de_gsd-ud-train_clean4.conllu # de-train.tt
 sem_path_in: pmb/pmb-4.0.0/data/de/
-classifier: mlp # mlp # lr
+classifier: lr # mlp # lr
 xprobe_path_in: xprobe/de/
 xprobe_train_file: tense_tr_out.csv
 xprobe_test_file: tense_te_out.csv
