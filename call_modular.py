@@ -319,6 +319,7 @@ if __name__ == '__main__':
                             path_classifier = path_out + config_dict['classifier'] + '_sav/'
 
                             if task == 'dep':
+                                task_dict = defaultdict()
                                 for dep_task in ['xpos', 'upos', 'dep']:
                                     path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
                                     path_out_class_report = path_out + config_dict['classifier'] + \
@@ -326,9 +327,11 @@ if __name__ == '__main__':
                                     results = RunVisrep.load_classifier_model_word_level(path_out_class_report,
                                                                                          path_avg_encs,
                                                                                          path_classifier, path_labels)
+                                    task_dict[dep_task] = results
                                     # results_all[noise_folder] = results
-                                    info_str = config_dict['classifier'] + '_' + m_type
-                                    pd.DataFrame([results]).to_csv(path_avg_encs + info_str + '.csv')
+                                    info_str = config_dict['classifier'] + '_' + m_type + '_' + dep_task
+                                print(task_dict)
+                                pd.DataFrame([task_dict]).to_csv(path_out + info_str + '.csv')
                             elif task == 'sem':
                                 path_labels = path_out + 'test_sem_all_labels_array.npy'
                                 path_out_class_report = path_out + config_dict['classifier'] + \
@@ -338,11 +341,12 @@ if __name__ == '__main__':
                                                                                      path_labels)
                                 # results_all[noise_folder] = results
                                 info_str = config_dict['classifier'] + '_' + m_type
-                                pd.DataFrame([results]).to_csv(path_avg_encs + info_str + '.csv')
+                                pd.DataFrame([results]).to_csv(path_out + info_str + '.csv')
 
             if create_plots:
                 if config_dict['config'] != 'noise':
-                    path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
+                    # path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
+                    path_out = path_server_o_lokal + config_dict['data_path_in']
                     print(path_out)
                 else:
                     path_out = path_server_o_lokal + config_dict['noise_test_path_out'] + task + '/'
@@ -374,8 +378,15 @@ if __name__ == '__main__':
                         file_v_scores = path_old_scores + 'v_prob_tasks_results.csv'
                         file_t_scores = path_old_scores + 't_prob_tasks_results.csv'
                     elif config_dict['sent_word_prob'] == 'word' and config_dict['tasks_word'][0] == 'dep':
-                        file_v_scores = path_out + config_dict['classifier'] + '_word_v_dep_10000.csv'
-                        file_t_scores = path_out + config_dict['classifier'] + '_word_t_dep_10000.csv'
+                        # file_v_scores = path_out + config_dict['classifier'] + '_word_v_dep_10000.csv'
+                        # file_t_scores = path_out + config_dict['classifier'] + '_word_t_dep_10000.csv'
+                        cl_m = config_dict['classifier']
+                        file_v_scores = path_out + list(filter(lambda mod: '_v_' in mod, (list(filter(lambda cl:
+                                                                                                      cl_m in cl,
+                                                                                           filenames)))))[0]
+                        file_t_scores = path_out + list(filter(lambda mod: '_t_' in mod, (list(filter(lambda cl:
+                                                                                                      cl_m in cl,
+                                                                                           filenames)))))[0]
 
                     df_v = pd.read_csv(file_v_scores, index_col=0, sep=',')
                     df_t = pd.read_csv(file_t_scores, index_col=0, sep=',')
