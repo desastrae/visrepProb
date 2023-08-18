@@ -823,10 +823,10 @@ class VisRepEncodings:
                 class_rep = classification_report(test_labels, y_pred)
                 out.write(class_rep)
 
-                # collect_scores[layer] = loaded_model.score(test_features, test_labels)
+                collect_scores[layer] = f1_score(test_labels, y_pred, average='macro')
                 # collect_scores[layer] = loaded_model.score(test_features, test_labels)
                 # print(layer, balanced_accuracy_score(test_labels, y_pred))
-                print(layer, f1_score(test_labels, y_pred, average='macro'))
+                # print(layer, f1_score(test_labels, y_pred, average='macro'))
 
         # return df_test, collect_scores
         return collect_scores
