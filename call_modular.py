@@ -125,6 +125,7 @@ if __name__ == '__main__':
 
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task, None)
 
+                # read in original dataformat, read in & preprocess for translation pipeline...
                 if read_raw_data and not create_encodings_test:
 
                     if config_dict['sent_word_prob'] == 'sent':
@@ -154,7 +155,7 @@ if __name__ == '__main__':
                         raw_data_train = raw_sem_data[0:int(len(raw_sem_data) * 0.75)]
                         raw_data_test = raw_sem_data[int(len(raw_sem_data) * 0.75):]
 
-                for m_type in ('v', 't'):
+                for m_type in ('v', 't')[1:]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -226,7 +227,7 @@ if __name__ == '__main__':
 
                         noise_filenames = natsorted(next(walk(path_in_test), (None, None, []))[2])
 
-                        for noise_type in config_dict['noise_type'][:1]:
+                        for noise_type in config_dict['noise_type']:
                             RunVisrep = VisRepEncodings(config_dict, path_in_test, path_out, task, noise_type)
                             if m_type == 'v':
                                 RunVisrep.make_vis_model(m_type)
@@ -234,15 +235,15 @@ if __name__ == '__main__':
                                 RunVisrep.make_text_model(m_type)
                             noise_type_files = sorted(filter(lambda file: noise_type in file, noise_filenames))
 
-                            for file in noise_type_files[:1]:
+                            for file in noise_type_files:
                                 with open(path_in_test + file) as noise_file:
                                     file_data = noise_file.read().splitlines()
-                                    if create_encodings_test and do_translation:
+                                    if do_translation:
                                         RunVisrep.translate_save_noise(file_data, 'test')
-                                    if create_encodings_test and do_avg_tensor:
+                                    if do_avg_tensor:
                                         RunVisrep.read_in_word_level_make_matrix('test')
-                                    if create_encodings_test and do_avg_tensor:
-                                        RunVisrep.read_in_word_level_make_matrix('test')
+                                    # if create_encodings_test and do_avg_tensor:
+                                    #     RunVisrep.read_in_word_level_make_matrix('test')
 
             if classify:
                 if config_dict['sent_word_prob'] == 'sent':

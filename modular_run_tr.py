@@ -206,7 +206,7 @@ class VisRepEncodings:
         print('\n\nTranslating sentences // Creating encodings...\n\n')
         self.make_noise_directories()
 
-        for idx, sent in tqdm(enumerate(batch[:1])):
+        for idx, sent in tqdm(enumerate(batch)):
             print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
             print('translation', translation)
@@ -217,7 +217,7 @@ class VisRepEncodings:
                 self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, pic_num_words) #, zipped_data_list[2])
             # print('translation', translation)
             elif self.m_para == 't':
-                sent_bpe_list = ref_bpe_word(list(sent))
+                sent_bpe_list = ref_bpe_word(list(sent.split()))
                 print('sent_bpe_list: ', sent_bpe_list)
                 # count_sent_bpe_list += len(sent_bpe_list)
                 self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, sent_bpe_list) #, zipped_data_list[2])
@@ -355,15 +355,16 @@ class VisRepEncodings:
 
     def make_noise_directories(self):
         # print(self.path_save + self.task + self.m_para + '/test/layers/noise/')
+        print('Create noise dirs...')
 
         layers_folders = natsorted(next(walk(self.path_save + self.m_para + '/test/layers/noise/'),
                                         (None, None, []))[1])
         for layer in layers_folders:
             try:
-                os.mkdir(self.path_save + self.m_para + 'test/layers/noise/' + layer + '/' + self.noise_type + '/')
-                os.mkdir(self.path_save + self.m_para + 'test/results/noise/' + layer + '/' + self.noise_type + '/')
+                os.mkdir(self.path_save + self.m_para + '/' + 'test/layers/noise/' + layer + '/' + self.noise_type + '/')
+                os.mkdir(self.path_save + self.m_para + '/' + 'test/results/noise/' + self.noise_type + '/')
             except OSError as error:
-                # print(error)
+                print(error)
                 continue
 
     def save_encodings(self, np_dict, sent_num, tr_or_te, d_name):
@@ -395,9 +396,10 @@ class VisRepEncodings:
                 # print('pic_nums', pic_nums)
                 count_val += 1
                 if tr_or_te == 'test' and self.config_dict['config'] == 'noise':
-                    path_tr_te = 'noise/'
+                    path_tr_te = 'noise/' + key + '/' + self.noise_type + '/'
+                    print(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te)
                 elif tr_or_te == 'test' and self.config_dict['config'] != 'noise':
-                    path_tr_te = 'clean/'
+                    path_tr_te = 'clean/' + key + '/'
                 else:
                     path_tr_te = ''
                 if word_pic_nums[0] == '/':
@@ -412,7 +414,10 @@ class VisRepEncodings:
                     word_file = '"SUBST"'
                 else:
                     word_file = word_pic_nums[0]
-                with open(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + key + '/' + d_name
+                print(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + d_name
+                          + '_' + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' +
+                          word_file + '.npy')
+                with open(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + d_name
                           + '_' + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' +
                           word_file + '.npy', 'wb') as f:
                     # print('word_pic_nums[1]: ', word_pic_nums[1], 'len(val): ', len(val))
@@ -525,16 +530,20 @@ class VisRepEncodings:
         for layer in tqdm(layers_list):
             # print('layer: ', layer)
             # print(folder_name + layer + '/')
-            filenames = natsorted(next(walk(folder_name + layer + '/'), (None, None, []))[2])
+            if self.config_dict['config'] == 'noise':
+                name_folder_path = folder_name + layer + '/' + self.noise_type + '/'
+            else:
+                name_folder_path = folder_name + layer + '/'
+            filenames = natsorted(next(walk(name_folder_path), (None, None, []))[2])
             # print('filenames', filenames)
             first_name_file = filenames.pop(0)
-            collected_np_arr_matrix = np.load(folder_name + layer + '/' + first_name_file)
+            collected_np_arr_matrix = np.load(name_folder_path + first_name_file)
             # collected_np_label_array = np.array(first_name_file.split('.n')[0].split('_')[5])
             # collected_np_arr = np.mean(first_enc_file, axis=0)
             # first_token_arr = first_enc_file[0]
 
             for word_file in tqdm(filenames):
-                enc_word = np.load(folder_name + layer + '/' + word_file)
+                enc_word = np.load(name_folder_path + word_file)
                 # print('word_file: ', folder_name + layer + '/' + word_file, 'matrix, np.where: ', np.where(np.isnan(enc_word)))
                 # enc_label = np.array(word_file.split('.n')[0].split('_')[5])
                 collected_np_arr_matrix = np.row_stack((collected_np_arr_matrix, enc_word))
