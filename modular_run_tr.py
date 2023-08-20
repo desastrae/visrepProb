@@ -207,18 +207,18 @@ class VisRepEncodings:
         self.make_noise_directories()
 
         for idx, sent in tqdm(enumerate(batch)):
-            print('sent: ', sent)
+            # print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
-            print('translation', translation)
+            # print('translation', translation)
 
             if self.m_para == 'v':
                 pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(sent))
-                print('pic_num_words: ', pic_num_words)
+                # print('pic_num_words: ', pic_num_words)
                 self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, pic_num_words) #, zipped_data_list[2])
             # print('translation', translation)
             elif self.m_para == 't':
                 sent_bpe_list = ref_bpe_word(list(sent.split()))
-                print('sent_bpe_list: ', sent_bpe_list)
+                # print('sent_bpe_list: ', sent_bpe_list)
                 # count_sent_bpe_list += len(sent_bpe_list)
                 self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, sent_bpe_list) #, zipped_data_list[2])
 
@@ -364,7 +364,7 @@ class VisRepEncodings:
                 os.mkdir(self.path_save + self.m_para + '/' + 'test/layers/noise/' + layer + '/' + self.noise_type + '/')
                 os.mkdir(self.path_save + self.m_para + '/' + 'test/results/noise/' + self.noise_type + '/')
             except OSError as error:
-                print(error)
+                # print(error)
                 continue
 
     def save_encodings(self, np_dict, sent_num, tr_or_te, d_name):
