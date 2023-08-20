@@ -32,11 +32,11 @@ if __name__ == '__main__':
             # print(error)
             pass
 
-        RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
+        RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task, None)
         data = RunVisrep.read_UD_data(path_in_file)
         raw_sent_data = list()
 
-        for sent_data in data[:int(config_dict['dataset_size'][0] * 0.25)]:
+        for sent_data in data[int(config_dict['dataset_size'][0] * 0.75):]:
             data_tuple_list = list(zip(*sent_data))
             raw_sent_data.append(' '.join(data_tuple_list[1]))
 
