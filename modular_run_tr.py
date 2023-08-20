@@ -89,7 +89,7 @@ class VisRepEncodings:
             pass
 
     def save_raw_data(self, df_raw_combined, test_train):
-        print(str(self.path_save) + test_train + '_raw_sentences.npy')
+        # print(str(self.path_save) + test_train + '_raw_sentences.npy')
         with open(str(self.path_save) + test_train + '_raw_sentences.npy', 'wb') as f:
             try:
                 np.save(f, np.array(df_raw_combined[0]), allow_pickle=True)
@@ -397,7 +397,6 @@ class VisRepEncodings:
                 count_val += 1
                 if tr_or_te == 'test' and self.config_dict['config'] == 'noise':
                     path_tr_te = 'noise/' + key + '/' + self.noise_type + '/'
-                    print(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te)
                 elif tr_or_te == 'test' and self.config_dict['config'] != 'noise':
                     path_tr_te = 'clean/' + key + '/'
                 else:
@@ -414,9 +413,6 @@ class VisRepEncodings:
                     word_file = '"SUBST"'
                 else:
                     word_file = word_pic_nums[0]
-                print(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + d_name
-                          + '_' + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' +
-                          word_file + '.npy')
                 with open(self.path_save_encs + tr_or_te + '/layers/' + path_tr_te + d_name
                           + '_' + self.m_para + '_sent' + str(sent_num) + '_word' + str(count_val) + '_' +
                           word_file + '.npy', 'wb') as f:

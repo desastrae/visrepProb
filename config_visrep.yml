@@ -1,5 +1,5 @@
 sent_word_prob: word # sent
-config: moise # noise # test_classifier, train_classifier , subj_obj_data...
+config: noise # noise # test_classifier, train_classifier , subj_obj_data...
 tasks: [test_word_prob] # [obj_number , subj_number, past_present, bigram_shift]
 tasks_word: [dep] # [sem, dep]
 train_test: [train, test]
@@ -22,7 +22,7 @@ xprobe_path_in: xprobe/de/
 xprobe_train_file: tense_tr_out.csv
 xprobe_test_file: tense_te_out.csv
 # !! dataset_size: always spezify greatest value first; used to create encodings dataset !!
-dataset_size: [10000, 1000] # [20, 10] [10000, 1000]
+dataset_size: [20, 10] # [20, 10] [10000, 1000]
 path_scores: visrepProb/test_scores/
 # path classifier server, e.g. /local/anasbori/  visrepProb/word_level/  pos/  v/  lr_sav/
 path_saved_classifier: mlp_sav/ # lr_sav/, 10000_sav/ # s-o-l_path + data_path_in + task + m_type + path_saved_classifier
