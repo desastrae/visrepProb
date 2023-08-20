@@ -25,6 +25,7 @@ from collections import defaultdict
 # import sys
 # np.set_printoptions(threshold=sys.maxsize)
 from sklearn.metrics import balanced_accuracy_score, f1_score
+from sklearn.preprocessing import StandardScaler
 
 
 class VisRepEncodings:
@@ -756,7 +757,7 @@ class VisRepEncodings:
                 collect_dummy_scores[layer] = dummy_scores.mean()
 
                 # save the model to disk
-                filename = self.path_save + v_or_t + '/lr_sav/' + task + '_' + + self.config_dict['sent_word_prob'] + \
+                filename = self.path_save + v_or_t + '/lr_sav/' + task + '_' + self.config_dict['sent_word_prob'] + \
                            '_' + v_or_t + '_' + layer + '_lr_model_' + str(size) + '.sav'
                 pickle.dump(lr_clf, open(filename, 'wb'))
 
@@ -798,7 +799,8 @@ class VisRepEncodings:
         # return df_test, collect_scores
         return collect_scores
 
-    def load_classifier_model_word_level(self, path_out_class_report, path_avg_encs, path_classifier, path_labels):
+    def load_classifier_model_word_level(self, w_task, path_out_class_report, path_avg_encs, path_classifier,
+                                         path_labels):
         print('Loading trained classifier for word-level evaluation...')
 
         classifier_list = natsorted(next(walk(path_classifier), (None, None, []))[2])
@@ -812,7 +814,8 @@ class VisRepEncodings:
             for layer in layer_list:
                 # load the model from disk
                 out.write('\nLayer ' + layer[-1] + '\n')
-                classifier_model = path_classifier + [elem for elem in classifier_list if layer in elem][0]
+                filtered_class_list = list(filter(lambda cla: w_task in cla, classifier_list))
+                classifier_model = path_classifier + [elem for elem in filtered_class_list if layer in elem][0]
                 eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
                                     allow_pickle=True)
                 loaded_model = pickle.load(open(classifier_model, 'rb'))

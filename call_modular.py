@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = False  # True
+        create_encodings = True
         create_encodings_test = True  # False
 
         # read in raw data into pd dataframe, write majority class to csv
@@ -57,9 +57,9 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = True
+        classify = False  # True
         # train classifier & create scores for arrays
-        classify_arrays = True
+        classify_arrays = False  # True
         # check if mean tensors are equal across layers
         sanity_check = False
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task, None)
 
-                if read_raw_data:
+                if read_raw_data and not create_encodings_test:
 
                     if config_dict['sent_word_prob'] == 'sent':
                         raw_data_train = RunVisrep.read_in_raw_data(data_size_list[0], 0.75, 'train', 'raw')
@@ -241,6 +241,8 @@ if __name__ == '__main__':
                                         RunVisrep.translate_save_noise(file_data, 'test')
                                     if create_encodings_test and do_avg_tensor:
                                         RunVisrep.read_in_word_level_make_matrix('test')
+                                    if create_encodings_test and do_avg_tensor:
+                                        RunVisrep.read_in_word_level_make_matrix('test')
 
             if classify:
                 if config_dict['sent_word_prob'] == 'sent':
@@ -325,7 +327,8 @@ if __name__ == '__main__':
                                     path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
                                     path_out_class_report = path_out + config_dict['classifier'] + \
                                                             '_classification_report_' + dep_task + '.txt'
-                                    results = RunVisrep.load_classifier_model_word_level(path_out_class_report,
+                                    results = RunVisrep.load_classifier_model_word_level(dep_task,
+                                                                                         path_out_class_report,
                                                                                          path_avg_encs,
                                                                                          path_classifier, path_labels)
                                     task_dict[dep_task] = results
@@ -337,7 +340,7 @@ if __name__ == '__main__':
                                 path_labels = path_out + 'test_sem_all_labels_array.npy'
                                 path_out_class_report = path_out + config_dict['classifier'] + \
                                                         '_classification_report_sem.txt'
-                                results = RunVisrep.load_classifier_model_word_level(path_out_class_report,
+                                results = RunVisrep.load_classifier_model_word_level(task, path_out_class_report,
                                                                                      path_avg_encs, path_classifier,
                                                                                      path_labels)
                                 # results_all[noise_folder] = results
