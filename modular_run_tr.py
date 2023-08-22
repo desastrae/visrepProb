@@ -29,13 +29,12 @@ from sklearn.preprocessing import StandardScaler
 
 
 class VisRepEncodings:
-    def __init__(self, config_dict, file_path, path_save_encs, task, noise_type):
+    def __init__(self, config_dict, file_path, path_save_encs, task):
         self.config_dict = config_dict
         self.model = None
         self.encoded_data = None
         self.file_path = file_path
         self.task = task
-        self.noise_type = noise_type
         if self.config_dict['config'] == 'noise':
             self.data = file_path + self.config_dict['noise_test_file_out']
         else:
@@ -202,9 +201,9 @@ class VisRepEncodings:
             self.save_encodings(layer_dict, idx, tr_or_te, data_name)
 
     # Translate sentences for noise
-    def translate_save_noise(self, batch, tr_or_te):
+    def translate_save_noise(self, batch, tr_or_te, file_name):
         print('\n\nTranslating sentences // Creating encodings...\n\n')
-        self.make_noise_directories()
+        self.make_noise_directories(file_name)
 
         for idx, sent in tqdm(enumerate(batch)):
             # print('sent: ', sent)
@@ -214,13 +213,13 @@ class VisRepEncodings:
             if self.m_para == 'v':
                 pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(sent))
                 # print('pic_num_words: ', pic_num_words)
-                self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, pic_num_words) #, zipped_data_list[2])
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, pic_num_words, file_name) #, zipped_data_list[2])
             # print('translation', translation)
             elif self.m_para == 't':
                 sent_bpe_list = ref_bpe_word(list(sent.split()))
                 # print('sent_bpe_list: ', sent_bpe_list)
                 # count_sent_bpe_list += len(sent_bpe_list)
-                self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, sent_bpe_list) #, zipped_data_list[2])
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, self.task, sent_bpe_list, file_name) #, zipped_data_list[2])
 
     def translate_word_level_save(self, batch, tr_or_te, data_name):
         print('\n\nTranslating sentences // Creating encodings...\n\n')
@@ -353,7 +352,7 @@ class VisRepEncodings:
                         # print(error)
                         continue
 
-    def make_noise_directories(self):
+    def make_noise_directories(self, noise_dir):
         # print(self.path_save + self.task + self.m_para + '/test/layers/noise/')
         print('Create noise dirs...')
 
@@ -361,8 +360,8 @@ class VisRepEncodings:
                                         (None, None, []))[1])
         for layer in layers_folders:
             try:
-                os.mkdir(self.path_save + self.m_para + '/' + 'test/layers/noise/' + layer + '/' + self.noise_type + '/')
-                os.mkdir(self.path_save + self.m_para + '/' + 'test/results/noise/' + self.noise_type + '/')
+                os.mkdir(self.path_save + self.m_para + '/' + 'test/layers/noise/' + layer + '/' + noise_dir + '/')
+                os.mkdir(self.path_save + self.m_para + '/' + 'test/results/noise/' + noise_dir + '/')
             except OSError as error:
                 # print(error)
                 continue
@@ -380,7 +379,7 @@ class VisRepEncodings:
                     # print(error)
                     pass
 
-    def save_word_level_encodings(self, np_dict, sent_num, tr_or_te, d_name, pic_num_words_list):  #, pos_list):
+    def save_word_level_encodings(self, np_dict, sent_num, tr_or_te, d_name, pic_num_words_list, noise_type=None):  #, pos_list):
         # data_name = self.data.split('/')[1].split('.')[0]
         # print(data_name)
         # print('Saving encodings...')
@@ -396,7 +395,7 @@ class VisRepEncodings:
                 # print('pic_nums', pic_nums)
                 count_val += 1
                 if tr_or_te == 'test' and self.config_dict['config'] == 'noise':
-                    path_tr_te = 'noise/' + key + '/' + self.noise_type + '/'
+                    path_tr_te = 'noise/' + key + '/' + noise_type + '/'
                 elif tr_or_te == 'test' and self.config_dict['config'] != 'noise':
                     path_tr_te = 'clean/' + key + '/'
                 else:
@@ -506,7 +505,7 @@ class VisRepEncodings:
             #         # print(error)
             #         pass
 
-    def read_in_word_level_make_matrix(self, para_tr_o_te):
+    def read_in_word_level_make_matrix(self, para_tr_o_te, noise_type=None):
         print('\n\nReading in all word and sentence embeddings & creating one np matrix...\n\n')
 
         if para_tr_o_te == 'test' and self.config_dict['config'] == 'noise':
@@ -527,9 +526,12 @@ class VisRepEncodings:
             # print('layer: ', layer)
             # print(folder_name + layer + '/')
             if self.config_dict['config'] == 'noise':
-                name_folder_path = folder_name + layer + '/' + self.noise_type + '/'
+                name_folder_path = folder_name + layer + '/' + noise_type + '/'
+                out_filename = results_name + noise_type + '/' + 'all_word_arrays_matrix_' + layer + '.npy'
             else:
                 name_folder_path = folder_name + layer + '/'
+                out_filename = results_name + 'all_word_arrays_matrix_' + layer + '.npy'
+            print(name_folder_path)
             filenames = natsorted(next(walk(name_folder_path), (None, None, []))[2])
             # print('filenames', filenames)
             first_name_file = filenames.pop(0)
@@ -551,7 +553,7 @@ class VisRepEncodings:
 
             # print('results_name', results_name)
             # save averaged np-array for all sentences
-            with open(results_name + 'all_word_arrays_matrix_' + layer + '.npy', 'wb') as f:
+            with open(out_filename, 'wb') as f:
                 try:
                     # print('matrix, np.where: ', np.where(np.isnan(collected_np_arr_matrix)))
                     np.save(f, collected_np_arr_matrix, allow_pickle=True)

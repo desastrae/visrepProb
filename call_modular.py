@@ -107,7 +107,7 @@ if __name__ == '__main__':
                     path_in_test = path_server_o_lokal + config_dict['xprobe_path_in'] + config_dict['xprobe_test_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in']
 
-                    RunVisrep = VisRepEncodings(config_dict, path_in_train, path_out, task, None)
+                    RunVisrep = VisRepEncodings(config_dict, path_in_train, path_out, task)
 
                 elif config_dict['sent_word_prob'] == 'word':
                     if task == 'sem':
@@ -123,7 +123,7 @@ if __name__ == '__main__':
                         # print(error)
                         pass
 
-                    RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task, None)
+                    RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
 
                 # read in original dataformat, read in & preprocess for translation pipeline...
                 if read_raw_data and not create_encodings_test:
@@ -155,7 +155,7 @@ if __name__ == '__main__':
                         raw_data_train = raw_sem_data[0:int(len(raw_sem_data) * 0.75)]
                         raw_data_test = raw_sem_data[int(len(raw_sem_data) * 0.75):]
 
-                for m_type in ('v', 't')[1:]:
+                for m_type in ('v', 't'):
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -188,7 +188,7 @@ if __name__ == '__main__':
                         path_in_test = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                         path_out = path_server_o_lokal + config_dict['noise_test_path_out'] + task + '/'
 
-                        RunVisrep = VisRepEncodings(config_dict, path_in_test, path_out, task, None)
+                        RunVisrep = VisRepEncodings(config_dict, path_in_test, path_out, task)
 
                         print('noise_data_test', path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                                                       + config_dict['noise_test_file_out'])
@@ -201,7 +201,7 @@ if __name__ == '__main__':
                             print(noise_data_test[col])
                             print(col)
 
-                            for m_type in ('v', 't')[1:]:
+                            for m_type in ('v', 't'):
 
                                 if m_type == 'v':
                                     RunVisrep.make_vis_model(m_type)
@@ -228,7 +228,8 @@ if __name__ == '__main__':
                         noise_filenames = natsorted(next(walk(path_in_test), (None, None, []))[2])
 
                         for noise_type in config_dict['noise_type']:
-                            RunVisrep = VisRepEncodings(config_dict, path_in_test, path_out, task, noise_type)
+                            print('Creating noise files for noise type ' + noise_type + '...\n')
+                            RunVisrep = VisRepEncodings(config_dict, path_in_test, path_out, task)
                             if m_type == 'v':
                                 RunVisrep.make_vis_model(m_type)
                             else:
@@ -236,12 +237,14 @@ if __name__ == '__main__':
                             noise_type_files = sorted(filter(lambda file: noise_type in file, noise_filenames))
 
                             for file in noise_type_files:
+                                file_name = file.split('.t')
+                                print(file_name[0])
                                 with open(path_in_test + file) as noise_file:
                                     file_data = noise_file.read().splitlines()
                                     if do_translation:
-                                        RunVisrep.translate_save_noise(file_data, 'test')
+                                        RunVisrep.translate_save_noise(file_data, 'test', file_name[0])
                                     if do_avg_tensor:
-                                        RunVisrep.read_in_word_level_make_matrix('test')
+                                        RunVisrep.read_in_word_level_make_matrix('test', file_name[0])
                                     # if create_encodings_test and do_avg_tensor:
                                     #     RunVisrep.read_in_word_level_make_matrix('test')
 
@@ -252,13 +255,13 @@ if __name__ == '__main__':
                     path_in_test = path_server_o_lokal + config_dict['xprobe_path_in'] + config_dict['xprobe_test_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
 
-                    RunVisrep = VisRepEncodings(config_dict, path_in_train, path_out, task, None)
+                    RunVisrep = VisRepEncodings(config_dict, path_in_train, path_out, task)
 
                 elif config_dict['sent_word_prob'] == 'word':
                     path_in_file = path_server_o_lokal + config_dict['data_path_in'] + \
                                    config_dict['UD_path_in'] + config_dict['UD_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
-                    RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task, None)
+                    RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
 
                 for m_type in ('v', 't'):
                     print('MODEL:', m_type, '\n\n')
@@ -292,7 +295,7 @@ if __name__ == '__main__':
                         else:
                             path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/' + m_type + '/'
 
-                        RunVisrep = VisRepEncodings(config_dict, path_in_test, path_out, task, None)
+                        RunVisrep = VisRepEncodings(config_dict, path_in_test, path_out, task)
 
                         print('Loading saved Classifier & Evaluating Data...\n')
                         # for m_type in ('v', 't')[:1]:
