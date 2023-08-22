@@ -236,7 +236,7 @@ if __name__ == '__main__':
                                 RunVisrep.make_text_model(m_type)
                             noise_type_files = sorted(filter(lambda file: noise_type in file, noise_filenames))
 
-                            for file in noise_type_files:
+                            for file in tqdm(noise_type_files):
                                 file_name = file.split('.t')
                                 print(file_name[0])
                                 with open(path_in_test + file) as noise_file:
