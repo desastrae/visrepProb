@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = True
+        create_encodings = False  # True
         create_encodings_test = True  # False
 
         # read in raw data into pd dataframe, write majority class to csv
@@ -57,14 +57,14 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = False  # True
+        classify = True
         # train classifier & create scores for arrays
         classify_arrays = False  # True
         # check if mean tensors are equal across layers
         sanity_check = False
 
         # Load saved model; classify test set
-        saved_classifier = False  # True
+        saved_classifier = True
 
         # Create Plots
         create_plots = False  # True
@@ -290,6 +290,7 @@ if __name__ == '__main__':
                         # data_size_list = [10000]  # , 1000]
                         data_size_list = config_dict['dataset_size'][:1]
                         path_in_test = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
+
                         if config_dict['config'] == 'noise':
                             path_out = path_server_o_lokal + config_dict['noise_test_path_out'] + task + '/'
                         else:
