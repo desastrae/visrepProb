@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = True
+        create_encodings = False  # True
         create_encodings_test = True  # False
 
         # read in raw data into pd dataframe, write majority class to csv
@@ -57,12 +57,13 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = False  # True
+        classify = True
         # train classifier & create scores for arrays
         classify_arrays = False  # True
+        # test results with normalized embeddings
+        classify_norm = False  # True
         # check if mean tensors are equal across layers
         sanity_check = False
-
         # Load saved model; classify test set
         saved_classifier = True
 
@@ -273,10 +274,16 @@ if __name__ == '__main__':
 
                     if classify_arrays:
                         print('Training Classifier & Evaluating Data...\n')
-                        if config_dict['classifier'] == 'mlp':
+                        if config_dict['classifier'] == 'mlp' and not classify_norm:
                             results = RunVisrep.mlp_classifier(m_type, data_size_list[0])
-                        elif config_dict['classifier'] == 'lr':
+                        if config_dict['classifier'] == 'mlp' and classify_norm:
+                            print('classify norm mlp...')
+                            results = RunVisrep.mlp_classifier(m_type, data_size_list[0], True)
+                        elif config_dict['classifier'] == 'lr' and not classify_norm:
                             results = RunVisrep.log_reg_no_dict_classifier(m_type, data_size_list[0])
+                        elif config_dict['classifier'] == 'lr' and classify_norm:
+                            print('classify norm lr...')
+                            results = RunVisrep.log_reg_no_dict_classifier(m_type, data_size_list[0], True)
                         else:
                             print('Unknown classifier...')
                             sys.exit()
@@ -338,7 +345,7 @@ if __name__ == '__main__':
                                                                                          path_classifier, path_labels)
                                     task_dict[dep_task] = results
                                     # results_all[noise_folder] = results
-                                    info_str = config_dict['classifier'] + '_' + m_type + '_' + dep_task
+                                info_str = config_dict['classifier'] + '_' + m_type + '_dep_f1-scores'
                                 print(task_dict)
                                 pd.DataFrame([task_dict]).to_csv(path_out + info_str + '.csv')
                             elif task == 'sem':
@@ -361,7 +368,7 @@ if __name__ == '__main__':
                     path_out = path_server_o_lokal + config_dict['noise_test_path_out'] + task + '/'
                 # filenames = natsorted(next(walk(path_out), (None, None, []))[2])
                 get_filenames = next(walk(path_out), (None, None, []))[2]
-                filenames = list(filter(lambda k: '.csv' in k, get_filenames))
+                filenames = list(filter(lambda g: 'f1' in g, list(filter(lambda k: '.csv' in k, get_filenames))))
                 print('filenames', filenames)
 
                 print('\n Creating plots...\n')

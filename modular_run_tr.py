@@ -622,7 +622,7 @@ class VisRepEncodings:
 
         return collect_scores, collect_dummy_scores
 
-    def mlp_classifier(self, v_or_t, size):
+    def mlp_classifier(self, v_or_t, size, norm=None):
         print('Training MLP Classifier...')
         train_path = self.path_save_encs + 'train/results/'
         if self.config_dict['config'] == 'noise':
@@ -632,10 +632,19 @@ class VisRepEncodings:
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         tasks_dict = defaultdict()
 
-        try:
-            os.mkdir(self.path_save_encs + 'mlp_sav/')
-        except FileExistsError:
-            pass
+        if norm:
+            try:
+                class_path = 'norm_mlp_sav/'
+                os.mkdir(self.path_save_encs + class_path)
+                class_path = 'norm_mlp_sav/norm'
+            except FileExistsError:
+                pass
+        else:
+            try:
+                class_path = 'mlp_sav/'
+                os.mkdir(self.path_save_encs + class_path)
+            except FileExistsError:
+                pass
 
         if self.config_dict['tasks_word'][0] == 'dep':
             task_list = ['upos', 'xpos', 'dep']
@@ -673,6 +682,11 @@ class VisRepEncodings:
                 print('train: ', len(train_features), len(train_labels))
                 print('test: ', len(test_features), len(test_labels))
 
+                if norm:
+                    sc = StandardScaler()
+                    train_features = sc.fit_transform(train_features)
+                    test_features = sc.transform(test_features)
+
                 mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
                 #  print('mlp_clf.predict: ', mlp_clf.predict(test_features[:5, :]))
                 # print('\n\n' + layer + '_mlp_score', mlp_clf.score(test_features, test_labels))
@@ -694,7 +708,7 @@ class VisRepEncodings:
                 collect_dummy_scores[layer] = dummy_scores.mean()
 
                 # save the model to disk
-                filename = self.path_save + v_or_t + '/mlp_sav/' + task + '_' + self.config_dict['sent_word_prob'] + \
+                filename = self.path_save + v_or_t + class_path + task + '_' + self.config_dict['sent_word_prob'] + \
                            '_' + v_or_t + '_' + layer + '_mlp_model_' + str(size) + '.sav'
                 pickle.dump(mlp_clf, open(filename, 'wb'))
 
@@ -703,7 +717,7 @@ class VisRepEncodings:
 
         return tasks_dict
 
-    def log_reg_no_dict_classifier(self, v_or_t, size):
+    def log_reg_no_dict_classifier(self, v_or_t, size, norm=None):
         print('Training log_reg Classifier...')
         train_path = self.path_save_encs + 'train/results/'
         if self.config_dict['config'] == 'noise':
@@ -713,10 +727,19 @@ class VisRepEncodings:
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
         # train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
 
-        try:
-            os.mkdir(self.path_save_encs + 'lr_sav/')
-        except FileExistsError:
-            pass
+        if norm:
+            try:
+                class_path = 'norm_lr_sav/'
+                os.mkdir(self.path_save_encs + class_path)
+                class_path = 'norm_lr_sav/norm_'
+            except FileExistsError:
+                pass
+        else:
+            try:
+                class_path = 'lr_sav/'
+                os.mkdir(self.path_save_encs + class_path)
+            except FileExistsError:
+                pass
 
         tasks_dict = defaultdict()
 
@@ -748,6 +771,12 @@ class VisRepEncodings:
                 test_features = np.load(test_path + test_feat, allow_pickle=True)
                 test_labels = np.load(self.path_save_encs + 'test_' + task + '_all_labels_array.npy', allow_pickle=True)
                 # print('train_labels', train_labels)
+
+                if norm:
+                    sc = StandardScaler()
+                    train_features = sc.fit_transform(train_features)
+                    test_features = sc.transform(test_features)
+
                 lr_clf = LogisticRegression(random_state=42).fit(train_features, train_labels)
 
                 # print('\n\n' + layer + '_lr_score', lr_clf.score(test_features, test_labels))
@@ -764,7 +793,7 @@ class VisRepEncodings:
                 collect_dummy_scores[layer] = dummy_scores.mean()
 
                 # save the model to disk
-                filename = self.path_save + v_or_t + '/lr_sav/' + task + '_' + self.config_dict['sent_word_prob'] + \
+                filename = self.path_save + v_or_t + class_path + task + '_' + self.config_dict['sent_word_prob'] + \
                            '_' + v_or_t + '_' + layer + '_lr_model_' + str(size) + '.sav'
                 pickle.dump(lr_clf, open(filename, 'wb'))
 
