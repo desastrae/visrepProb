@@ -634,14 +634,14 @@ class VisRepEncodings:
 
         if norm:
             try:
-                class_path = 'norm_mlp_sav/'
+                class_path = '/norm_mlp_sav/'
                 os.mkdir(self.path_save_encs + class_path)
-                class_path = 'norm_mlp_sav/norm'
+                class_path = '/norm_mlp_sav/norm_'
             except FileExistsError:
                 pass
         else:
             try:
-                class_path = 'mlp_sav/'
+                class_path = '/mlp_sav/'
                 os.mkdir(self.path_save_encs + class_path)
             except FileExistsError:
                 pass
@@ -729,14 +729,14 @@ class VisRepEncodings:
 
         if norm:
             try:
-                class_path = 'norm_lr_sav/'
+                class_path = '/norm_lr_sav/'
                 os.mkdir(self.path_save_encs + class_path)
-                class_path = 'norm_lr_sav/norm_'
+                class_path = '/norm_lr_sav/norm_'
             except FileExistsError:
                 pass
         else:
             try:
-                class_path = 'lr_sav/'
+                class_path = '/lr_sav/'
                 os.mkdir(self.path_save_encs + class_path)
             except FileExistsError:
                 pass
