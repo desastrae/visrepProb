@@ -347,7 +347,7 @@ if __name__ == '__main__':
                                     # results_all[noise_folder] = results
                                 info_str = config_dict['classifier'] + '_' + m_type + '_dep_f1-scores'
                                 print(task_dict)
-                                pd.DataFrame([task_dict]).to_csv(path_out + info_str + '.csv')
+                                pd.DataFrame(task_dict).to_csv(path_out + info_str + '.csv')
                             elif task == 'sem':
                                 path_labels = path_out + 'test_sem_all_labels_array.npy'
                                 path_out_class_report = path_out + config_dict['classifier'] + \
