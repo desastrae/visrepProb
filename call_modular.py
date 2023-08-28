@@ -332,8 +332,8 @@ if __name__ == '__main__':
                             path_avg_encs = path_out + 'test/results/clean/'
                             path_classifier = path_out + 'norm_' + config_dict['classifier'] + '_sav/'
 
+                            task_dict = defaultdict()
                             if task == 'dep':
-                                task_dict = defaultdict()
                                 for dep_task in ['xpos', 'upos', 'dep']:
                                     print(dep_task)
                                     path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
