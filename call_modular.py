@@ -330,7 +330,7 @@ if __name__ == '__main__':
                                       + '.csv')
                         else:
                             path_avg_encs = path_out + 'test/results/clean/'
-                            path_classifier = path_out + 'norm_' + config_dict['classifier'] + '_sav/'
+                            path_classifier = path_out + config_dict['classifier'] + '_sav/'
 
                             task_dict = defaultdict()
                             if task == 'dep':
@@ -357,7 +357,7 @@ if __name__ == '__main__':
                                                                                      path_labels)
                                 # results_all[noise_folder] = results
                                 task_dict[task] = results
-                                info_str = config_dict['classifier'] + '_' + m_type + '_sem_f1-scores_norm'
+                                info_str = config_dict['classifier'] + '_' + m_type + '_sem_f1-scores'
                                 pd.DataFrame(task_dict).to_csv(path_out + info_str + '.csv')
 
             if create_plots:
