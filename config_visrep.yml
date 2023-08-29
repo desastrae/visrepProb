@@ -13,7 +13,7 @@ noise_test_file_out: test_noise_sentences.csv #test_raw_sentences.csv
 noise_test_path_out: visrepProb/noise/
 # test_path_out:
 # noise_perc: [0.1, 0.2, 0.4, 0.8]
-noise_type: ['cmabrigde'] # ['swap', 'cam', 'l33t']
+noise_type: ['cmabrigde', 'swap', 'l33t']
 UD_path_in: UD_dataset/ # de-utb/
 UD_file: de_gsd-ud-train_clean4.conllu # de-train.tt
 sem_path_in: pmb/pmb-4.0.0/data/de/

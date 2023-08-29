@@ -843,6 +843,7 @@ class VisRepEncodings:
         eval_files_list = natsorted(filter(lambda k: 'matrix' in k, next(walk(path_avg_encs), (None, None, []))[2]))
         layer_list = [l.split('.')[0].split('_')[-1] for l in eval_files_list]
         collect_scores = defaultdict()
+        f1_collect_scores = defaultdict()
         df_labels = np.load(path_labels, allow_pickle=True)
 
         # with open(path_out_class_report, 'w') as out:
@@ -862,14 +863,15 @@ class VisRepEncodings:
             class_rep = classification_report(test_labels, y_pred)
             # out.write(class_rep)
 
-            collect_scores[layer] = f1_score(test_labels, y_pred, average='macro')
+            collect_scores[layer] = loaded_model.score(test_labels, y_pred)
+            f1_collect_scores[layer] = f1_score(test_labels, y_pred, average='macro')
             # collect_scores[layer] = loaded_model.score(test_features, test_labels)
             # print(layer, balanced_accuracy_score(test_labels, y_pred))
             print(layer, f1_score(test_labels, y_pred, average='macro'))
             print(layer, loaded_model.score(test_features, test_labels))
 
         # return df_test, collect_scores
-        return collect_scores
+        return collect_scores, f1_collect_scores
 
     # ToDo
     def sanity_check(self, data_features_dir):
