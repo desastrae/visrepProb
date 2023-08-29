@@ -297,6 +297,8 @@ if __name__ == '__main__':
                         # data_size_list = [10000]  # , 1000]
                         data_size_list = config_dict['dataset_size'][:1]
                         print('data_size_list: ', data_size_list)
+                        print(path_out + 'f1_noise_' + config_dict['noise_type'] + '_' + m_type + '_' + task +
+                                      '_' + str(data_size_list[0]) + '.csv')
                         path_in_test = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                         path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/' + m_type + '/'
 
