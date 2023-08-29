@@ -59,13 +59,13 @@ if __name__ == '__main__':
 
         classify = True
         # train classifier & create scores for arrays
-        classify_arrays = True
+        classify_arrays = False  # True
         # test results with normalized embeddings
         classify_norm = False  # True
         # check if mean tensors are equal across layers
         sanity_check = False
         # Load saved model; classify test set
-        saved_classifier = False  # True
+        saved_classifier = True
 
         # Create Plots
         create_plots = False  # True
@@ -262,10 +262,10 @@ if __name__ == '__main__':
                     path_in_file = path_server_o_lokal + config_dict['data_path_in'] + \
                                    config_dict['UD_path_in'] + config_dict['UD_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
-                    RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
 
                 for m_type in ('v', 't'):
                     print('MODEL:', m_type, '\n\n')
+                    RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out + m_type + '/', task)
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
