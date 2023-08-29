@@ -297,8 +297,7 @@ if __name__ == '__main__':
                         # data_size_list = [10000]  # , 1000]
                         data_size_list = config_dict['dataset_size'][:1]
                         print('data_size_list: ', str(data_size_list[0]))
-                        print(path_out + 'f1_noise_' + config_dict['noise_type'] + '_' + m_type + '_' + task +
-                                      '_' + str(data_size_list[0]) + '.csv')
+                        print(path_out + 'f1_noise_' + m_type + '_' + task + '_' + str(data_size_list[0]) + '.csv')
                         path_in_test = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                         path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/' + m_type + '/'
 
@@ -342,9 +341,9 @@ if __name__ == '__main__':
                             df = pd.DataFrame.from_dict(results_all)
                             df_f1 = pd.DataFrame.from_dict(results_all_f1)
                             noise_info_str = '_'.join(config_dict['noise_type'])
-                            df.to_csv(path_out + 'noise_' + config_dict['noise_type'] + '_' + m_type + '_' + task +
+                            df.to_csv(path_out + 'noise_' + noise_info_str + '_' + m_type + '_' + task +
                                       '_' + str(data_size_list[0]) + '.csv')
-                            df.to_csv(path_out + 'f1_noise_' + config_dict['noise_type'] + '_' + m_type + '_' + task +
+                            df.to_csv(path_out + 'f1_noise_' + noise_info_str + '_' + m_type + '_' + task +
                                       '_' + str(data_size_list[0]) + '.csv')
                         else:
                             path_avg_encs = path_out + 'test/results/clean/'
