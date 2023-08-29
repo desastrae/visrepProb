@@ -311,18 +311,31 @@ if __name__ == '__main__':
                             # noise_folder_names = natsorted(next(walk(folder_name_path), (None, [], None))[1])
                             noise_folder_names = natsorted(next(walk(path_noise),
                                                                 (None, [], None))[1])
-                            for data_size in data_size_list:
-                                for noise_folder in noise_folder_names:
+                            for noise_folder in noise_folder_names:
+                                if task == 'dep':
+                                    for dep_task in ['xpos', 'upos', 'dep']:
+                                        print(dep_task)
+                                        path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
+                                        path_avg_encs = path_noise + noise_folder + '/'
+                                        path_classifier = path_out + str(config_dict['classifier']) + '_sav/'
+                                        results = RunVisrep.load_classifier_model_load_avg_encs(path_avg_encs,
+                                                                                                path_classifier,
+                                                                                                path_labels)
+                                        results_all[noise_folder] = results
+
+                                elif task == 'sem':
+                                    path_labels = path_out + 'test_sem_all_labels_array.npy'
                                     path_avg_encs = path_noise + noise_folder + '/'
                                     path_classifier = path_out + str(config_dict['classifier']) + '_sav/'
-                                    path_labels = path_out
-                                    results = RunVisrep.load_classifier_model_load_avg_encs(path_avg_encs, path_classifier,
+                                    results = RunVisrep.load_classifier_model_load_avg_encs(path_avg_encs,
+                                                                                            path_classifier,
                                                                                             path_labels)
                                     results_all[noise_folder] = results
+
                             df = pd.DataFrame.from_dict(results_all)
-                            noise_info_str = '_'.join(config_dict['noise_type']) + '_' + '_'.join(config_dict['noise_perc'])
-                            df.to_csv(path_out + 'noise_' + noise_info_str + m_type + '_' + task + '_' + str(data_size)
-                                      + '.csv')
+                            noise_info_str = '_'.join(config_dict['noise_type'])
+                            df.to_csv(path_out + 'noise_' + config_dict['noise_type'] + '_' + m_type + '_' + task +
+                                      '_' + str(data_size) + '.csv')
                         else:
                             path_avg_encs = path_out + 'test/results/clean/'
                             path_classifier = path_out + config_dict['classifier'] + '_sav/'
