@@ -318,18 +318,17 @@ if __name__ == '__main__':
                                         path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
                                         path_avg_encs = path_noise + noise_folder + '/'
                                         path_classifier = path_out + str(config_dict['classifier']) + '_sav/'
-                                        results = RunVisrep.load_classifier_model_load_avg_encs(path_avg_encs,
-                                                                                                path_classifier,
-                                                                                                path_labels)
+                                        results = RunVisrep.load_classifier_model_word_level(dep_task, path_avg_encs,
+                                                                                             path_classifier,
+                                                                                             path_labels)
                                         results_all[noise_folder] = results
 
                                 elif task == 'sem':
                                     path_labels = path_out + 'test_sem_all_labels_array.npy'
                                     path_avg_encs = path_noise + noise_folder + '/'
                                     path_classifier = path_out + str(config_dict['classifier']) + '_sav/'
-                                    results = RunVisrep.load_classifier_model_load_avg_encs(path_avg_encs,
-                                                                                            path_classifier,
-                                                                                            path_labels)
+                                    results = RunVisrep.load_classifier_model_word_level(task, path_avg_encs,
+                                                                                         path_classifier, path_labels)
                                     results_all[noise_folder] = results
 
                             df = pd.DataFrame.from_dict(results_all)
@@ -348,9 +347,9 @@ if __name__ == '__main__':
                                     path_out_class_report = path_out + config_dict['classifier'] + \
                                                             '_classification_report_' + dep_task + '.txt'
                                     results = RunVisrep.load_classifier_model_word_level(dep_task,
-                                                                                         path_out_class_report,
                                                                                          path_avg_encs,
-                                                                                         path_classifier, path_labels)
+                                                                                         path_classifier, path_labels,
+                                                                                         path_out_class_report)
                                     task_dict[dep_task] = results
                                     # results_all[noise_folder] = results
                                 info_str = config_dict['classifier'] + '_' + m_type + '_dep_f1-scores_norm'
@@ -360,9 +359,9 @@ if __name__ == '__main__':
                                 path_labels = path_out + 'test_sem_all_labels_array.npy'
                                 path_out_class_report = path_out + config_dict['classifier'] + \
                                                         '_classification_report_sem.txt'
-                                results = RunVisrep.load_classifier_model_word_level(task, path_out_class_report,
-                                                                                     path_avg_encs, path_classifier,
-                                                                                     path_labels)
+                                results = RunVisrep.load_classifier_model_word_level(task, path_avg_encs,
+                                                                                     path_classifier, path_labels,
+                                                                                     path_out_class_report)
                                 # results_all[noise_folder] = results
                                 task_dict[task] = results
                                 info_str = config_dict['classifier'] + '_' + m_type + '_sem_f1-scores'

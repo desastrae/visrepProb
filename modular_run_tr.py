@@ -835,8 +835,8 @@ class VisRepEncodings:
         # return df_test, collect_scores
         return collect_scores
 
-    def load_classifier_model_word_level(self, w_task, path_out_class_report, path_avg_encs, path_classifier,
-                                         path_labels):
+    def load_classifier_model_word_level(self, w_task, path_avg_encs, path_classifier,
+                                         path_labels): # , path_out_class_report=None):
         print('Loading trained classifier for word-level evaluation...')
 
         classifier_list = natsorted(next(walk(path_classifier), (None, None, []))[2])
@@ -845,28 +845,28 @@ class VisRepEncodings:
         collect_scores = defaultdict()
         df_labels = np.load(path_labels, allow_pickle=True)
 
-        with open(path_out_class_report, 'w') as out:
-            out.write('Classification Report\n\n')
-            for layer in layer_list:
-                # load the model from disk
-                out.write('\nLayer ' + layer[-1] + '\n')
-                filtered_class_list = list(filter(lambda cla: w_task in cla, classifier_list))
-                classifier_model = path_classifier + [elem for elem in filtered_class_list if layer in elem][0]
-                eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
-                                    allow_pickle=True)
-                loaded_model = pickle.load(open(classifier_model, 'rb'))
-                test_features, test_labels = shuffle(eval_file, df_labels, random_state=42)
+        # with open(path_out_class_report, 'w') as out:
+            # out.write('Classification Report\n\n')
+        for layer in layer_list:
+            # load the model from disk
+            # out.write('\nLayer ' + layer[-1] + '\n')
+            filtered_class_list = list(filter(lambda cla: w_task in cla, classifier_list))
+            classifier_model = path_classifier + [elem for elem in filtered_class_list if layer in elem][0]
+            eval_file = np.load(path_avg_encs + [elem for elem in eval_files_list if layer in elem][0],
+                                allow_pickle=True)
+            loaded_model = pickle.load(open(classifier_model, 'rb'))
+            test_features, test_labels = shuffle(eval_file, df_labels, random_state=42)
 
-                # use model to make predictions on test data
-                y_pred = loaded_model.predict(test_features)
-                class_rep = classification_report(test_labels, y_pred)
-                out.write(class_rep)
+            # use model to make predictions on test data
+            y_pred = loaded_model.predict(test_features)
+            class_rep = classification_report(test_labels, y_pred)
+            # out.write(class_rep)
 
-                collect_scores[layer] = f1_score(test_labels, y_pred, average='macro')
-                # collect_scores[layer] = loaded_model.score(test_features, test_labels)
-                # print(layer, balanced_accuracy_score(test_labels, y_pred))
-                print(layer, f1_score(test_labels, y_pred, average='macro'))
-                print(layer, loaded_model.score(test_features, test_labels))
+            collect_scores[layer] = f1_score(test_labels, y_pred, average='macro')
+            # collect_scores[layer] = loaded_model.score(test_features, test_labels)
+            # print(layer, balanced_accuracy_score(test_labels, y_pred))
+            print(layer, f1_score(test_labels, y_pred, average='macro'))
+            print(layer, loaded_model.score(test_features, test_labels))
 
         # return df_test, collect_scores
         return collect_scores
