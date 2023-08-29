@@ -340,9 +340,9 @@ if __name__ == '__main__':
                             df_f1 = pd.DataFrame.from_dict(results_all_f1)
                             noise_info_str = '_'.join(config_dict['noise_type'])
                             df.to_csv(path_out + 'noise_' + config_dict['noise_type'] + '_' + m_type + '_' + task +
-                                      '_' + str(data_size) + '.csv')
+                                      '_' + str(data_size[0]) + '.csv')
                             df.to_csv(path_out + 'f1_noise_' + config_dict['noise_type'] + '_' + m_type + '_' + task +
-                                      '_' + str(data_size) + '.csv')
+                                      '_' + str(data_size[0]) + '.csv')
                         else:
                             path_avg_encs = path_out + 'test/results/clean/'
                             path_classifier = path_out + config_dict['classifier'] + '_sav/'
