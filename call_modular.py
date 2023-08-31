@@ -315,6 +315,8 @@ if __name__ == '__main__':
                             noise_folder_names = natsorted(next(walk(path_noise),
                                                                 (None, [], None))[1])
                             noise_info_str = '_'.join(config_dict['noise_type'])
+                            noise_dict = defaultdict()
+                            noise_f1_dict = defaultdict()
 
                             if task == 'dep':
                                 for dep_task in ['xpos', 'upos', 'dep'][:1]:
@@ -327,10 +329,12 @@ if __name__ == '__main__':
                                                                                                          path_avg_encs,
                                                                                                          path_classifier,
                                                                                                          path_labels)
-                                    pd.DataFrame(results).to_csv(
+                                        noise_dict[noise_folder] = results
+                                        noise_f1_dict[noise_folder] = results_f1
+                                    pd.DataFrame(noise_dict).to_csv(
                                         path_out + dep_task + '_noise_' + noise_info_str + '_' + m_type + '_' +
                                         task + '_' + str(data_size_list[0]) + '.csv', index=False)
-                                    pd.DataFrame(results_f1).to_csv(
+                                    pd.DataFrame(noise_f1_dict).to_csv(
                                         path_out + dep_task + '_f1_noise_' + noise_info_str + '_' + m_type + '_' +
                                         task + '_' + str(data_size_list[0]) + '.csv', index=False)
 
@@ -343,12 +347,14 @@ if __name__ == '__main__':
                                                                                                      path_avg_encs,
                                                                                                      path_classifier,
                                                                                                      path_labels)
-                                    pd.DataFrame(results).to_csv(
-                                        path_out + 'sem_noise_' + noise_info_str + '_' + m_type + '_' +
-                                        task + '_' + str(data_size_list[0]) + '.csv')
-                                    pd.DataFrame(results_f1).to_csv(
-                                        path_out + 'sem_f1_noise_' + noise_info_str + '_' + m_type + '_' +
-                                        task + '_' + str(data_size_list[0]) + '.csv')
+                                    noise_dict[noise_folder] = results
+                                    noise_f1_dict[noise_folder] = results_f1
+                                pd.DataFrame(noise_dict).to_csv(
+                                    path_out + 'sem_noise_' + noise_info_str + '_' + m_type + '_' +
+                                    task + '_' + str(data_size_list[0]) + '.csv')
+                                pd.DataFrame(noise_f1_dict).to_csv(
+                                    path_out + 'sem_f1_noise_' + noise_info_str + '_' + m_type + '_' +
+                                    task + '_' + str(data_size_list[0]) + '.csv')
 
                         else:
                             path_avg_encs = path_out + 'test/results/clean/'
