@@ -332,10 +332,10 @@ if __name__ == '__main__':
                                         noise_dict[noise_folder] = results
                                         print(noise_dict)
                                         noise_f1_dict[noise_folder] = results_f1
-                                    pd.DataFrame(noise_dict).to_csv(
+                                    pd.DataFrame.from_dict(noise_dict).to_csv(
                                         path_out + dep_task + '_noise_' + noise_info_str + '_' + m_type + '_' +
                                         task + '_' + str(data_size_list[0]) + '.csv', index=False)
-                                    pd.DataFrame(noise_f1_dict).to_csv(
+                                    pd.DataFrame.from_dict(noise_f1_dict).to_csv(
                                         path_out + dep_task + '_f1_noise_' + noise_info_str + '_' + m_type + '_' +
                                         task + '_' + str(data_size_list[0]) + '.csv', index=False)
 
