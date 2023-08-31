@@ -326,10 +326,10 @@ if __name__ == '__main__':
                                                                                                          path_avg_encs,
                                                                                                          path_classifier,
                                                                                                          path_labels)
-                                        pd.DataFrame(results, index=[0]).to_csv(
+                                        pd.DataFrame(results).to_csv(
                                             path_out + dep_task + '_noise_' + noise_info_str + '_' + m_type + '_' +
                                             task + '_' + str(data_size_list[0]) + '.csv')
-                                        pd.DataFrame(results_f1, index=[0]).to_csv(
+                                        pd.DataFrame(results_f1).to_csv(
                                             path_out + dep_task + '_f1_noise_' + noise_info_str + '_' + m_type + '_' +
                                             task + '_' + str(data_size_list[0]) + '.csv')
 
@@ -341,10 +341,10 @@ if __name__ == '__main__':
                                                                                                      path_avg_encs,
                                                                                                      path_classifier,
                                                                                                      path_labels)
-                                    pd.DataFrame(results, index=[0]).to_csv(
+                                    pd.DataFrame(results).to_csv(
                                         path_out + 'sem_noise_' + noise_info_str + '_' + m_type + '_' +
                                         task + '_' + str(data_size_list[0]) + '.csv')
-                                    pd.DataFrame(results_f1, index=[0]).to_csv(
+                                    pd.DataFrame(results_f1).to_csv(
                                         path_out + 'sem_f1_noise_' + noise_info_str + '_' + m_type + '_' +
                                         task + '_' + str(data_size_list[0]) + '.csv')
 
