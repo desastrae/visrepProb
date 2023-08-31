@@ -321,7 +321,7 @@ if __name__ == '__main__':
                             if task == 'dep':
                                 for dep_task in ['xpos', 'upos', 'dep'][:1]:
                                     print(dep_task)
-                                    for noise_folder in noise_folder_names:
+                                    for noise_folder in noise_folder_names[:1]:
                                         path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
                                         path_avg_encs = path_noise + noise_folder + '/'
                                         path_classifier = path_out + str(config_dict['classifier']) + '_sav/'
@@ -330,6 +330,7 @@ if __name__ == '__main__':
                                                                                                          path_classifier,
                                                                                                          path_labels)
                                         noise_dict[noise_folder] = results
+                                        print(noise_dict)
                                         noise_f1_dict[noise_folder] = results_f1
                                     pd.DataFrame(noise_dict).to_csv(
                                         path_out + dep_task + '_noise_' + noise_info_str + '_' + m_type + '_' +
