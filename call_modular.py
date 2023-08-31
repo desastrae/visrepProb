@@ -319,9 +319,9 @@ if __name__ == '__main__':
                             noise_f1_dict = defaultdict()
 
                             if task == 'dep':
-                                for dep_task in ['xpos', 'upos', 'dep'][:1]:
+                                for dep_task in ['xpos', 'upos', 'dep']:
                                     print(dep_task)
-                                    for noise_folder in noise_folder_names[:1]:
+                                    for noise_folder in noise_folder_names:
                                         path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
                                         path_avg_encs = path_noise + noise_folder + '/'
                                         path_classifier = path_out + str(config_dict['classifier']) + '_sav/'
