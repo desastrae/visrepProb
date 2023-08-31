@@ -71,8 +71,8 @@ if __name__ == '__main__':
         create_plots = False  # True
         plot_avg_f_t = False
         plot_v_vs_t = False
-        plot_prob_tasks = True
-        plot_stack_plots = False
+        plot_prob_tasks = False  # True
+        plot_stack_plots = True  # False
         plot_per_layer = False  # True
 
         # TODO: adapt / check if needed; NOT working
@@ -314,9 +314,10 @@ if __name__ == '__main__':
                             # noise_folder_names = natsorted(next(walk(folder_name_path), (None, [], None))[1])
                             noise_folder_names = natsorted(next(walk(path_noise),
                                                                 (None, [], None))[1])
+                            noise_info_str = '_'.join(config_dict['noise_type'])
                             for noise_folder in noise_folder_names:
                                 if task == 'dep':
-                                    for dep_task in ['xpos', 'upos', 'dep']:
+                                    for dep_task in ['xpos', 'upos', 'dep'][:1]:
                                         print(dep_task)
                                         path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
                                         path_avg_encs = path_noise + noise_folder + '/'
@@ -325,26 +326,28 @@ if __name__ == '__main__':
                                                                                                          path_avg_encs,
                                                                                                          path_classifier,
                                                                                                          path_labels)
-                                        results_all[noise_folder] = results
-                                        results_all_f1[noise_folder] = results_f1
+                                        pd.DataFrame.from_dict(results).to_csv(
+                                            path_out + dep_task + '_noise_' + noise_info_str + '_' + m_type + '_' +
+                                            task + '_' + str(data_size_list[0]) + '.csv')
+                                        pd.DataFrame.from_dict(results_f1).to_csv(
+                                            path_out + dep_task + '_f1_noise_' + noise_info_str + '_' + m_type + '_' +
+                                            task + '_' + str(data_size_list[0]) + '.csv')
 
                                 elif task == 'sem':
                                     path_labels = path_out + 'test_sem_all_labels_array.npy'
                                     path_avg_encs = path_noise + noise_folder + '/'
                                     path_classifier = path_out + str(config_dict['classifier']) + '_sav/'
-                                    results, results_f1 = RunVisrep.load_classifier_model_word_level(task, path_avg_encs,
+                                    results, results_f1 = RunVisrep.load_classifier_model_word_level(task,
+                                                                                                     path_avg_encs,
                                                                                                      path_classifier,
                                                                                                      path_labels)
-                                    results_all[noise_folder] = results
-                                    results_all_f1[noise_folder] = results_f1
+                                    pd.DataFrame.from_dict(results).to_csv(
+                                        path_out + 'sem_noise_' + noise_info_str + '_' + m_type + '_' +
+                                        task + '_' + str(data_size_list[0]) + '.csv')
+                                    pd.DataFrame.from_dict(results_f1).to_csv(
+                                        path_out + 'sem_f1_noise_' + noise_info_str + '_' + m_type + '_' +
+                                        task + '_' + str(data_size_list[0]) + '.csv')
 
-                            df = pd.DataFrame.from_dict(results_all)
-                            df_f1 = pd.DataFrame.from_dict(results_all_f1)
-                            noise_info_str = '_'.join(config_dict['noise_type'])
-                            df.to_csv(path_out + 'noise_' + noise_info_str + '_' + m_type + '_' + task +
-                                      '_' + str(data_size_list[0]) + '.csv')
-                            df.to_csv(path_out + 'f1_noise_' + noise_info_str + '_' + m_type + '_' + task +
-                                      '_' + str(data_size_list[0]) + '.csv')
                         else:
                             path_avg_encs = path_out + 'test/results/clean/'
                             path_classifier = path_out + config_dict['classifier'] + '_sav/'
@@ -385,15 +388,16 @@ if __name__ == '__main__':
                                 pd.DataFrame(task_dict_f1).to_csv(path_out + info_str_f1 + '.csv')
 
             if create_plots:
-                if config_dict['config'] != 'noise':
-                    # path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
-                    path_out = path_server_o_lokal + config_dict['data_path_in']
-                    print(path_out)
-                else:
-                    path_out = path_server_o_lokal + config_dict['noise_test_path_out'] + task + '/'
+                # path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
+                path_out = path_server_o_lokal + config_dict['data_path_in']
                 # filenames = natsorted(next(walk(path_out), (None, None, []))[2])
                 get_filenames = next(walk(path_out), (None, None, []))[2]
-                filenames = list(filter(lambda g: 'f1' in g, list(filter(lambda k: '.csv' in k, get_filenames))))
+                all_filenames = list(filter(lambda k: '.csv' in k, get_filenames))
+                f1_filenames = list(filter(lambda g: 'f1' in g, all_filenames))
+                filenames = list(filter(lambda g: 'norm' not in g, f1_filenames))
+                norm_filenames = list(filter(lambda g: 'norm' in g, f1_filenames))
+                print('filenames', filenames)
+
                 print('filenames', filenames)
 
                 print('\n Creating plots...\n')
@@ -418,45 +422,55 @@ if __name__ == '__main__':
                         path_old_scores = path_server_o_lokal + config_dict['data_path_in']
                         file_v_scores = path_old_scores + 'v_prob_tasks_results.csv'
                         file_t_scores = path_old_scores + 't_prob_tasks_results.csv'
-                    elif config_dict['sent_word_prob'] == 'word' and config_dict['tasks_word'][0] == 'dep':
+                    elif config_dict['sent_word_prob'] == 'word':  # and config_dict['tasks_word'][0] == 'dep':
                         # file_v_scores = path_out + config_dict['classifier'] + '_word_v_dep_10000.csv'
                         # file_t_scores = path_out + config_dict['classifier'] + '_word_t_dep_10000.csv'
                         cl_m = config_dict['classifier']
                         file_v_scores = path_out + list(filter(lambda mod: '_v_' in mod, (list(filter(lambda cl:
                                                                                                       cl_m in cl,
-                                                                                           filenames)))))[0]
+                                                                                           norm_filenames)))))[0]
                         file_t_scores = path_out + list(filter(lambda mod: '_t_' in mod, (list(filter(lambda cl:
                                                                                                       cl_m in cl,
-                                                                                           filenames)))))[0]
-
+                                                                                           norm_filenames)))))[0]
+                        # print('filtered list', list(filter(lambda file: 'f1' in file, file_v_scores)))
                     df_v = pd.read_csv(file_v_scores, index_col=0, sep=',')
                     df_t = pd.read_csv(file_t_scores, index_col=0, sep=',')
 
                     print(df_v)
 
-                    line_plot_prob_tasks_v1(df_v, df_t, config_dict['classifier'])
-                    line_plot_prob_tasks_v2(df_v, df_t, config_dict['classifier'])
+                    line_plot_prob_tasks_v1(df_v, df_t, config_dict['classifier'], path_out + config_dict['classifier']
+                                            + '_norm_f1-scores_')
+                    line_plot_prob_tasks_v2(df_v, df_t, config_dict['classifier'], path_out + config_dict['classifier']
+                                            + '_norm_f1-scores_')
 
                 # To-Do: Check this step!
                 train_train_what = False
 
                 # relevant for noise
                 if plot_stack_plots:
-                    for file in filenames:
-                        print('\n Creating plots...\n')
-                        path_old_scores = path_server_o_lokal + config_dict['data_path_in'] + task
-                        file_v_old_scores = path_old_scores + '/v/v_' + task + '_' + str(10000) + '.csv'
-                        file_t_old_scores = path_old_scores + '/t/t_' + task + '_' + str(10000) + '.csv'
+                    if config_dict['sent_word_prob'] == 'sent':
+                        for file in filenames:
+                            print('\n Creating plots...\n')
+                            path_old_scores = path_server_o_lokal + config_dict['data_path_in'] + task
+                            file_v_old_scores = path_old_scores + '/v/v_' + task + '_' + str(10000) + '.csv'
+                            file_t_old_scores = path_old_scores + '/t/t_' + task + '_' + str(10000) + '.csv'
 
-                        # TODO: adpat file names dynamically !
-                        df_v_new = pd.read_csv(path_out + 'noise_v_' + task + '_' + str(10000) + '.csv', index_col=0)
-                        df_t_new = pd.read_csv(path_out + 'noise_t_' + task + '_' + str(10000) + '.csv', index_col=0)
+                            # TODO: adpat file names dynamically !
+                            df_v_new = pd.read_csv(path_out + 'noise_v_' + task + '_' + str(10000) + '.csv', index_col=0)
+                            df_t_new = pd.read_csv(path_out + 'noise_t_' + task + '_' + str(10000) + '.csv', index_col=0)
 
-                        df_v_old = pd.read_csv(file_v_old_scores, index_col=0)
-                        df_t_old = pd.read_csv(file_t_old_scores, index_col=0)
+                            df_v_old = pd.read_csv(file_v_old_scores, index_col=0)
+                            df_t_old = pd.read_csv(file_t_old_scores, index_col=0)
 
-                        # print('df_v_old', df_v_old)
-                        # print('df_t_old', df_t_old)
+                            # print('df_v_old', df_v_old)
+                            # print('df_t_old', df_t_old)
+                    elif config_dict['sent_word_prob'] == 'word':
+                        file_v_scores = path_out + list(filter(lambda k: '_v_' in k, list(filter(lambda g: '10000' in g,
+                                                                                                 all_filenames))))[0]
+                        file_t_scores = path_out + list(filter(lambda k: '_t_' in k, list(filter(lambda g: '10000' in g,
+                                                                                                 all_filenames))))[0]
+                        df_v_no_noise = pd.read_csv(file_v_scores, index_col=0)
+                        df_t_no_noise = pd.read_csv(file_t_scores, index_col=0)
 
                     if train_train_what:
                         train_subj_obj_dict = read_in_pickled_dict(
@@ -466,7 +480,7 @@ if __name__ == '__main__':
                             path_out + 'eval_' + task + '_test_test_raw_sentences.npy')
                         test_subj_obj_dict_sum = sum(test_subj_obj_dict.values())
 
-                    df_header = list(df_t_new.columns)
+                    df_header = list(df_t_no_noise.columns)
                     # print('df_header', df_header)
 
                     if config_dict['config'] == 'subj_obj_data':
@@ -499,7 +513,7 @@ if __name__ == '__main__':
                             elif len(list(df_v_filter.columns)) == 1:
                                 one_plot_old_new(task, path_out_noise, df_v_filter, df_t_filter, df_v_old, df_t_old,
                                                  config_dict)
-                    if config_dict['config'] == 'noise':
+                    if config_dict['config'] == 'noise' and config_dict['sent_word_prob'] == 'sent':
                         for noise_type in config_dict['noise_type']:
                             df_t_filter = df_t_new.filter(regex=noise_type)
                             print(df_t_filter)
@@ -507,6 +521,23 @@ if __name__ == '__main__':
                             path_out_noise = path_out + noise_type + '_'
                             line_plot_per_layer(task, path_out_noise, df_v_filter, df_t_filter, df_v_old, df_t_old,
                                                 config_dict)
+
+                    if config_dict['config'] == 'noise' and config_dict['sent_word_prob'] == 'word':
+                        file_v_noise = path_out + list(filter(lambda k: '_v_' in k, list(filter(lambda g: '10000' in g,
+                                                                                                 all_filenames))))[0]
+                        file_t_noise = path_out + list(filter(lambda k: '_t_' in k, list(filter(lambda g: '10000' in g,
+                                                                                                 all_filenames))))[0]
+                        df_v_noise = pd.read_csv(file_v_noise, index_col=0)
+                        df_t_noise = pd.read_csv(file_t_noise, index_col=0)
+                        print('df_v_noise: ', df_v_noise)
+
+                        for noise_type in config_dict['noise_type']:
+                            df_t_filter = df_t_noise.filter(regex=noise_type)
+                            print(df_t_filter)
+                            df_v_filter = df_v_noise.filter(regex=noise_type)
+                            path_out_noise = path_out + noise_type + '_'
+                            line_plot_per_layer(task, path_out_noise, df_v_filter, df_t_filter, df_v_no_noise,
+                                                df_t_no_noise, config_dict)
                     if config_dict['config'] == 'bleu':
                         df_bleu_noise = pd.read_csv(path_server_o_lokal + config_dict['path_file_bleu_scores'])
                         df_bleu_noise_mttt = pd.read_csv(
