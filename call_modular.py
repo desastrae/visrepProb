@@ -328,10 +328,10 @@ if __name__ == '__main__':
                                                                                                          path_labels)
                                         pd.DataFrame(results).to_csv(
                                             path_out + dep_task + '_noise_' + noise_info_str + '_' + m_type + '_' +
-                                            task + '_' + str(data_size_list[0]) + '.csv')
+                                            task + '_' + str(data_size_list[0]) + '.csv', index=False)
                                         pd.DataFrame(results_f1).to_csv(
                                             path_out + dep_task + '_f1_noise_' + noise_info_str + '_' + m_type + '_' +
-                                            task + '_' + str(data_size_list[0]) + '.csv')
+                                            task + '_' + str(data_size_list[0]) + '.csv', index=False)
 
                                 elif task == 'sem':
                                     path_labels = path_out + 'test_sem_all_labels_array.npy'
