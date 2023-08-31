@@ -57,7 +57,7 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = True
+        classify = True  # False
         # train classifier & create scores for arrays
         classify_arrays = False  # True
         # test results with normalized embeddings
@@ -332,11 +332,13 @@ if __name__ == '__main__':
                                         noise_dict[noise_folder] = results
                                         noise_f1_dict[noise_folder] = results_f1
                                     pd.DataFrame.from_dict(noise_dict).to_csv(
-                                        path_out + dep_task + '_noise_' + noise_info_str + '_' + m_type + '_' +
-                                        task + '_' + str(data_size_list[0]) + '.csv')
+                                        path_out + str(config_dict['classifier']) + '_' + dep_task + '_noise_' +
+                                        noise_info_str + '_' + m_type + '_' + task + '_' + str(data_size_list[0]) +
+                                        '.csv')
                                     pd.DataFrame.from_dict(noise_f1_dict).to_csv(
-                                        path_out + dep_task + '_f1_noise_' + noise_info_str + '_' + m_type + '_' +
-                                        task + '_' + str(data_size_list[0]) + '.csv')
+                                        path_out + str(config_dict['classifier']) + '_' + dep_task + '_f1_noise_' +
+                                        noise_info_str + '_' + m_type + '_' + task + '_' + str(data_size_list[0]) +
+                                        '.csv')
 
                             elif task == 'sem':
                                 noise_dict = defaultdict()
@@ -408,8 +410,6 @@ if __name__ == '__main__':
                 norm_filenames = list(filter(lambda g: 'norm' in g, f1_filenames))
                 print('filenames', filenames)
 
-                print('filenames', filenames)
-
                 print('\n Creating plots...\n')
                 if plot_avg_f_t:
                     for file in filenames:
@@ -425,7 +425,6 @@ if __name__ == '__main__':
                         # layers_list = listdir(folder_name)
 
                         # plot_results_v_vs_t(task, path_out, df_v, df_t, data_size)
-
                 if plot_prob_tasks:
 
                     if config_dict['sent_word_prob'] == 'sent':
@@ -476,9 +475,11 @@ if __name__ == '__main__':
                             # print('df_t_old', df_t_old)
                     elif config_dict['sent_word_prob'] == 'word':
                         file_v_scores = path_out + list(filter(lambda k: '_v_' in k, list(filter(lambda g: '10000' in g,
-                                                                                                 all_filenames))))[0]
+                                                                                                 all_filenames))))
                         file_t_scores = path_out + list(filter(lambda k: '_t_' in k, list(filter(lambda g: '10000' in g,
-                                                                                                 all_filenames))))[0]
+                                                                                                 all_filenames))))
+
+                        print('file_v_scores', file_v_scores)
                         df_v_no_noise = pd.read_csv(file_v_scores, index_col=0)
                         df_t_no_noise = pd.read_csv(file_t_scores, index_col=0)
 
@@ -540,6 +541,8 @@ if __name__ == '__main__':
                         df_v_noise = pd.read_csv(file_v_noise, index_col=0)
                         df_t_noise = pd.read_csv(file_t_noise, index_col=0)
                         print('df_v_noise: ', df_v_noise)
+
+                        break
 
                         for noise_type in config_dict['noise_type']:
                             df_t_filter = df_t_noise.filter(regex=noise_type)
