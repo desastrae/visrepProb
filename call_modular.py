@@ -315,10 +315,11 @@ if __name__ == '__main__':
                             noise_folder_names = natsorted(next(walk(path_noise),
                                                                 (None, [], None))[1])
                             noise_info_str = '_'.join(config_dict['noise_type'])
-                            for noise_folder in noise_folder_names:
-                                if task == 'dep':
-                                    for dep_task in ['xpos', 'upos', 'dep'][:1]:
-                                        print(dep_task)
+
+                            if task == 'dep':
+                                for dep_task in ['xpos', 'upos', 'dep'][:1]:
+                                    print(dep_task)
+                                    for noise_folder in noise_folder_names:
                                         path_labels = path_out + 'test_' + dep_task + '_all_labels_array.npy'
                                         path_avg_encs = path_noise + noise_folder + '/'
                                         path_classifier = path_out + str(config_dict['classifier']) + '_sav/'
@@ -326,14 +327,15 @@ if __name__ == '__main__':
                                                                                                          path_avg_encs,
                                                                                                          path_classifier,
                                                                                                          path_labels)
-                                        pd.DataFrame(results).to_csv(
-                                            path_out + dep_task + '_noise_' + noise_info_str + '_' + m_type + '_' +
-                                            task + '_' + str(data_size_list[0]) + '.csv', index=False)
-                                        pd.DataFrame(results_f1).to_csv(
-                                            path_out + dep_task + '_f1_noise_' + noise_info_str + '_' + m_type + '_' +
-                                            task + '_' + str(data_size_list[0]) + '.csv', index=False)
+                                    pd.DataFrame(results).to_csv(
+                                        path_out + dep_task + '_noise_' + noise_info_str + '_' + m_type + '_' +
+                                        task + '_' + str(data_size_list[0]) + '.csv', index=False)
+                                    pd.DataFrame(results_f1).to_csv(
+                                        path_out + dep_task + '_f1_noise_' + noise_info_str + '_' + m_type + '_' +
+                                        task + '_' + str(data_size_list[0]) + '.csv', index=False)
 
-                                elif task == 'sem':
+                            elif task == 'sem':
+                                for noise_folder in noise_folder_names:
                                     path_labels = path_out + 'test_sem_all_labels_array.npy'
                                     path_avg_encs = path_noise + noise_folder + '/'
                                     path_classifier = path_out + str(config_dict['classifier']) + '_sav/'

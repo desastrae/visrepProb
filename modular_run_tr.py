@@ -870,6 +870,8 @@ class VisRepEncodings:
             print(layer, f1_score(test_labels, y_pred, average='macro'))
             print(layer, loaded_model.score(test_features, test_labels))
 
+        # print(collect_scores)
+
         # return df_test, collect_scores
         return collect_scores, f1_collect_scores
 
