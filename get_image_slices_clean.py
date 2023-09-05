@@ -92,6 +92,7 @@ def get_wordpixels_in_pic_slice(sentence):
     # e.g.: {"Hier": [(0, 1.0), (1, 0.25)], ...]
     # sent_dict = defaultdict()
     sent = sentence.strip()
+    print(sent)
     # sent = "Hier ist eine Katze ."
     sent_list = list()
 
