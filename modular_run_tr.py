@@ -206,7 +206,7 @@ class VisRepEncodings:
         self.make_noise_directories(file_name)
 
         for idx, sent in tqdm(enumerate(batch)):
-            # print('sent: ', sent)
+            print('sent: ', sent)
             translation, layer_dict = self.model.translate(sent)
             # print('translation', translation)
 
