@@ -282,6 +282,24 @@ class VisRepEncodings:
         elif data_name == 'sem':
             self.save_label_data(sem_labels_array, 'sem', tr_or_te)
 
+    def translate_test_save(self, batch, tr_or_te, data_name):
+        print('\n\nTranslating sentences // Creating encodings...\n\n')
+
+        for idx, sent_data in tqdm(enumerate(batch)):
+            data_tuple_list = list(zip(*sent_data))
+
+            sent = ' '.join(data_tuple_list[1])
+            translation, layer_dict = self.model.translate(sent)
+            print('translation', translation)
+
+            if self.m_para == 'v':
+                pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(sent))
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words) #, zipped_data_list[2])
+            elif self.m_para == 't':
+                sent_bpe_list = ref_bpe_word(list(data_tuple_list[1]))
+                # count_sent_bpe_list += len(sent_bpe_list)
+                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list) #, zipped_data_list[2])
+
     def translate_process(self, batch):
         collect_layer_dicts = defaultdict(list)
         collect_idx_sent_dict = defaultdict(list)

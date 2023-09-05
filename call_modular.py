@@ -48,14 +48,14 @@ if __name__ == '__main__':
         create_encodings_test = True
 
         # read in raw data into pd dataframe, write majority class to csv
-        read_raw_data = False
+        read_raw_data = True
         # collect encodings from every layer, save every sentence in single file
         do_translation = True  # False
         # SENT: read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
-        do_avg_tensor = True
+        do_avg_tensor = False  # True
 
         classify = False
         # train classifier & create scores for arrays
@@ -251,9 +251,11 @@ if __name__ == '__main__':
                                 with open(path_in_test + file, 'r', encoding='utf-8') as noise_file:
                                     file_data = noise_file.read().strip().splitlines()
                                     if do_translation:
-                                        RunVisrep.translate_save_noise(file_data, 'test', file_name[0])
+                                        # RunVisrep.translate_save_noise(file_data, 'test', file_name[0])
+                                        RunVisrep.translate_test_save(file_data, 'test', file_name[0])
                                     if do_avg_tensor:
-                                        RunVisrep.read_in_word_level_make_matrix('test', file_name[0])
+                                        pass
+                                        # RunVisrep.read_in_word_level_make_matrix('test', file_name[0])
                                     # if create_encodings_test and do_avg_tensor:
                                     #     RunVisrep.read_in_word_level_make_matrix('test')
 
