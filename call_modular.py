@@ -248,7 +248,7 @@ if __name__ == '__main__':
                             for file in tqdm(noise_type_files):
                                 file_name = file.split('.t')
                                 print(file_name[0])
-                                with open(path_in_test + file, encoding='utf-8') as noise_file:
+                                with open(path_in_test + file) as noise_file:
                                     file_data = noise_file.read().strip().splitlines()
                                     if do_translation:
                                         RunVisrep.translate_save_noise(file_data, 'test', file_name[0])
