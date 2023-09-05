@@ -45,19 +45,19 @@ if __name__ == '__main__':
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
         create_encodings = True
-        create_encodings_test = False
+        create_encodings_test = True
 
         # read in raw data into pd dataframe, write majority class to csv
-        read_raw_data = True  # False
+        read_raw_data = False
         # collect encodings from every layer, save every sentence in single file
-        do_translation = False
+        do_translation = True # False
         # SENT: read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
-        do_avg_tensor = False  # True
+        do_avg_tensor = True
 
-        classify = False
+        classify = True  # False
         # train classifier & create scores for arrays
         classify_arrays = False  # True
         # test results with normalized embeddings
@@ -68,7 +68,7 @@ if __name__ == '__main__':
         saved_classifier = True
 
         # Create Plots
-        create_plots = False # True
+        create_plots = False  # True
         plot_avg_f_t = False
         plot_v_vs_t = False
         plot_prob_tasks = False  # True
