@@ -157,9 +157,10 @@ if __name__ == '__main__':
                         raw_data_test = raw_sem_data[int(len(raw_sem_data) * 0.75):]
 
                         with open('word_level/pmb/sem_raw_test_data.txt', 'w') as f:
-                            for item in raw_data_test:
+                            for sentence in raw_data_test:
                                 # write each item on a new line
-                                f.write("%s\n" % item)
+                                sent_list = list(zip(*sentence))[0]
+                                f.write("%s\n" % ' '.join(sent_list))
                             print('Done')
 
                 for m_type in ('v', 't'):
