@@ -156,7 +156,7 @@ if __name__ == '__main__':
                         raw_data_train = raw_sem_data[0:int(len(raw_sem_data) * 0.75)]
                         raw_data_test = raw_sem_data[int(len(raw_sem_data) * 0.75):]
 
-                        with open('word_level/sem/sem_raw_test_data.txt') as f:
+                        with open('word_level/pmb/sem_raw_test_data.txt', 'w') as f:
                             for item in raw_data_test:
                                 # write each item on a new line
                                 f.write("%s\n" % item)
