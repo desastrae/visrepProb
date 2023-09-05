@@ -53,7 +53,7 @@ def get_mem_val(char_mem, char_dict, char, char_mem_list):
 
 
 def get_pixels_in_word(word, chardict):
-    print('word: ', word)
+    print('word: ', word.strip())
     word_pixels = 0
     for char in word:
         word_pixels += chardict[char]
