@@ -50,14 +50,14 @@ if __name__ == '__main__':
         # read in raw data into pd dataframe, write majority class to csv
         read_raw_data = False
         # collect encodings from every layer, save every sentence in single file
-        do_translation = True # False
+        do_translation = True  # False
         # SENT: read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = True  # False
+        classify = False
         # train classifier & create scores for arrays
         classify_arrays = False  # True
         # test results with normalized embeddings
@@ -232,6 +232,7 @@ if __name__ == '__main__':
                                            + 'noise_data/'
                             path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/' # + m_type # + \
                                        # '/test/'
+                            print('path_in_test: ', path_in_test)
 
                         noise_filenames = natsorted(next(walk(path_in_test), (None, None, []))[2])
 
