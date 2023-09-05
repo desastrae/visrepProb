@@ -289,7 +289,7 @@ class VisRepEncodings:
             data_tuple_list = list(zip(*sent_data))
             print('data_tuple_list', data_tuple_list)
 
-            sent = ' '.join(data_tuple_list[1])
+            sent = ' '.join(data_tuple_list[0])
             translation, layer_dict = self.model.translate(sent)
             print('translation', translation)
 
