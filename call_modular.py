@@ -246,7 +246,7 @@ if __name__ == '__main__':
                                 RunVisrep.make_text_model(m_type)
                             noise_type_files = sorted(filter(lambda file: noise_type in file, noise_filenames))
 
-                            RunVisrep.translate_test_save(raw_data_test, 'test', file_name[0])
+                            RunVisrep.translate_test_save(raw_data_test, 'test', 'test123')
 
                             break
                             for file in tqdm(noise_type_files):
