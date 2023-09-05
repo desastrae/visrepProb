@@ -287,6 +287,7 @@ class VisRepEncodings:
 
         for idx, sent_data in tqdm(enumerate(batch)):
             data_tuple_list = list(zip(*sent_data))
+            print('data_tuple_list', data_tuple_list)
 
             sent = ' '.join(data_tuple_list[1])
             translation, layer_dict = self.model.translate(sent)
