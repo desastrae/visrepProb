@@ -249,7 +249,8 @@ if __name__ == '__main__':
                                 file_name = file.split('.t')
                                 print(file_name[0])
                                 with open(path_in_test + file, 'r', encoding='utf-8') as noise_file:
-                                    file_data = noise_file.read().strip().splitlines()
+                                    # file_data = noise_file.read().strip().splitlines()
+                                    file_data = raw_data_test
                                     if do_translation:
                                         # RunVisrep.translate_save_noise(file_data, 'test', file_name[0])
                                         RunVisrep.translate_test_save(file_data, 'test', file_name[0])
