@@ -45,7 +45,7 @@ if __name__ == '__main__':
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
         create_encodings = True
-        create_encodings_test = True
+        create_encodings_test = False  # True
 
         # read in raw data into pd dataframe, write majority class to csv
         read_raw_data = True
@@ -55,7 +55,7 @@ if __name__ == '__main__':
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
-        do_avg_tensor = False  # True
+        do_avg_tensor = True
 
         classify = False
         # train classifier & create scores for arrays
