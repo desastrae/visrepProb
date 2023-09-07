@@ -355,8 +355,8 @@ class VisRepEncodings:
                     os.mkdir(self.path_save_encs + 'train/layers/' + key + '/')
                     print("self.path_save_encs + 'train/layers/' + key + '/'", self.path_save_encs + 'train/layers/' + key + '/')
                 except OSError as error:
-                    # print(error)
-                    continue
+                    print(error)
+                    # continue
 
         for cl_noi in ['clean/', 'noise/']:
             try:
