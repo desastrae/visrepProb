@@ -49,6 +49,7 @@ def get_train_test_sem(folder, gold_dir): #, silver_dir, bronze_dir):
 
             # for file_dir in data_dir:
             sent_list = list()
+            raw_sent_list = list()
 
             tree = ET.parse(folder + file_dir + '/de.drs.xml')
             root = tree.getroot()
@@ -70,9 +71,9 @@ def get_train_test_sem(folder, gold_dir): #, silver_dir, bronze_dir):
                     # print(node.attrib, node.text)
                     if save_tok != 'ø':
                         sent_list.append((save_tok, node.text))
-
-            txt.write(folder + file_dir + '/de.drs.xml' + '\n' + sent_list + '\n')
+                        raw_sent_list.append(save_tok)
             data_set.append(sent_list)
+            txt.write(folder + file_dir + '/de.drs.xml' + '\n' + ' '.join(raw_sent_list) + '\n')
 
         # if data[2] == 'train':
         #     train_data_list.extend(data_set)
