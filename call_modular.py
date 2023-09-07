@@ -48,9 +48,9 @@ if __name__ == '__main__':
         create_encodings_test = False  # True
 
         # read in raw data into pd dataframe, write majority class to csv
-        read_raw_data = True
+        read_raw_data = False  # True
         # collect encodings from every layer, save every sentence in single file
-        do_translation = True  # False
+        do_translation = False
         # SENT: read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;

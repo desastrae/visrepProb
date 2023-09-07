@@ -550,7 +550,7 @@ class VisRepEncodings:
             else:
                 name_folder_path = folder_name + layer + '/'
                 out_filename = results_name + 'all_word_arrays_matrix_' + layer + '.npy'
-            print(name_folder_path)
+            print('name_folder_path', name_folder_path)
             filenames = natsorted(next(walk(name_folder_path), (None, None, []))[2])
             # print('filenames', filenames)
             first_name_file = filenames.pop(0)
