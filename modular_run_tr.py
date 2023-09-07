@@ -356,8 +356,8 @@ class VisRepEncodings:
                     os.mkdir(self.path_save_encs + 'train/layers/' + key + '/')
                     print("self.path_save_encs + 'train/layers/' + key + '/'", self.path_save_encs + 'train/layers/' + key + '/')
                 except OSError as error:
-                    print(error)
-                    # continue
+                    # print(error)
+                    pass
 
         for cl_noi in ['clean/', 'noise/']:
             try:
@@ -422,6 +422,8 @@ class VisRepEncodings:
                     path_tr_te = 'noise/' + key + '/' + noise_type + '/'
                 elif tr_or_te == 'test' and self.config_dict['config'] != 'noise':
                     path_tr_te = 'clean/' + key + '/'
+                elif tr_or_te == 'rain' and self.config_dict['config'] != 'noise':
+                    path_tr_te = key + '/'
                 else:
                     path_tr_te = ''
                 if word_pic_nums[0] == '/':
