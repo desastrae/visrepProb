@@ -249,7 +249,7 @@ class VisRepEncodings:
             elif data_name == 'sem':
                 sem_labels_array = np.append(sem_labels_array, data_tuple_list[1])
 
-            sent = ' '.join(data_tuple_list[1])
+            sent = ' '.join(data_tuple_list[0])
             translation, layer_dict = self.model.translate(sent)
 
             # print('len(layer_dict[l1])', layer_dict['l1'].shape)
