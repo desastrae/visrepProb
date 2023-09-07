@@ -539,8 +539,6 @@ class VisRepEncodings:
         layers_list = listdir(folder_name)
         # print('layers_list', layers_list)
         # print('self.path_save_encs', self.path_save_encs)
-        print('results_name', results_name)
-        print('folder_name', folder_name)
 
         for layer in tqdm(layers_list):
             # print('layer: ', layer)
@@ -549,6 +547,7 @@ class VisRepEncodings:
                 name_folder_path = folder_name + layer + '/' + noise_type + '/'
                 out_filename = results_name + noise_type + '/' + 'all_word_arrays_matrix_' + layer + '.npy'
             else:
+                print('else')
                 name_folder_path = folder_name + layer + '/'
                 out_filename = results_name + 'all_word_arrays_matrix_' + layer + '.npy'
             print('name_folder_path', name_folder_path)
