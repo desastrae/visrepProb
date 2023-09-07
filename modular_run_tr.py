@@ -544,6 +544,7 @@ class VisRepEncodings:
             # print('layer: ', layer)
             # print(folder_name + layer + '/')
             if self.config_dict['config'] == 'noise':
+                print('if')
                 name_folder_path = folder_name + layer + '/' + noise_type + '/'
                 out_filename = results_name + noise_type + '/' + 'all_word_arrays_matrix_' + layer + '.npy'
             else:
