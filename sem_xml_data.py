@@ -43,35 +43,36 @@ def get_train_test_sem(folder, gold_dir): #, silver_dir, bronze_dir):
     #                                       (gold_dir, (0, 7, 'train'), (7, 10, 'test')),
     #                                       (gold_dir, (0, 7, 'train'), (7, 10, 'test'))):
 
-    for file_dir in gold_dir:
-        # for data in (train_val, test_val):
+    with open('/local/anasbori/visrepProb/find_error.txt', 'w') as txt:
+        for file_dir in gold_dir:
+            # for data in (train_val, test_val):
 
-        # for file_dir in data_dir:
-        sent_list = list()
+            # for file_dir in data_dir:
+            sent_list = list()
 
-        tree = ET.parse(folder + file_dir + '/de.drs.xml')
-        root = tree.getroot()
+            tree = ET.parse(folder + file_dir + '/de.drs.xml')
+            root = tree.getroot()
 
-        save_tok = None
+            save_tok = None
 
-        for node in tree.iter('tag'):
-            # test = str(node.attrib).split('}')
-            test = str(node.attrib)
-            # print(test)
-            # if 'sem' in test[0]:
+            for node in tree.iter('tag'):
+                # test = str(node.attrib).split('}')
+                test = str(node.attrib)
+                # print(test)
+                # if 'sem' in test[0]:
 
-            if 'tok' in test:
-                # print(test[1])
-                # print(node.attrib, node.text)
-                save_tok = node.text
-            if 'sem' in test:
-                # print(test[1])
-                # print(node.attrib, node.text)
-                if save_tok != 'ø':
-                    sent_list.append((save_tok, node.text))
+                if 'tok' in test:
+                    # print(test[1])
+                    # print(node.attrib, node.text)
+                    save_tok = node.text
+                if 'sem' in test:
+                    # print(test[1])
+                    # print(node.attrib, node.text)
+                    if save_tok != 'ø':
+                        sent_list.append((save_tok, node.text))
 
-        print(folder + file_dir + '/de.drs.xml', '\n', sent_list)
-        data_set.append(sent_list)
+            txt.write(folder + file_dir + '/de.drs.xml' + '\n' + sent_list + '\n')
+            data_set.append(sent_list)
 
         # if data[2] == 'train':
         #     train_data_list.extend(data_set)
