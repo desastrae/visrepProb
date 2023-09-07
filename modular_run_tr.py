@@ -539,7 +539,8 @@ class VisRepEncodings:
         layers_list = listdir(folder_name)
         # print('layers_list', layers_list)
         # print('self.path_save_encs', self.path_save_encs)
-        # print('results_name', results_name)
+        print('results_name', results_name)
+        print('folder_name', folder_name)
 
         for layer in tqdm(layers_list):
             # print('layer: ', layer)
