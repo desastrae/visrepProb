@@ -53,7 +53,7 @@ def get_mem_val(char_mem, char_dict, char, char_mem_list):
 
 
 def get_pixels_in_word(word, chardict):
-    print('word: ', word.strip())
+    # print('word: ', word.strip())
     word_pixels = 0
     for char in word:
         word_pixels += chardict[char]
@@ -92,7 +92,7 @@ def get_wordpixels_in_pic_slice(sentence):
     # e.g.: {"Hier": [(0, 1.0), (1, 0.25)], ...]
     # sent_dict = defaultdict()
     sent = sentence.strip()
-    print(sent)
+    # print(sent)
     # sent = "Hier ist eine Katze ."
     sent_list = list()
 
