@@ -347,10 +347,13 @@ class VisRepEncodings:
         #     # print(error)
         #     pass
 
+        print('self.create_layer_path: ', self.create_layer_path)
+
         if self.create_layer_path:
             for key in np_dict.keys():
                 try:
                     os.mkdir(self.path_save_encs + 'train/layers/' + key + '/')
+                    print("self.path_save_encs + 'train/layers/' + key + '/'", self.path_save_encs + 'train/layers/' + key + '/')
                 except OSError as error:
                     # print(error)
                     continue
