@@ -127,8 +127,8 @@ if __name__ == '__main__':
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
 
                 # read in original dataformat, read in & preprocess for translation pipeline...
-                # if read_raw_data and not create_encodings_test:
-                if read_raw_data and create_encodings_test:
+                if read_raw_data and not create_encodings_test:
+                # if read_raw_data and create_encodings_test:
 
                     if config_dict['sent_word_prob'] == 'sent':
                         raw_data_train = RunVisrep.read_in_raw_data(data_size_list[0], 0.75, 'train', 'raw')
