@@ -422,7 +422,7 @@ class VisRepEncodings:
                     path_tr_te = 'noise/' + key + '/' + noise_type + '/'
                 elif tr_or_te == 'test' and self.config_dict['config'] != 'noise':
                     path_tr_te = 'clean/' + key + '/'
-                elif tr_or_te == 'rain' and self.config_dict['config'] != 'noise':
+                elif tr_or_te == 'train' and self.config_dict['config'] != 'noise':
                     path_tr_te = key + '/'
                 else:
                     path_tr_te = ''
