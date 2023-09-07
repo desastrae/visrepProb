@@ -103,7 +103,7 @@ def get_wordpixels_in_pic_slice(sentence):
     # reevaluate start val
     start_val = True
     # list of all words in a sentence, separated by space
-    word_list = sent.split()
+    word_list = sent.split(' ')
     # e.g. for "Hier": [(0, 1.0), (1, 0.25)]
     word_for_dict_list = list()
     # get word from sentence
