@@ -295,11 +295,11 @@ class VisRepEncodings:
 
             if self.m_para == 'v':
                 pic_num_words = get_pic_num_for_word(get_wordpixels_in_pic_slice(sent))
-                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words) #, zipped_data_list[2])
+                # self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, pic_num_words) #, zipped_data_list[2])
             elif self.m_para == 't':
                 sent_bpe_list = ref_bpe_word(list(data_tuple_list[1]))
                 # count_sent_bpe_list += len(sent_bpe_list)
-                self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list) #, zipped_data_list[2])
+                # self.save_word_level_encodings(layer_dict, idx, tr_or_te, data_name, sent_bpe_list) #, zipped_data_list[2])
 
     def translate_process(self, batch):
         collect_layer_dicts = defaultdict(list)
