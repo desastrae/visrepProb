@@ -317,7 +317,8 @@ class VisRepEncodings:
     def make_directories(self, np_dict):
         # print('self.path_save_encs', self.path_save_encs)
         self.all_layers = np_dict.keys()
-        print(self.all_layers, self.all_layers)
+        print('self.all_layers', self.all_layers)
+        print('np_dict.keys()', np_dict.keys())
         data_name = ['train', 'test']
 
         for tr_or_te in data_name:
