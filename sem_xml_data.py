@@ -70,6 +70,7 @@ def get_train_test_sem(folder, gold_dir): #, silver_dir, bronze_dir):
                 if save_tok != 'ø':
                     sent_list.append((save_tok, node.text))
 
+        print(folder + file_dir + '/de.drs.xml', '\n', sent_list)
         data_set.append(sent_list)
 
         # if data[2] == 'train':
