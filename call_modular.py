@@ -57,15 +57,15 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = False
+        classify = True
         # train classifier & create scores for arrays
-        classify_arrays = False  # True
+        classify_arrays = True
         # test results with normalized embeddings
         classify_norm = False  # True
         # check if mean tensors are equal across layers
         sanity_check = False
         # Load saved model; classify test set
-        saved_classifier = True
+        saved_classifier = False  # True
 
         # Create Plots
         create_plots = False  # True
