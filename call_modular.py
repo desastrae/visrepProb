@@ -57,7 +57,7 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = True
+        classify = False  # True
         # train classifier & create scores for arrays
         classify_arrays = True
         # test results with normalized embeddings
@@ -164,7 +164,7 @@ if __name__ == '__main__':
                                 f.write("%s\n" % ' '.join(sent_list))
                             print('Done')
 
-                for m_type in ('v', 't'):
+                for m_type in ('v', 't')[:1]:
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
