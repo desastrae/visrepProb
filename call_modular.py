@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = True
+        create_encodings = False  # True
         create_encodings_test = False  # True
 
         # read in raw data into pd dataframe, write majority class to csv
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
         do_avg_tensor = True
 
-        classify = False  # True
+        classify = True
         # train classifier & create scores for arrays
         classify_arrays = True
         # test results with normalized embeddings
@@ -164,7 +164,7 @@ if __name__ == '__main__':
                                 f.write("%s\n" % ' '.join(sent_list))
                             print('Done')
 
-                for m_type in ('v', 't')[1:]:
+                for m_type in ('v', 't'):
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
@@ -273,7 +273,7 @@ if __name__ == '__main__':
                                    config_dict['UD_path_in'] + config_dict['UD_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
 
-                for m_type in ('v', 't'):
+                for m_type in ('v', 't')[1:]:
                     print('MODEL:', m_type, '\n\n')
                     # RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out + m_type + '/', task)
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
