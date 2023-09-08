@@ -16,8 +16,8 @@ noise_test_path_out: visrepProb/noise/
 noise_type: ['cmabrigde', 'swap', 'l33t']
 UD_path_in: UD_dataset/ # de-utb/
 UD_file: de_gsd-ud-train_clean4.conllu # de-train.tt
-sem_path_in: pmb/pmb-4.0.0/data/de/
-# sem_path_in: pmb/
+# sem_path_in: pmb/pmb-4.0.0/data/de/
+sem_path_in: pmb/
 classifier: mlp # mlp # lr
 xprobe_path_in: xprobe/de/
 xprobe_train_file: tense_tr_out.csv
