@@ -65,7 +65,7 @@ if __name__ == '__main__':
         # check if mean tensors are equal across layers
         sanity_check = False
         # Load saved model; classify test set
-        saved_classifier = False  # True
+        saved_classifier = True
 
         # Create Plots
         create_plots = False  # True
@@ -307,8 +307,8 @@ if __name__ == '__main__':
                     if saved_classifier:
                         # data_size_list = [10000]  # , 1000]
                         data_size_list = config_dict['dataset_size'][:1]
-                        print('data_size_list: ', str(data_size_list[0]))
-                        print(path_out + 'f1_noise_' + m_type + '_' + task + '_' + str(data_size_list[0]) + '.csv')
+                        # print('data_size_list: ', str(data_size_list[0]))
+                        # print(path_out + 'f1_noise_' + m_type + '_' + task + '_' + str(data_size_list[0]) + '.csv')
                         path_in_test = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
                         path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/' + m_type + '/'
 
