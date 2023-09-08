@@ -751,7 +751,7 @@ class VisRepEncodings:
         else:
             test_path = self.path_save_encs + 'test/results/clean/'
         filenames_train = natsorted(next(walk(train_path), (None, None, []))[2])
-        print('filenames_train: ', filenames_train)
+        print('filenames_train: ', filenames_train, 'train_path: ',  train_path)
         # train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
 
         if norm:
