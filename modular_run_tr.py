@@ -867,7 +867,7 @@ class VisRepEncodings:
         print('Loading trained classifier for word-level evaluation...')
 
         classifier_list = natsorted(next(walk(path_classifier), (None, None, []))[2])
-        print('classifier_list: ', classifier_list)
+        print('path_classifier: ', path_classifier)
         eval_files_list = natsorted(filter(lambda k: 'matrix' in k, next(walk(path_avg_encs), (None, None, []))[2]))
         layer_list = [l.split('.')[0].split('_')[-1] for l in eval_files_list]
         collect_scores = defaultdict()
