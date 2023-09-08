@@ -275,7 +275,8 @@ if __name__ == '__main__':
 
                 for m_type in ('v', 't'):
                     print('MODEL:', m_type, '\n\n')
-                    RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out + m_type + '/', task)
+                    # RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out + m_type + '/', task)
+                    RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
