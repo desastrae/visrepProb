@@ -164,7 +164,7 @@ if __name__ == '__main__':
                                 f.write("%s\n" % ' '.join(sent_list))
                             print('Done')
 
-                for m_type in ('v', 't')[:1]:
+                for m_type in ('v', 't'):
 
                     if m_type == 'v':
                         RunVisrep.make_vis_model(m_type)
