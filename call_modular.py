@@ -68,11 +68,11 @@ if __name__ == '__main__':
         saved_classifier = True
 
         # Create Plots
-        create_plots = False  # True
+        create_plots = True
         plot_avg_f_t = False
         plot_v_vs_t = False
-        plot_prob_tasks = False  # True
-        plot_stack_plots = True  # False
+        plot_prob_tasks = True
+        plot_stack_plots = False
         plot_per_layer = False  # True
 
         # TODO: adapt / check if needed; NOT working
@@ -270,7 +270,7 @@ if __name__ == '__main__':
                                    config_dict['UD_path_in'] + config_dict['UD_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
 
-                for m_type in ('v', 't')[:1]:
+                for m_type in ('v', 't'):
                     print('MODEL:', m_type, '\n\n')
                     # RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out + m_type + '/', task)
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
@@ -415,6 +415,12 @@ if __name__ == '__main__':
                 get_filenames = next(walk(path_out), (None, None, []))[2]
                 all_filenames = list(filter(lambda k: '.csv' in k, get_filenames))
                 f1_filenames = list(filter(lambda g: 'f1' in g, all_filenames))
+                not_f1_filenames = list(filter(lambda g: 'f1' not in g, get_filenames))
+                no_norm_filenames = list(filter(lambda g: 'norm' not in g, not_f1_filenames))
+                clean_filenames = list(filter(lambda g: 'noise' not in g, no_norm_filenames))
+                # TODO
+                clean_f1_filenames = list(filter(lambda g: 'noise' not in g, no_norm_filenames))
+                print('clean_filenames', clean_filenames)
                 filenames = list(filter(lambda g: 'norm' not in g, f1_filenames))
                 norm_filenames = list(filter(lambda g: 'norm' in g, f1_filenames))
                 # print('filenames', filenames)
@@ -444,13 +450,25 @@ if __name__ == '__main__':
                         # file_v_scores = path_out + config_dict['classifier'] + '_word_v_dep_10000.csv'
                         # file_t_scores = path_out + config_dict['classifier'] + '_word_t_dep_10000.csv'
                         cl_m = config_dict['classifier']
-                        file_v_scores = path_out + list(filter(lambda mod: '_v_' in mod, (list(filter(lambda cl:
-                                                                                                      cl_m in cl,
-                                                                                           norm_filenames)))))[0]
-                        file_t_scores = path_out + list(filter(lambda mod: '_t_' in mod, (list(filter(lambda cl:
-                                                                                                      cl_m in cl,
-                                                                                           norm_filenames)))))[0]
-                        # print('filtered list', list(filter(lambda file: 'f1' in file, file_v_scores)))
+                        if config_dict['config'] == 'norm':
+                            file_v_scores = path_out + list(filter(lambda mod: '_v_' in mod, list(filter(lambda cl:
+                                                                                                          cl_m in cl,
+                                                                                               norm_filenames))))[0]
+                            file_t_scores = path_out + list(filter(lambda mod: '_t_' in mod, list(filter(lambda cl:
+                                                                                                          cl_m in cl,
+                                                                                               norm_filenames))))[0]
+                        else:
+                            test = path_out + list(filter(lambda mod: '_v_' in mod,
+                                                                               list(filter(lambda cl: cl_m in cl,
+                                                                                           f1_filenames))))[0]
+                            print(test)
+                            file_v_scores = path_out + list(filter(lambda name: not 'noise' in name,
+                                                       list(filter(lambda mod: '_v_' in mod,
+                                                       list(filter(lambda cl: cl_m in cl, f1_filenames))))))[0]
+                            file_t_scores = path_out + list(filter(lambda name: not 'noise' in name,
+                                                       list(filter(lambda mod: '_t_' in mod,
+                                                       list(filter(lambda cl: cl_m in cl, f1_filenames))))))[0]
+                            # print('filtered list', list(filter(lambda file: 'f1' in file, file_v_scores)))
                     df_v = pd.read_csv(file_v_scores, index_col=0, sep=',')
                     df_t = pd.read_csv(file_t_scores, index_col=0, sep=',')
 
@@ -573,11 +591,11 @@ if __name__ == '__main__':
                         df_v_max = df_v_noise.max(numeric_only=True).max()
 
                         # df_max = min(df_t_min - df_min_clean,  df_v_min - df_min_clean)
-                        df_min = max(df_t_max - df_min_clean,  df_v_max - df_min_clean) - 0.2
+                        df_min = max(df_t_max - df_min_clean,  df_v_max - df_min_clean) - 0.3
                         print(df_t_min - df_min_clean,  df_v_min - df_min_clean)
                         print(df_t_max - df_min_clean,  df_v_max - df_min_clean)
                         # df_min = max(df_t_max - df_max_clean, df_v_max - df_max_clean)
-                        df_max = min(df_t_min - df_max_clean, df_v_min - df_max_clean) + 0.19
+                        df_max = min(df_t_min - df_max_clean, df_v_min - df_max_clean)
                         print(df_t_max - df_max_clean, df_v_max - df_max_clean)
                         print(df_t_min - df_max_clean, df_v_min - df_max_clean)
 
@@ -585,7 +603,6 @@ if __name__ == '__main__':
                             df_t_filter = df_t_noise.filter(regex=noise_type)
                             # print(df_t_filter)
                             df_v_filter = df_v_noise.filter(regex=noise_type)
-                            print('df_v_filter', df_v_filter, df_v_noise)
                             path_out_noise = path_out + noise_type + '_'
                             line_plot_per_layer(task, path_out_noise, df_v_filter, df_t_filter, df_v_no_noise,
                                             df_t_no_noise, config_dict, df_min, df_max)
