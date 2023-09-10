@@ -681,7 +681,6 @@ class VisRepEncodings:
             print('task: ', task)
 
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
-            print('filenames_test', filenames_test, test_path)
             train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
             test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
 
@@ -705,8 +704,8 @@ class VisRepEncodings:
                 # print(np.where(np.isnan(test_features)))
 
                 # print(test_labels[100])
-                print('train: ', len(train_features), len(train_labels))
-                print('test: ', len(test_features), len(test_labels))
+                # print('train: ', len(train_features), len(train_labels))
+                # print('test: ', len(test_features), len(test_labels))
 
                 if norm:
                     sc = StandardScaler()
@@ -720,7 +719,7 @@ class VisRepEncodings:
                 # print('collect_scores', collect_scores)
 
                 # use model to make predictions on test data
-                y_pred = mlp_clf.predict(test_features)
+                # y_pred = mlp_clf.predict(test_features)
 
                 # report = classification_report(test_labels, y_pred, output_dict=True)
                 # report_df = pd.DataFrame(report)
@@ -729,9 +728,9 @@ class VisRepEncodings:
                 # file.write('Layer ' + layer + '\n\n')
                 # file.write(dfAsString)
 
-                dummy_clf = DummyClassifier()
-                dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
-                collect_dummy_scores[layer] = dummy_scores.mean()
+                # dummy_clf = DummyClassifier()
+                # dummy_scores = cross_val_score(dummy_clf, train_features, train_labels)
+                # collect_dummy_scores[layer] = dummy_scores.mean()
 
                 # save the model to disk
                 filename = self.path_save + v_or_t + class_path + task + '_' + self.config_dict['sent_word_prob'] + \

@@ -59,13 +59,13 @@ if __name__ == '__main__':
 
         classify = True
         # train classifier & create scores for arrays
-        classify_arrays = True
+        classify_arrays = False  # True
         # test results with normalized embeddings
         classify_norm = False  # True
         # check if mean tensors are equal across layers
         sanity_check = False
         # Load saved model; classify test set
-        saved_classifier = False  # True
+        saved_classifier = True
 
         # Create Plots
         create_plots = False  # True
@@ -270,7 +270,7 @@ if __name__ == '__main__':
                                    config_dict['UD_path_in'] + config_dict['UD_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
 
-                for m_type in ('v', 't'):
+                for m_type in ('v', 't')[:1]:
                     print('MODEL:', m_type, '\n\n')
                     # RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out + m_type + '/', task)
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
@@ -358,6 +358,7 @@ if __name__ == '__main__':
                                                                                                      path_avg_encs,
                                                                                                      path_classifier,
                                                                                                      path_labels)
+                                    print('results\n', results)
                                     noise_dict[noise_folder] = results
                                     noise_f1_dict[noise_folder] = results_f1
                                 pd.DataFrame(noise_dict).to_csv(
@@ -491,7 +492,6 @@ if __name__ == '__main__':
                                                    list(filter(lambda g: '10000' in g, all_filenames))))))))[0]
 
                         df_v_no_noise = pd.read_csv(file_v_scores, index_col=0)
-                        print('df_v_no_noise', df_v_no_noise)
                         df_t_no_noise = pd.read_csv(file_t_scores, index_col=0)
 
                         df_t_min_clean = df_t_no_noise.min(numeric_only=True).min()
@@ -560,8 +560,11 @@ if __name__ == '__main__':
                                                         list(filter(lambda g: '10000' in g, all_filenames))))))))))
                         file_v_noise = path_out + list(filter(lambda k: '_v_' in k, filter_noise_list))[0]
                         file_t_noise = path_out + list(filter(lambda k: '_t_' in k, filter_noise_list))[0]
+                        # print('path t noise', file_t_noise)
                         df_v_noise = pd.read_csv(file_v_noise, index_col=0)
                         df_t_noise = pd.read_csv(file_t_noise, index_col=0)
+
+                        print(file_v_noise, 'df_v_noise', df_v_noise)
 
                         df_t_min = df_t_noise.min(numeric_only=True).min()
                         df_v_min = df_v_noise.min(numeric_only=True).min()
@@ -581,6 +584,7 @@ if __name__ == '__main__':
                             df_t_filter = df_t_noise.filter(regex=noise_type)
                             # print(df_t_filter)
                             df_v_filter = df_v_noise.filter(regex=noise_type)
+                            print('df_v_filter', df_v_filter, df_v_noise)
                             path_out_noise = path_out + noise_type + '_'
                             line_plot_per_layer(task, path_out_noise, df_v_filter, df_t_filter, df_v_no_noise,
                                             df_t_no_noise, config_dict, df_min, df_max)
