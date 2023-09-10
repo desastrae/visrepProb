@@ -678,10 +678,10 @@ class VisRepEncodings:
             task_list = ['sem']
 
         for task in task_list:
-        # for task in ['dep']: # , 'upos', 'dep']:
             print('task: ', task)
 
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
+            print('filenames_test', filenames_test)
             train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
             test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
 
