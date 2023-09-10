@@ -681,7 +681,7 @@ class VisRepEncodings:
             print('task: ', task)
 
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
-            print('filenames_test', filenames_test)
+            print('filenames_test', filenames_test, test_path)
             train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
             test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
 
