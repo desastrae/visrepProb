@@ -358,9 +358,10 @@ if __name__ == '__main__':
                                                                                                      path_avg_encs,
                                                                                                      path_classifier,
                                                                                                      path_labels)
-                                    print('results\n', results)
                                     noise_dict[noise_folder] = results
+                                    print(noise_dict)
                                     noise_f1_dict[noise_folder] = results_f1
+                                print('noise dict\n', noise_dict)
                                 pd.DataFrame(noise_dict).to_csv(
                                     path_out + 'sem_noise_' + noise_info_str + '_' + m_type + '_' +
                                     str(data_size_list[0]) + '.csv')
