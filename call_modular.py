@@ -282,8 +282,9 @@ if __name__ == '__main__':
 
                     if classify_arrays:
                         print('Training Classifier & Evaluating Data...\n')
-                        print('test if...', config_dict['classifier'] == 'mlp', not classify_norm)
+                        print('test if...', config_dict['classifier'] == 'mlp' and not classify_norm)
                         if config_dict['classifier'] == 'mlp' and not classify_norm:
+                            print('In if statement...')
                             results = RunVisrep.mlp_classifier(m_type, data_size_list[0])
                         if config_dict['classifier'] == 'mlp' and classify_norm:
                             print('classify norm mlp...')
