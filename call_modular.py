@@ -44,11 +44,11 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = True
+        create_encodings = False  # True
         create_encodings_test = True
 
         # read in raw data into pd dataframe, write majority class to csv
-        read_raw_data = False # True
+        read_raw_data = False  # True
         # collect encodings from every layer, save every sentence in single file
         do_translation = True  # False
         # SENT: read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
