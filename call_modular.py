@@ -392,6 +392,7 @@ if __name__ == '__main__':
                                 info_str_f1 = config_dict['classifier'] + '_' + m_type + '_dep_f1-scores'
                                 # print(task_dict)
                                 print('info_str: ', path_out + info_str)
+                                print('info_str_f1: ', path_out + info_str_f1)
                                 pd.DataFrame(task_dict).to_csv(path_out + info_str + '.csv')
                                 pd.DataFrame(task_dict_f1).to_csv(path_out + info_str + '.csv')
                             elif task == 'sem':
