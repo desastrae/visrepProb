@@ -472,7 +472,7 @@ if __name__ == '__main__':
                             test = path_out + list(filter(lambda name: not 'noise' in name,
                                                           list(filter(lambda mod: '_v_' in mod,
                                                                       list(filter(lambda cl: cl_m in cl,
-                                                                                  f1_filenames))))))[0]
+                                                                                  clean_filenames))))))[0]
 
                             print(test)
                             file_v_scores = path_out + list(filter(lambda mod: '_v_' in mod,
@@ -480,8 +480,8 @@ if __name__ == '__main__':
                             file_t_scores = path_out + list(filter(lambda mod: '_t_' in mod,
                                                        list(filter(lambda cl: cl_m in cl, clean_filenames))))[0]
                             # print('filtered list', list(filter(lambda file: 'f1' in file, file_v_scores)))
-                    df_v = pd.read_csv(file_v_scores, index_col=0, sep=',')
-                    df_t = pd.read_csv(file_t_scores, index_col=0, sep=',')
+                    df_v = pd.read_csv(file_v_scores, index_col=0, sep=',') #, encoding='unicode_escape', engine='python')
+                    df_t = pd.read_csv(file_t_scores, index_col=0, sep=',') #, encoding='unicode_escape', engine='python')
 
                     print(df_v)
 
