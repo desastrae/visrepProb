@@ -390,7 +390,8 @@ if __name__ == '__main__':
                                     # results_all[noise_folder] = results
                                 info_str = config_dict['classifier'] + '_' + m_type + '_dep'
                                 info_str_f1 = config_dict['classifier'] + '_' + m_type + '_dep_f1-scores'
-                                print(task_dict)
+                                # print(task_dict)
+                                print('info_str: ', path_out + info_str)
                                 pd.DataFrame(task_dict).to_csv(path_out + info_str + '.csv')
                                 pd.DataFrame(task_dict_f1).to_csv(path_out + info_str + '.csv')
                             elif task == 'sem':
@@ -405,7 +406,6 @@ if __name__ == '__main__':
                                 task_dict_f1[task] = results_f1
                                 info_str = config_dict['classifier'] + '_' + m_type + '_sem'
                                 info_str_f1 = config_dict['classifier'] + '_' + m_type + '_sem_f1-scores'
-                                print('info_str: ', path_out + info_str)
                                 pd.DataFrame(task_dict).to_csv(path_out + info_str + '.csv')
                                 pd.DataFrame(task_dict_f1).to_csv(path_out + info_str_f1 + '.csv')
 
