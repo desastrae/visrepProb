@@ -862,7 +862,7 @@ class VisRepEncodings:
         return collect_scores
 
     def load_classifier_model_word_level(self, w_task, path_avg_encs, path_classifier,
-                                         path_labels): # , path_out_class_report=None):
+                                         path_labels):  # , path_out_class_report=None):
         print('Loading trained classifier for word-level evaluation...')
 
         classifier_list = natsorted(next(walk(path_classifier), (None, None, []))[2])
