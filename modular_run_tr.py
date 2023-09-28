@@ -783,8 +783,12 @@ class VisRepEncodings:
             # test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
 
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
-            train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
-            test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
+            # train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
+            # test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
+            train_features = sorted(list(filter(lambda l: 'l5' or 'l6' in l,
+                                                list(filter(lambda k: 'matrix' in k, filenames_train)))))
+            test_features = sorted(list(filter(lambda l: 'l5' or 'l6' in l,
+                                               list(filter(lambda k: 'matrix' in k, filenames_test)))))
 
             collect_scores = defaultdict()
             collect_dummy_scores = defaultdict()
@@ -803,7 +807,7 @@ class VisRepEncodings:
                     train_features = sc.fit_transform(train_features)
                     test_features = sc.transform(test_features)
 
-                lr_clf = LogisticRegression(random_state=42).fit(train_features, train_labels)
+                lr_clf = LogisticRegression(random_state=42, max_iter=10000).fit(train_features, train_labels)
 
                 # print('\n\n' + layer + '_lr_score', lr_clf.score(test_features, test_labels))
                 collect_scores[layer] = lr_clf.score(test_features, test_labels)
@@ -820,7 +824,7 @@ class VisRepEncodings:
 
                 # save the model to disk
                 filename = self.path_save + v_or_t + class_path + task + '_' + self.config_dict['sent_word_prob'] + \
-                           '_' + v_or_t + '_' + layer + '_lr_model_' + str(size) + '.sav'
+                           '_' + v_or_t + '_' + layer + '_lr_model_10kit_' + str(size) + '.sav'
                 pickle.dump(lr_clf, open(filename, 'wb'))
 
             tasks_dict[task] = collect_scores

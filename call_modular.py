@@ -58,17 +58,19 @@ if __name__ == '__main__':
         do_avg_tensor = True
 
         classify = True
+        # classify = False
         # train classifier & create scores for arrays
-        classify_arrays = False  # True
+        classify_arrays = True
         # test results with normalized embeddings
         classify_norm = False  # True
         # check if mean tensors are equal across layers
         sanity_check = False
         # Load saved model; classify test set
-        saved_classifier = True
+        saved_classifier = False  # True
 
         # Create Plots
         create_plots = False  # True
+        # create_plots = True
         plot_avg_f_t = False
         plot_v_vs_t = False
         plot_prob_tasks = True
@@ -270,7 +272,7 @@ if __name__ == '__main__':
                                    config_dict['UD_path_in'] + config_dict['UD_file']
                     path_out = path_server_o_lokal + config_dict['data_path_in'] + task + '/'
 
-                for m_type in ('v', 't'):
+                for m_type in ('v', 't')[:1]:
                     print('MODEL:', m_type, '\n\n')
                     # RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out + m_type + '/', task)
                     RunVisrep = VisRepEncodings(config_dict, path_in_file, path_out, task)
@@ -417,7 +419,8 @@ if __name__ == '__main__':
                 f1_filenames = list(filter(lambda g: 'f1' in g, all_filenames))
                 not_f1_filenames = list(filter(lambda g: 'f1' not in g, get_filenames))
                 no_norm_filenames = list(filter(lambda g: 'norm' not in g, not_f1_filenames))
-                clean_filenames = list(filter(lambda g: 'noise' not in g, no_norm_filenames))
+                almost_clean_filenames = list(filter(lambda g: 'noise' not in g, no_norm_filenames))
+                clean_filenames = list(filter(lambda g: 'csv' in g, almost_clean_filenames))
                 # TODO
                 clean_f1_filenames = list(filter(lambda g: 'noise' not in g, no_norm_filenames))
                 print('clean_filenames', clean_filenames)
@@ -468,26 +471,27 @@ if __name__ == '__main__':
                             file_t_scores = path_out + list(filter(lambda name: not 'noise' in name,
                                                        list(filter(lambda mod: '_t_' in mod,
                                                        list(filter(lambda cl: cl_m in cl, f1_filenames))))))[0]
+                            path_png = path_out + config_dict['classifier'] + '_f1-scores_'
                         else:
-                            test = path_out + list(filter(lambda name: not 'noise' in name,
-                                                          list(filter(lambda mod: '_v_' in mod,
-                                                                      list(filter(lambda cl: cl_m in cl,
-                                                                                  clean_filenames))))))[0]
+                            test = list(filter(lambda mod: '_v_' in mod,
+                                                       list(filter(lambda cl: cl_m in cl, clean_filenames))))
+                            test2 = list(filter(lambda mod: '_t_' in mod,
+                                                          list(filter(lambda cl: cl_m in cl, clean_filenames))))
 
-                            print(test)
+                            print('test', test, 'test2', test2)
                             file_v_scores = path_out + list(filter(lambda mod: '_v_' in mod,
                                                        list(filter(lambda cl: cl_m in cl, clean_filenames))))[0]
                             file_t_scores = path_out + list(filter(lambda mod: '_t_' in mod,
                                                        list(filter(lambda cl: cl_m in cl, clean_filenames))))[0]
+                            path_png = path_out + config_dict['classifier'] + '_'
                             # print('filtered list', list(filter(lambda file: 'f1' in file, file_v_scores)))
                     df_v = pd.read_csv(file_v_scores, index_col=0, sep=',') #, encoding='unicode_escape', engine='python')
                     df_t = pd.read_csv(file_t_scores, index_col=0, sep=',') #, encoding='unicode_escape', engine='python')
 
                     print(df_v)
 
-                    line_plot_prob_tasks_v1(df_v, df_t, config_dict['classifier'], path_out + config_dict['classifier']
-                                            + '_')
-                    line_plot_prob_tasks_v2(df_v, df_t, config_dict['classifier'], path_out + config_dict['classifier']
+                    line_plot_prob_tasks_v1(df_v, df_t, config_dict['classifier'], path_png)
+                    line_plot_prob_tasks_v2(df_v, df_t, config_dict['classifier'], path_png
                                             + '_')
 
                 # To-Do: Check this step!
