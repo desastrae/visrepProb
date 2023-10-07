@@ -60,17 +60,17 @@ if __name__ == '__main__':
         classify = True
         # classify = False
         # train classifier & create scores for arrays
-        classify_arrays = False  # True
+        classify_arrays = True
         # test results with normalized embeddings
         classify_norm = False  # True
         # check if mean tensors are equal across layers
         sanity_check = False
         # Load saved model; classify test set
-        saved_classifier = True
+        saved_classifier = False  # True
 
         # Create Plots
         # create_plots = False  # True
-        create_plots = False  # True
+        create_plots = True
         plot_avg_f_t = False
         plot_v_vs_t = False
         plot_prob_tasks = True

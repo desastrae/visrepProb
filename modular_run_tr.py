@@ -783,9 +783,8 @@ class VisRepEncodings:
             # test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
 
             filenames_test = natsorted(next(walk(test_path), (None, None, []))[2])
-            train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))[4:6]
-            test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))[4:6]
-
+            train_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_train)))
+            test_features = sorted(list(filter(lambda k: 'matrix' in k, filenames_test)))
 
             collect_scores = defaultdict()
             collect_dummy_scores = defaultdict()
