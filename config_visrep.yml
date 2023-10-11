@@ -1,5 +1,5 @@
 sent_word_prob: word # word # sent
-config: noise # noise # test_classifier, train_classifier , subj_obj_data...
+config: moise # noise # test_classifier, train_classifier , subj_obj_data...
 tasks: [subj_number, bigram_shift, subj_number, past_present]
 tasks_word: [sem, dep] #, xpos, upos]
 train_test: [train, test]
