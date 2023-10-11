@@ -68,7 +68,7 @@ if __name__ == '__main__':
         # check if mean tensors are equal across layers
         sanity_check = False
         # Load saved model; classify test set
-        saved_classifier = True
+        saved_classifier = False  # True
 
         # Create Plots
         create_plots = False  # True

@@ -715,7 +715,7 @@ class VisRepEncodings:
                 mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
                 #  print('mlp_clf.predict: ', mlp_clf.predict(test_features[:5, :]))
                 # print('\n\n' + layer + '_mlp_score', mlp_clf.score(test_features, test_labels))
-                collect_scores[layer] = mlp_clf.score(test_features, test_labels)
+                collect_scores[layer] = mlp_clf.score(test_features, test_labels, max_iter=10000)
                 # print('collect_scores', collect_scores)
 
                 # use model to make predictions on test data
@@ -734,7 +734,7 @@ class VisRepEncodings:
 
                 # save the model to disk
                 filename = self.path_save + v_or_t + class_path + task + '_' + self.config_dict['sent_word_prob'] + \
-                           '_' + v_or_t + '_' + layer + '_mlp_model_' + str(size) + '.sav'
+                           '_' + v_or_t + '_' + layer + '_mlp_model_10kit_' + str(size) + '.sav'
                 pickle.dump(mlp_clf, open(filename, 'wb'))
 
             tasks_dict[task] = collect_scores
