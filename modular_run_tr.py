@@ -712,10 +712,10 @@ class VisRepEncodings:
                     train_features = sc.fit_transform(train_features)
                     test_features = sc.transform(test_features)
 
-                mlp_clf = MLPClassifier(random_state=1, max_iter=300).fit(train_features, train_labels)
+                mlp_clf = MLPClassifier(random_state=1, max_iter=10000).fit(train_features, train_labels)
                 #  print('mlp_clf.predict: ', mlp_clf.predict(test_features[:5, :]))
                 # print('\n\n' + layer + '_mlp_score', mlp_clf.score(test_features, test_labels))
-                collect_scores[layer] = mlp_clf.score(test_features, test_labels, max_iter=10000)
+                collect_scores[layer] = mlp_clf.score(test_features, test_labels)
                 # print('collect_scores', collect_scores)
 
                 # use model to make predictions on test data
