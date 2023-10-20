@@ -1,11 +1,12 @@
 sent_word_prob: word # word # sent
 config: moise # noise # test_classifier, train_classifier , subj_obj_data...
-tasks: [subj_number, bigram_shift, subj_number, past_present]
-tasks_word: [sem, dep] #, xpos, upos]
+tasks: [subj_number, bigram_shift, obj_number, past_present]
+tasks_word: [sem], dep, xpos, upos]
 train_test: [train, test]
 server_path: /local/anasbori/
 lokal_path: /home/anastasia/PycharmProjects/
 data_path_in: visrepProb/word_level/ # visrepProb/noise/ # visrepProb/task_encs/
+data_path_in_sent: visrepProb/task_encs/ # visrepProb/noise/ # visrepProb/task_encs/
 noise_test_file_in: test_raw_sentences.npy  #test_raw_sentences.npy
 noise_test_labels_in: test_raw_labels.npy # test_raw_labels.npy
 test_file_out: test_raw_sentences.csv

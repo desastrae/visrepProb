@@ -46,20 +46,20 @@ if __name__ == '__main__':
 
         # Start extraction process:
         # to obtain encodings for text and visual model; create avg np array; classify encodings for probing task.
-        create_encodings = False  # True
-        create_encodings_test = True
+        create_encodings = True
+        create_encodings_test = False  # True
 
         # read in raw data into pd dataframe, write majority class to csv
-        read_raw_data = False  # True
+        read_raw_data = True
         # collect encodings from every layer, save every sentence in single file
-        do_translation = True  # False
+        do_translation = False
         # SENT: read in all sentence encodings for layer n; get mean array for sentence tokens in layer n; save array
         # OR
         # WORD: read in all sentence encodings for layer n; get mean array for word in sentence tokens in layer n;
         # save word-level arrays as matrix; each row is a sentence containing word-level encodings
-        do_avg_tensor = True
+        do_avg_tensor = False  # True
 
-        classify = True
+        classify = False  # True
         # classify = False
         # train classifier & create scores for arrays
         classify_arrays = True
@@ -75,8 +75,9 @@ if __name__ == '__main__':
         # create_plots = True
         plot_avg_f_t = False
         plot_v_vs_t = False
-        plot_prob_tasks = False # True
-        plot_stack_plots = True
+        plot_prob_tasks = True
+        plot_stack_plots = False  # True
+        plot_stack_plots_BLEU = False #  True
         plot_per_layer = False  # True
 
         # TODO: adapt / check if needed; NOT working
@@ -160,6 +161,8 @@ if __name__ == '__main__':
                         raw_sem_data = get_train_test_sem(path_in_file, gold)
                         raw_data_train = raw_sem_data[0:int(len(raw_sem_data) * 0.75)]
                         raw_data_test = raw_sem_data[int(len(raw_sem_data) * 0.75):]
+                        print(len(raw_data_train), len(raw_data_test))
+                        exit()
 
                         with open('word_level/pmb/sem_raw_test_data.txt', 'w') as f:
                             for sentence in raw_data_test:
@@ -428,9 +431,10 @@ if __name__ == '__main__':
                 no_norm_filenames = list(filter(lambda g: 'norm' not in g, not_f1_filenames))
                 almost_clean_filenames = list(filter(lambda g: 'noise' not in g, no_norm_filenames))
                 clean_filenames = list(filter(lambda g: 'csv' in g, almost_clean_filenames))
+                print('clean_filenames', clean_filenames)
                 # TODO
                 clean_f1_filenames = list(filter(lambda g: 'noise' not in g, no_norm_filenames))
-                print('clean_filenames', clean_filenames)
+                # print('clean_filenames', clean_filenames)
                 filenames = list(filter(lambda g: 'norm' not in g, f1_filenames))
                 norm_filenames = list(filter(lambda g: 'norm' in g, f1_filenames))
                 # print('filenames', filenames)
@@ -507,7 +511,7 @@ if __name__ == '__main__':
                 # relevant for noise
                 if plot_stack_plots:
                     print('plot_stack_plots...')
-                    if config_dict['sent_word_prob'] == 'sent':
+                    if config_dict['sent_word_prob'] == 'sent' and config_dict['config'] != 'noise':
                         # print(filenames)
                         # for file in filenames:
                         print('\n Creating plots...\n')
@@ -526,15 +530,15 @@ if __name__ == '__main__':
 
                         # print('df_v_old', df_v_old)
                         # print('df_t_old', df_t_old)
-                    elif config_dict['sent_word_prob'] == 'word':
+                    elif config_dict['sent_word_prob'] == 'word': # and config_dict['config'] != 'noise':
+                        # print('all_filenames', all_filenames)
+                        # print('path_out', path_out)
                         file_v_scores = path_out + list(filter(lambda c: config_dict['classifier'] in c,
-                                                   list(filter(lambda h: 'noise' not in h,
                                                    list(filter(lambda k: '_v_' in k,
-                                                   list(filter(lambda g: '10000' in g, all_filenames))))))))[0]
+                                                               clean_filenames))))[0]
                         file_t_scores = path_out + list(filter(lambda c: config_dict['classifier'] in c,
-                                                   list(filter(lambda h: 'noise' not in h,
                                                    list(filter(lambda k: '_t_' in k,
-                                                   list(filter(lambda g: '10000' in g, all_filenames))))))))[0]
+                                                               clean_filenames))))[0]
 
                         df_v_no_noise = pd.read_csv(file_v_scores, index_col=0)
                         df_t_no_noise = pd.read_csv(file_t_scores, index_col=0)
@@ -603,6 +607,7 @@ if __name__ == '__main__':
                                                         list(filter(lambda c: config_dict['classifier'] in c,
                                                         list(filter(lambda h: 'noise' in h,
                                                         list(filter(lambda g: '10000' in g, all_filenames))))))))))
+                        print(filter_noise_list)
                         file_v_noise = path_out + list(filter(lambda k: '_v_' in k, filter_noise_list))[0]
                         file_t_noise = path_out + list(filter(lambda k: '_t_' in k, filter_noise_list))[0]
                         # print('path t noise', file_t_noise)
@@ -621,17 +626,38 @@ if __name__ == '__main__':
                         print(df_t_min - df_min_clean,  df_v_min - df_min_clean)
                         print(df_t_max - df_min_clean,  df_v_max - df_min_clean)
                         # df_min = max(df_t_max - df_max_clean, df_v_max - df_max_clean)
-                        df_max = min(df_t_min - df_max_clean, df_v_min - df_max_clean)
+                        df_max = min(df_t_min - df_max_clean, df_v_min - df_max_clean) + 0.3
                         print(df_t_max - df_max_clean, df_v_max - df_max_clean)
                         print(df_t_min - df_max_clean, df_v_min - df_max_clean)
 
-                        for noise_type in config_dict['noise_type']:
-                            df_t_filter = df_t_noise.filter(regex=noise_type)
-                            # print(df_t_filter)
-                            df_v_filter = df_v_noise.filter(regex=noise_type)
-                            path_out_noise = path_out + noise_type + '_'
-                            line_plot_per_layer(task, path_out_noise, df_v_filter, df_t_filter, df_v_no_noise,
-                                            df_t_no_noise, config_dict, df_min, df_max)
+                        # for noise_type in config_dict['noise_type']:
+                        #     df_t_filter = df_t_noise.filter(regex=noise_type)
+                        #     # print(df_t_filter)
+                        #     df_v_filter = df_v_noise.filter(regex=noise_type)
+                        #     path_out_noise = path_out + noise_type + '_'
+                        #     line_plot_per_layer(task, path_out_noise, df_v_filter, df_t_filter, df_v_no_noise,
+                        #                     df_t_no_noise, config_dict, df_min, df_max)
+
+                        if plot_stack_plots_BLEU:
+                            print('df_t_no_noise', df_t_no_noise)
+                            df_bleu_noise = pd.read_csv(path_server_o_lokal + config_dict['path_file_bleu_scores'],
+                                                        index_col=0)
+                            df_bleu_noise_mttt = pd.read_csv(
+                                path_server_o_lokal + config_dict['path_file_bleu_scores_mttt'], index_col=0)
+
+                            for noise_type in config_dict['noise_type']:
+                                print('noise_type', noise_type)
+                                df_t_filter = df_t_noise.filter(regex=noise_type)
+                                # print('df_t_filter', df_t_filter)
+                                df_v_filter = df_v_noise.filter(regex=noise_type)
+                                df_bleu_filter = df_bleu_noise.filter(regex=noise_type)
+                                df_bleu_filter_mttt = df_bleu_noise_mttt.filter(regex=noise_type)
+                                # print('df bleu \n', df_bleu_filter)
+                                path_out_noise = path_out + noise_type + '_'
+                                bleu_line_plot_per_layer(task, path_out_noise, df_v_filter, df_t_filter, config_dict,
+                                                         df_bleu_filter, df_bleu_filter_mttt, noise_type,
+                                                         df_v_no_noise[task],
+                                                         df_t_no_noise[task])
                     if config_dict['config'] == 'bleu':
                         df_bleu_noise = pd.read_csv(path_server_o_lokal + config_dict['path_file_bleu_scores'],
                                                     index_col=0)
@@ -639,6 +665,7 @@ if __name__ == '__main__':
                             path_server_o_lokal + config_dict['path_file_bleu_scores_mttt'], index_col=0)
 
                         for noise_type in config_dict['noise_type']:
+                            print('noise_type', noise_type)
                             df_t_filter = df_t_new.filter(regex=noise_type)
                             print('df_t_filter', df_t_filter)
                             df_v_filter = df_v_new.filter(regex=noise_type)
