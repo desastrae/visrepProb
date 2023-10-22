@@ -12,14 +12,16 @@ import seaborn as sns
 print(mpl.style.available)
 
 
-def apply_relative_change_task(clean_file, noise_file, word_sent):
+def apply_relative_change_task(task, clean_file, noise_file, word_sent):
     clean_df = pd.read_csv(clean_file, index_col=0)
     noise_df = pd.read_csv(noise_file, index_col=0)
 
     if word_sent == 'word':
-        w_s_clean = clean_df['dep']
+        # w_s_clean = clean_df['dep']
+        w_s_clean = clean_df[task]
     elif word_sent == 'sent':
-        w_s_clean = clean_df['past_present']
+        # w_s_clean = clean_df['past_present']
+        w_s_clean = clean_df[task]
     # print(clean_df.loc['l1'])
     # print(noise_df.loc['l1'])
     layers = list(clean_df.index)
@@ -204,7 +206,7 @@ if __name__ == '__main__':
         bleu_rel_change_WMT_df = relative_change_bleu(bleu_corr_path + WMT_bleu_file, m_type_list)
         bleu_rel_change_MTTT_df = relative_change_bleu(bleu_corr_path + MTTT_bleu_file, m_type_list)
 
-        for w_s in ['word', 'sent'][:1]:
+        for w_s in ['word', 'sent']:
             for clas in ['lr', 'mlp']:
                 if w_s == 'word':
                     task_list = config_dict['tasks_word']
@@ -231,12 +233,12 @@ if __name__ == '__main__':
                     print(task)
                     t_noise_file = list(filter(lambda w: task in w, filter(lambda noise: 'noise' in noise,
                                                                            t_mtype_files)))[0]
-                    t_rel_change_df = apply_relative_change_task(bleu_corr_path_w_s + t_clean_file,
+                    t_rel_change_df = apply_relative_change_task(task, bleu_corr_path_w_s + t_clean_file,
                                                                  bleu_corr_path_w_s + t_noise_file, w_s)
                     v_clean_file = list(filter(lambda clean: 'noise' not in clean, v_mtype_files))[0]
                     v_noise_file = list(filter(lambda w: task in w, filter(lambda noise: 'noise' in noise,
                                                                            v_mtype_files)))[0]
-                    v_rel_change_df = apply_relative_change_task(bleu_corr_path_w_s + v_clean_file,
+                    v_rel_change_df = apply_relative_change_task(task, bleu_corr_path_w_s + v_clean_file,
                                                                  bleu_corr_path_w_s + v_noise_file, w_s)
 
                     for noise in noise_types_list:
