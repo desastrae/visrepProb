@@ -65,7 +65,7 @@ def read_in_pickled_dict(data_pickled):
         return data
 
 
-def plot_results_pie(enc_task, data_dict, path_save, filename):  # , maj_cl_val):
+def plot_results_pie(enc_task, data_dict, path_save, filename, test_train):  # , maj_cl_val):
     # wasn't able to extract normalized Layer for text-model; temporary fix, drop normalized layer for v_model
     # data_dict_v.drop(data_dict_v.tail(1).index, inplace=True)
     sorted_data_dict = dict(sorted(data_dict.items(), key=lambda x: x[1], reverse=True))
@@ -73,7 +73,12 @@ def plot_results_pie(enc_task, data_dict, path_save, filename):  # , maj_cl_val)
     labels = list(sorted_data_dict.keys())
     results = list(sorted_data_dict.values())
 
-    fig1 = plt.figure(figsize=(10, 10))
+    # fig1 = plt.figure(figsize=(10, 10))
+    fig1 = plt.figure(figsize=(13.8, 9.6))
+    # Set the axes title font size
+    plt.rc('axes', titlesize=22)
+    # Set the font size of the figure title
+    plt.rc('figure', titlesize=25)
     ax1 = fig1.subplots()
     ax1.pie(results, startangle=90)
     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
@@ -86,10 +91,14 @@ def plot_results_pie(enc_task, data_dict, path_save, filename):  # , maj_cl_val)
         bbox_to_anchor=(0.81, 0.5),
         # bbox_transform=fig1.transFigure
     )
-    plt.title('Data evaluation of task ' + enc_task)
+    if test_train == 'train':
+        plt.title('Data evaluation of task ' + enc_task + '\n Train set')
+    elif test_train == 'test':
+        plt.title('Data evaluation of task ' + enc_task + '\n Test set')
     plt.tight_layout()
-    plt.show()
-    # plt.savefig(path_save + 'eval_' + enc_task + '_' + filename + '.png')
+    # plt.show()
+    print(path_save + test_train + '_eval_' + enc_task + '_' + filename + '.png')
+    plt.savefig(path_save + test_train + '_eval_' + enc_task + '_' + filename + '.png')
 
     plt.close()
 
@@ -171,7 +180,8 @@ if __name__ == '__main__':
             # pickled_dict = read_in_pickled_dict(file_path_out + 'eval_' + task + '_' + train_test + '_' + file_name)
             pickled_dict = read_in_pickled_dict(file_path + 'eval_' + task + '_' + train_test + '_' + file_name)
 
-            plot_results_pie(task, pickled_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/', file_name)
+            plot_results_pie(task, pickled_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/', file_name,
+                             train_test)
             # plot_results_o_s_pie(task, pickled_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/', file_name,
             #                      train_test)
 
@@ -179,7 +189,7 @@ if __name__ == '__main__':
             # eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/subj_number/subjnum_out_clean_uniq.csv')
             # save_dict_to_file('/local/anasbori/visrepProb/task_encs/subj_number/', 'SUBJ', eval_str_dict)
             # plot_results_pie('SUBJ', eval_dict, '/local/anasbori/visrepProb/task_encs/')
-            # plot_results_pie('SUBJ', eval_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/')
+            # plot_results_pie('SUBJ', eval_dict, '/home/anastasia/PycharmProjects/visrepProb/task_encs/', file_name)
 
             ''' OBJ '''
             # eval_dict, eval_str_dict = eval_distribution('/local/anasbori/xprobe/de/obj_number/objnum_out_uniq.csv')
